@@ -11,6 +11,7 @@ exposes RESTful API tools for CARA agents.
 from __future__ import annotations
 
 import json
+from collections import Counter
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, AsyncIterator, Literal
@@ -113,6 +114,39 @@ def load_database() -> None:
     consumers = {consumer.consumer_id: consumer for consumer in consumer_records}
 
 
+def build_preference_vector(consumer: ConsumerProfile) -> dict[str, Any]:
+    """Derive compact preference features from profile and purchase history."""
+    purchased_product_ids = set(consumer.purchase_history)
+    purchased_products = [
+        product
+        for product in products
+        if product.product_id in purchased_product_ids
+    ]
+    style_counts = Counter(product.style_type for product in purchased_products)
+    top_style = (
+        style_counts.most_common(1)[0][0]
+        if style_counts
+        else consumer.preference_style
+    )
+    historical_prices = [product.price for product in purchased_products]
+    average_historical_spend = (
+        round(sum(historical_prices) / len(historical_prices), 2)
+        if historical_prices
+        else None
+    )
+    maximum_historical_spend = max(historical_prices) if historical_prices else None
+
+    return {
+        "preference_style": consumer.preference_style,
+        "budget_level": consumer.budget_level,
+        "top_style": top_style,
+        "average_historical_spend": average_historical_spend,
+        "maximum_historical_spend": maximum_historical_spend,
+        "ctr": consumer.ctr,
+        "brainfry_score": consumer.brainfry_score,
+    }
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """Initialize the in-memory JSON database when the FastAPI server starts."""
@@ -156,18 +190,11 @@ def get_consumer_history(consumer_id: str) -> ConsumerHistoryResponse:
             detail=f"Consumer not found: {consumer_id}",
         )
 
-    preference_vector: dict[str, Any] = {
-        "preference_style": consumer.preference_style,
-        "budget_level": consumer.budget_level,
-        "ctr": consumer.ctr,
-        "brainfry_score": consumer.brainfry_score,
-    }
-
     return ConsumerHistoryResponse(
         consumer_id=consumer.consumer_id,
         purchase_history=consumer.purchase_history,
         session_behavior=consumer.session_behavior,
-        preference_vector=preference_vector,
+        preference_vector=build_preference_vector(consumer),
     )
 
 

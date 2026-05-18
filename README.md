@@ -9,6 +9,8 @@ CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저�
 | File | Description |
 | --- | --- |
 | `generate_synthetic_dataset.py` | 상품/소비자 mock data를 생성하는 Python 스크립트 |
+| `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
+| `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
 | `products.json` | 상품 카탈로그 데이터 200개 |
 | `consumers.json` | 소비자 프로필 및 세션 행동 데이터 50명 |
 
@@ -149,3 +151,49 @@ python generate_synthetic_dataset.py
 - `consumers.json`
 
 현재 스크립트는 `RANDOM_SEED = 42`를 사용하므로 동일한 환경에서는 재현 가능한 데이터셋을 생성합니다.
+
+## Tool Use Module
+
+FastAPI 서버를 실행합니다.
+
+```bash
+python main.py
+```
+
+주요 엔드포인트는 다음과 같습니다.
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /consumers/{consumer_id}/history` | 소비자 구매 이력, 세션 행동, 선호 벡터 조회 |
+| `GET /products/search` | 키워드 및 필터 기반 상품 후보군 검색 |
+| `GET /products/trending` | 리뷰 수 기준 인기 상품 Top 20 조회 |
+
+`/consumers/{consumer_id}/history` 응답의 `preference_vector`에는 Planner Agent가 사용하는 `top_style`, `average_historical_spend`, `maximum_historical_spend`, `brainfry_score`가 포함됩니다.
+
+## Planner Agent
+
+Planner Agent는 FastAPI Tool Use Module의 `get_consumer_history` 도구를 호출한 뒤, 다음 순서로 Executor Agent에 전달할 추천 계획을 생성합니다.
+
+1. 소비자 프로필 및 구매 이력 조회
+2. 현재 세션 기반 BrainFry score 계산
+3. 이전 세션 BrainFry score와 비교해 더 큰 값 선택
+4. 예산 상한선 추론
+5. 스타일 선호도 추론
+
+실행 예시는 다음과 같습니다.
+
+```bash
+python planner_agent.py
+```
+
+반환되는 plan 딕셔너리 예시는 다음과 같습니다.
+
+```json
+{
+  "consumer_id": "C0001",
+  "budget_ceiling": 1414000,
+  "preferred_style": "design",
+  "brainfry_level": "MID",
+  "brainfry_score": 0.62
+}
+```
