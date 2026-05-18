@@ -11,6 +11,7 @@ CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저�
 | `generate_synthetic_dataset.py` | 상품/소비자 mock data를 생성하는 Python 스크립트 |
 | `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
 | `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
+| `executor_agent.py` | 후보 상품 검색과 RAG 기반 재정렬을 수행하는 Executor Agent |
 | `products.json` | 상품 카탈로그 데이터 200개 |
 | `consumers.json` | 소비자 프로필 및 세션 행동 데이터 50명 |
 
@@ -191,9 +192,57 @@ python planner_agent.py
 ```json
 {
   "consumer_id": "C0001",
+  "query": "dumbbells",
   "budget_ceiling": 1414000,
   "preferred_style": "design",
+  "top_category": "electronics",
+  "avg_spend": 752666.67,
   "brainfry_level": "MID",
   "brainfry_score": 0.62
+}
+```
+
+## Executor Agent
+
+Executor Agent는 Planner Agent가 반환한 plan 딕셔너리를 입력으로 받아 상품 후보군을 생성하고, RAG score를 계산해 Top-5 상품을 반환합니다.
+
+실행 예시는 다음과 같습니다.
+
+```bash
+python executor_agent.py
+```
+
+처리 단계는 다음과 같습니다.
+
+1. `search_products` 도구를 호출해 `query`, `budget_ceiling`, `preferred_style` 기반 후보군 생성
+2. 후보군이 3개 미만이면 `get_trending_products` 도구로 fallback 후보군 확보
+3. 각 상품에 RAG score 계산
+4. 점수 내림차순 정렬 후 Top-5 반환
+
+RAG score 공식은 다음과 같습니다.
+
+```text
+RAG_score = 10*S + 20*delta_cat + 15*delta_style
+            + 10*exp(-abs(delta_price) / avg_price) + 3*rating
+```
+
+반환 예시는 다음과 같습니다.
+
+```json
+{
+  "consumer_id": "C0001",
+  "query": "dumbbells",
+  "fallback_used": false,
+  "candidate_count": 4,
+  "top_5": [
+    {
+      "product_id": "P0170",
+      "name": "Dumbbells 0170",
+      "price": 811000,
+      "style_type": "design",
+      "rating": 4.1,
+      "RAG_score": 46.5542
+    }
+  ]
 }
 ```

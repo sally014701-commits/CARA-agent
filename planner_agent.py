@@ -39,6 +39,7 @@ class SessionInput:
 class UserIntent:
     """Explicit user constraints extracted from conversation, if present."""
 
+    query: str = ""
     explicit_budget: int | None = None
     explicit_style: StyleType | None = None
 
@@ -104,7 +105,8 @@ class PlannerAgent:
 
         Returns:
             A Python dictionary containing budget_ceiling, preferred_style,
-            brainfry_level, and brainfry_score, plus lightweight trace metadata.
+            brainfry_level, brainfry_score, query, top_category, avg_spend,
+            and lightweight trace metadata.
         """
         intent = user_intent or UserIntent()
 
@@ -130,8 +132,11 @@ class PlannerAgent:
 
         return {
             "consumer_id": consumer_id,
+            "query": intent.query,
             "budget_ceiling": budget_ceiling,
             "preferred_style": preferred_style,
+            "top_category": preference_vector.get("top_category"),
+            "avg_spend": preference_vector.get("average_historical_spend"),
             "brainfry_level": brainfry_level,
             "brainfry_score": round(brainfry_score, 4),
             "trace": {
@@ -238,6 +243,7 @@ def main() -> None:
             ctr=0.28,
         ),
         user_intent=UserIntent(
+            query="dumbbells",
             explicit_budget=None,
             explicit_style=None,
         ),

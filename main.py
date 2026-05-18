@@ -128,6 +128,12 @@ def build_preference_vector(consumer: ConsumerProfile) -> dict[str, Any]:
         if style_counts
         else consumer.preference_style
     )
+    category_counts = Counter(product.category for product in purchased_products)
+    top_category = (
+        category_counts.most_common(1)[0][0]
+        if category_counts
+        else None
+    )
     historical_prices = [product.price for product in purchased_products]
     average_historical_spend = (
         round(sum(historical_prices) / len(historical_prices), 2)
@@ -140,6 +146,7 @@ def build_preference_vector(consumer: ConsumerProfile) -> dict[str, Any]:
         "preference_style": consumer.preference_style,
         "budget_level": consumer.budget_level,
         "top_style": top_style,
+        "top_category": top_category,
         "average_historical_spend": average_historical_spend,
         "maximum_historical_spend": maximum_historical_spend,
         "ctr": consumer.ctr,
