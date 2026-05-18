@@ -514,6 +514,34 @@ select:focus,input:focus{border-color:var(--accent)}
 
 /* ── MISC ── */
 .hidden{display:none!important}
+
+/* getdesign stripe-inspired layer */
+body{
+  color:#0d253d;
+  font-feature-settings:"ss01";
+}
+.hero{
+  background:
+    radial-gradient(circle at 12% 5%, rgba(245,233,212,.95), transparent 32%),
+    radial-gradient(circle at 34% 10%, rgba(232,160,32,.34), transparent 28%),
+    radial-gradient(circle at 63% 4%, rgba(83,58,253,.34), transparent 30%),
+    radial-gradient(circle at 88% 8%, rgba(234,34,97,.22), transparent 30%),
+    #1c1e54;
+  color:#fff;
+}
+.nav-search-btn,.btn-primary,.btn-yes,.chat-bubble,.chat-send{
+  background:#533afd;
+  border-radius:9999px;
+}
+.nav-search-btn:hover,.btn-primary:hover,.btn-yes:hover,.chat-send:hover{
+  background:#2e2b8c;
+}
+.btn-sm,.btn-no,.toggle-btn,.adjust-toggle,.cat-chip{
+  border-radius:9999px;
+}
+.pcard-price,.d-price,.stat-val,.trace-metric strong,.results-count{
+  font-feature-settings:"tnum";
+}
 .section-sep{height:1rem}
 </style>
 </head>
@@ -1781,6 +1809,9 @@ function openDrawer(p){
 }
 
 function closeDrawer(){
+  closeActivePage();
+  activePage = { type: 'home', id: 'home', startedAt: Date.now() };
+  updateTrackingPanel();
   document.getElementById('drawerOverlay').classList.remove('open');
   document.getElementById('drawer').classList.remove('open');
 }
@@ -2548,6 +2579,7 @@ function readTracking(){
 
 function writeTracking(data){
   sessionStorage.setItem(CARA_TRACK_KEY, JSON.stringify(data));
+  updateTrackingPanel();
 }
 
 function closeActivePage(){
@@ -2566,6 +2598,7 @@ function closeActivePage(){
 function startTrackedPage(type, id){
   closeActivePage();
   activePage = { type, id: String(id || type), startedAt: Date.now() };
+  updateTrackingPanel();
 }
 
 function recordImpression(productId){
@@ -2575,6 +2608,7 @@ function recordImpression(productId){
     data.impressions.push(productId);
     writeTracking(data);
   }
+  updateTrackingPanel();
 }
 
 function recordClick(productId){
@@ -2582,6 +2616,7 @@ function recordClick(productId){
   const data = readTracking();
   data.clicks.push({ product_id: productId, clicked_at: new Date().toISOString() });
   writeTracking(data);
+  updateTrackingPanel();
 }
 
 function variance(values){
@@ -2603,6 +2638,19 @@ function getSessionData(){
     dwell_variance: +variance(dwellValues).toFixed(4),
     ctr: impressionCount ? +(clickCount / impressionCount).toFixed(4) : 0
   };
+}
+
+function updateTrackingPanel(){
+  const info = document.getElementById('sessionInfo');
+  if(!info) return;
+  const session = getSessionData();
+  const data = readTracking();
+  const currentDwell = Math.max(0.1, (Date.now() - activePage.startedAt) / 1000);
+  info.style.display = 'block';
+  info.innerHTML =
+    `Live tracking<br>` +
+    `n=${session.n} · variance=${session.dwell_variance.toFixed(2)} · CTR=${session.ctr}<br>` +
+    `impressions=${new Set(data.impressions).size} · clicks=${new Set(data.clicks.map(click => click.product_id)).size} · dwell=${currentDwell.toFixed(1)}s`;
 }
 
 function setupObserver(){
@@ -2634,10 +2682,59 @@ function formatCat(category){
   return String(category || '').replace(/-/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
+function productSeed(value){
+  return String(value || 'cara').split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+}
+
+function escapeSvgText(value){
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&apos;'
+  })[char]);
+}
+
+function productImageUrl(product, id, name){
+  const category = product.category || product.item_type || 'ecommerce product';
+  const seed = productSeed(id);
+  const hue = seed % 360;
+  const title = escapeSvgText(name);
+  const subtitle = escapeSvgText(formatCat(category));
+  const icon = category.includes('beauty') ? 'M230 150h60l16 230h-92l16-230z M220 118h80v40h-80z'
+    : category.includes('fashion') ? 'M130 315c70 20 165 20 250 0l35 42c-93 44-228 43-320-2l35-40z'
+    : category.includes('sports') ? 'M150 255h220v50H150z M115 240h35v80h-35z M370 240h35v80h-35z'
+    : category.includes('home') ? 'M160 170h200v165H160z M205 335h110v50H205z'
+    : 'M145 145h230v170H145z M190 335h140v30H190z';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="520" height="520" viewBox="0 0 520 520">
+    <defs>
+      <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="hsl(${hue},78%,94%)"/>
+        <stop offset=".55" stop-color="#ffffff"/>
+        <stop offset="1" stop-color="hsl(${(hue + 58) % 360},80%,88%)"/>
+      </linearGradient>
+      <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#003770" flood-opacity=".15"/>
+      </filter>
+    </defs>
+    <rect width="520" height="520" fill="url(#bg)"/>
+    <circle cx="410" cy="105" r="92" fill="#533afd" opacity=".14"/>
+    <circle cx="116" cy="116" r="74" fill="#ea2261" opacity=".12"/>
+    <rect x="76" y="82" width="368" height="356" rx="28" fill="#fff" filter="url(#shadow)"/>
+    <path d="${icon}" fill="#1c1e54" opacity=".88"/>
+    <path d="${icon}" fill="none" stroke="#533afd" stroke-width="7" opacity=".22"/>
+    <text x="260" y="424" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700" fill="#0d253d">${title}</text>
+    <text x="260" y="454" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" fill="#64748d">${subtitle}</text>
+  </svg>`;
+  return `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+}
+
 function normalizeProduct(product){
   const id = product.product_id || product.id || product.name;
   const name = product.name || product.title || 'CARA Product';
   const style = product.style_type || product.style || product.styleType || 'practical';
+  const thumbnail = product.thumbnail || product.image || productImageUrl(product, id, name);
   return {
     ...product,
     id,
@@ -2651,6 +2748,8 @@ function normalizeProduct(product){
     category: product.category || product.item_type || 'CARA pick',
     brand: product.brand || product.item_type || 'CARA',
     stock: product.review_count || 0,
+    thumbnail,
+    images: Array.isArray(product.images) && product.images.length ? product.images : [thumbnail],
     description: product.description || `CARA RAG score: ${product.RAG_score ?? 'N/A'}`
   };
 }
@@ -3134,6 +3233,8 @@ window.addEventListener('beforeunload', closeActivePage);
 document.addEventListener('DOMContentLoaded', () => {
   setConfirmButtons();
   setupObserver();
+  updateTrackingPanel();
+  setInterval(updateTrackingPanel, 1000);
   initCatalog();
 });
 </script>
