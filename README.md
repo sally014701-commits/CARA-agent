@@ -12,6 +12,7 @@ CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저�
 | `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
 | `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
 | `executor_agent.py` | 후보 상품 검색과 RAG 기반 재정렬을 수행하는 Executor Agent |
+| `critic_agent.py` | 최종 추천 후보를 검증하고 자가 수정하는 Critic Agent |
 | `products.json` | 상품 카탈로그 데이터 200개 |
 | `consumers.json` | 소비자 프로필 및 세션 행동 데이터 50명 |
 
@@ -244,5 +245,46 @@ RAG_score = 10*S + 20*delta_cat + 15*delta_style
       "RAG_score": 46.5542
     }
   ]
+}
+```
+
+## Critic Agent
+
+Critic Agent는 Planner의 plan 딕셔너리와 Executor의 후보군 결과를 입력으로 받아 결정론적 규칙 기반 Reflexion을 수행합니다.
+
+실행 예시는 다음과 같습니다.
+
+```bash
+python critic_agent.py
+```
+
+검사 및 수정 규칙은 다음과 같습니다.
+
+1. `Budget Compliance`: `budget_ceiling`을 초과한 상품 제거
+2. `Style Diversity`: 모든 상품이 동일 스타일이면 예비 풀에서 반대 스타일 상품 1개 주입
+3. `Rating Quality`: 평점 3.8 미만 상품 제거
+4. `Minimum Count Guarantee`: 후보가 3개 미만이면 예산을 20% 완화하고 후보 복구
+
+위 규칙은 최대 2회 반복됩니다. 2회 이후에도 후보가 부족하면, 최소 3개 보장을 위해 평점 기준을 만족하는 예비 후보를 결정론적으로 백필하고 로그에 기록합니다.
+
+반환 예시는 다음과 같습니다.
+
+```json
+{
+  "consumer_id": "C0001",
+  "final_recommendations": [
+    {
+      "product_id": "P0004",
+      "name": "Smartphones 0004",
+      "price": 442000,
+      "style_type": "design",
+      "rating": 4.6,
+      "RAG_score": 55.4182
+    }
+  ],
+  "mean_rating_score": 4.4667,
+  "critique_issues": [],
+  "correction_iterations": 2,
+  "final_budget_ceiling": 144000
 }
 ```

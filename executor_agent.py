@@ -166,6 +166,7 @@ class ExecutorAgent:
             "fallback_used": fallback_used,
             "candidate_count": len(candidates),
             "top_5": reranked_products[:5],
+            "ranked_candidates": reranked_products,
         }
 
     @staticmethod
