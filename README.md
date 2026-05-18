@@ -9,6 +9,7 @@ CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저�
 | File | Description |
 | --- | --- |
 | `generate_synthetic_dataset.py` | 상품/소비자 mock data를 생성하는 Python 스크립트 |
+| `generate_product_images.py` | 일관된 흰 배경 상품 PNG 카탈로그 에셋 생성기 |
 | `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
 | `CARA.html` | CARA 라이브 추천 흐름을 호출하는 이커머스 프론트엔드 |
 | `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
@@ -154,6 +155,25 @@ python generate_synthetic_dataset.py
 - `consumers.json`
 
 현재 스크립트는 `RANDOM_SEED = 42`를 사용하므로 동일한 환경에서는 재현 가능한 데이터셋을 생성합니다.
+
+## Product Image Pipeline
+
+상품 이미지는 `generate_product_images.py`로 생성합니다.
+
+```bash
+python generate_product_images.py
+```
+
+출력 위치는 `assets/products/{product_id}.png`입니다.
+
+이미지 생성 규칙:
+
+- 순백색 배경
+- 중앙 정렬된 단일 상품
+- 제품 아래의 아주 부드러운 그림자만 허용
+- 동일 item type은 같은 기본 형태와 비율 유지
+- SKU 변형은 색상, 소재감, 작은 포인트만 변경
+- 텍스트, UI 프레임, 배경 카드, 장식 오브젝트, 컬러 배경 미사용
 
 ## Tool Use Module
 
