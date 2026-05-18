@@ -1,0 +1,2002 @@
+[
+  {
+    "product_id": "P0172",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0172",
+    "price": 1483000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 175
+  },
+  {
+    "product_id": "P0173",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0173",
+    "price": 942000,
+    "style_type": "practical",
+    "rating": 4.5,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0081",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0081",
+    "price": 249000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 20
+  },
+  {
+    "product_id": "P0199",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0199",
+    "price": 182000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 69
+  },
+  {
+    "product_id": "P0163",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0163",
+    "price": 671000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0180",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0180",
+    "price": 897000,
+    "style_type": "practical",
+    "rating": 4.9,
+    "review_count": 34
+  },
+  {
+    "product_id": "P0031",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0031",
+    "price": 696000,
+    "style_type": "practical",
+    "rating": 4.0,
+    "review_count": 31
+  },
+  {
+    "product_id": "P0074",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0074",
+    "price": 750000,
+    "style_type": "practical",
+    "rating": 4.5,
+    "review_count": 23
+  },
+  {
+    "product_id": "P0035",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0035",
+    "price": 230000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 66
+  },
+  {
+    "product_id": "P0198",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0198",
+    "price": 689000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0125",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0125",
+    "price": 1222000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 63
+  },
+  {
+    "product_id": "P0159",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0159",
+    "price": 1324000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0079",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0079",
+    "price": 353000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 250
+  },
+  {
+    "product_id": "P0164",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0164",
+    "price": 1487000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0050",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0050",
+    "price": 1039000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 27
+  },
+  {
+    "product_id": "P0042",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0042",
+    "price": 1339000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0004",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0004",
+    "price": 442000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 52
+  },
+  {
+    "product_id": "P0009",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0009",
+    "price": 657000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 33
+  },
+  {
+    "product_id": "P0112",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0112",
+    "price": 1160000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 23
+  },
+  {
+    "product_id": "P0010",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0010",
+    "price": 650000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0069",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0069",
+    "price": 1225000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 58
+  },
+  {
+    "product_id": "P0021",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0021",
+    "price": 260000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 16
+  },
+  {
+    "product_id": "P0187",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0187",
+    "price": 561000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0183",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0183",
+    "price": 700000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0127",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0127",
+    "price": 163000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 31
+  },
+  {
+    "product_id": "P0025",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0025",
+    "price": 356000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0123",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0123",
+    "price": 1095000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0015",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0015",
+    "price": 608000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 388
+  },
+  {
+    "product_id": "P0087",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0087",
+    "price": 24000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 22
+  },
+  {
+    "product_id": "P0102",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0102",
+    "price": 296000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0029",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0029",
+    "price": 999000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 84
+  },
+  {
+    "product_id": "P0066",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0066",
+    "price": 80000,
+    "style_type": "practical",
+    "rating": 3.8,
+    "review_count": 120
+  },
+  {
+    "product_id": "P0193",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0193",
+    "price": 993000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0111",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0111",
+    "price": 1331000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 17
+  },
+  {
+    "product_id": "P0200",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0200",
+    "price": 605000,
+    "style_type": "design",
+    "rating": 3.5,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0065",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0065",
+    "price": 1086000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 53
+  },
+  {
+    "product_id": "P0160",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0160",
+    "price": 1049000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0046",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0046",
+    "price": 165000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0041",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0041",
+    "price": 897000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 68
+  },
+  {
+    "product_id": "P0106",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0106",
+    "price": 1370000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0033",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0033",
+    "price": 1309000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 221
+  },
+  {
+    "product_id": "P0027",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0027",
+    "price": 1484000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0062",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0062",
+    "price": 890000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0107",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0107",
+    "price": 1414000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0091",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0091",
+    "price": 817000,
+    "style_type": "practical",
+    "rating": 4.5,
+    "review_count": 21
+  },
+  {
+    "product_id": "P0073",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0073",
+    "price": 831000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0094",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0094",
+    "price": 51000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0001",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0001",
+    "price": 633000,
+    "style_type": "practical",
+    "rating": 4.0,
+    "review_count": 45
+  },
+  {
+    "product_id": "P0113",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0113",
+    "price": 300000,
+    "style_type": "design",
+    "rating": 4.7,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0178",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0178",
+    "price": 1310000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 52
+  },
+  {
+    "product_id": "P0138",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0138",
+    "price": 575000,
+    "style_type": "design",
+    "rating": 5.0,
+    "review_count": 43
+  },
+  {
+    "product_id": "P0006",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0006",
+    "price": 64000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 140
+  },
+  {
+    "product_id": "P0152",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0152",
+    "price": 504000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 40
+  },
+  {
+    "product_id": "P0082",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0082",
+    "price": 941000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0108",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0108",
+    "price": 1003000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0135",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0135",
+    "price": 234000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 37
+  },
+  {
+    "product_id": "P0089",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0089",
+    "price": 794000,
+    "style_type": "practical",
+    "rating": 5.0,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0099",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0099",
+    "price": 820000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 45
+  },
+  {
+    "product_id": "P0103",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0103",
+    "price": 505000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 22
+  },
+  {
+    "product_id": "P0153",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0153",
+    "price": 276000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0040",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0040",
+    "price": 288000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 24
+  },
+  {
+    "product_id": "P0092",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0092",
+    "price": 1425000,
+    "style_type": "practical",
+    "rating": 4.5,
+    "review_count": 32
+  },
+  {
+    "product_id": "P0064",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0064",
+    "price": 511000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 113
+  },
+  {
+    "product_id": "P0014",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0014",
+    "price": 1379000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 24
+  },
+  {
+    "product_id": "P0118",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0118",
+    "price": 747000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 60
+  },
+  {
+    "product_id": "P0174",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0174",
+    "price": 1157000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0110",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0110",
+    "price": 353000,
+    "style_type": "design",
+    "rating": 4.0,
+    "review_count": 26
+  },
+  {
+    "product_id": "P0076",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0076",
+    "price": 85000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 24
+  },
+  {
+    "product_id": "P0147",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0147",
+    "price": 23000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 43
+  },
+  {
+    "product_id": "P0002",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0002",
+    "price": 1057000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 41
+  },
+  {
+    "product_id": "P0023",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0023",
+    "price": 1295000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 63
+  },
+  {
+    "product_id": "P0022",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0022",
+    "price": 436000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 80
+  },
+  {
+    "product_id": "P0184",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0184",
+    "price": 1106000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0072",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0072",
+    "price": 1385000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0192",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0192",
+    "price": 485000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0013",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0013",
+    "price": 266000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 20
+  },
+  {
+    "product_id": "P0114",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0114",
+    "price": 1354000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 22
+  },
+  {
+    "product_id": "P0080",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0080",
+    "price": 344000,
+    "style_type": "design",
+    "rating": 3.8,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0038",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0038",
+    "price": 1135000,
+    "style_type": "practical",
+    "rating": 3.5,
+    "review_count": 25
+  },
+  {
+    "product_id": "P0003",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0003",
+    "price": 1333000,
+    "style_type": "design",
+    "rating": 3.8,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0085",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0085",
+    "price": 1037000,
+    "style_type": "practical",
+    "rating": 4.9,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0101",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0101",
+    "price": 44000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 17
+  },
+  {
+    "product_id": "P0139",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0139",
+    "price": 1313000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 26
+  },
+  {
+    "product_id": "P0061",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0061",
+    "price": 1310000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 47
+  },
+  {
+    "product_id": "P0098",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0098",
+    "price": 839000,
+    "style_type": "design",
+    "rating": 4.7,
+    "review_count": 44
+  },
+  {
+    "product_id": "P0052",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0052",
+    "price": 487000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 21
+  },
+  {
+    "product_id": "P0128",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0128",
+    "price": 598000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 48
+  },
+  {
+    "product_id": "P0017",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0017",
+    "price": 863000,
+    "style_type": "practical",
+    "rating": 4.4,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0045",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0045",
+    "price": 628000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0109",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0109",
+    "price": 52000,
+    "style_type": "practical",
+    "rating": 4.4,
+    "review_count": 99
+  },
+  {
+    "product_id": "P0058",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0058",
+    "price": 1082000,
+    "style_type": "design",
+    "rating": 4.7,
+    "review_count": 21
+  },
+  {
+    "product_id": "P0097",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0097",
+    "price": 984000,
+    "style_type": "design",
+    "rating": 3.5,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0191",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0191",
+    "price": 573000,
+    "style_type": "practical",
+    "rating": 4.7,
+    "review_count": 47
+  },
+  {
+    "product_id": "P0133",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0133",
+    "price": 711000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 33
+  },
+  {
+    "product_id": "P0134",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0134",
+    "price": 515000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0012",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0012",
+    "price": 275000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 23
+  },
+  {
+    "product_id": "P0030",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0030",
+    "price": 631000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0032",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0032",
+    "price": 380000,
+    "style_type": "practical",
+    "rating": 3.7,
+    "review_count": 24
+  },
+  {
+    "product_id": "P0044",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0044",
+    "price": 1398000,
+    "style_type": "design",
+    "rating": 5.0,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0105",
+    "category": "home living",
+    "item_type": "pillows",
+    "name": "Pillows 0105",
+    "price": 981000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 5000
+  },
+  {
+    "product_id": "P0008",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0008",
+    "price": 1136000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 27
+  },
+  {
+    "product_id": "P0056",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0056",
+    "price": 859000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0126",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0126",
+    "price": 1391000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0115",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0115",
+    "price": 346000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 35
+  },
+  {
+    "product_id": "P0175",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0175",
+    "price": 97000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 170
+  },
+  {
+    "product_id": "P0167",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0167",
+    "price": 393000,
+    "style_type": "practical",
+    "rating": 3.7,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0140",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0140",
+    "price": 53000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 45
+  },
+  {
+    "product_id": "P0057",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0057",
+    "price": 877000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 10
+  },
+  {
+    "product_id": "P0197",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0197",
+    "price": 1396000,
+    "style_type": "practical",
+    "rating": 4.4,
+    "review_count": 617
+  },
+  {
+    "product_id": "P0024",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0024",
+    "price": 41000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0034",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0034",
+    "price": 1042000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 20
+  },
+  {
+    "product_id": "P0155",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0155",
+    "price": 267000,
+    "style_type": "design",
+    "rating": 4.0,
+    "review_count": 73
+  },
+  {
+    "product_id": "P0154",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0154",
+    "price": 865000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 105
+  },
+  {
+    "product_id": "P0095",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0095",
+    "price": 1121000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0063",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0063",
+    "price": 1242000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 139
+  },
+  {
+    "product_id": "P0060",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0060",
+    "price": 156000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 250
+  },
+  {
+    "product_id": "P0005",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0005",
+    "price": 918000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0190",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0190",
+    "price": 101000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 88
+  },
+  {
+    "product_id": "P0077",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0077",
+    "price": 801000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 40
+  },
+  {
+    "product_id": "P0137",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0137",
+    "price": 386000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0132",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0132",
+    "price": 710000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0149",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0149",
+    "price": 256000,
+    "style_type": "design",
+    "rating": 4.7,
+    "review_count": 10
+  },
+  {
+    "product_id": "P0026",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0026",
+    "price": 1194000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 40
+  },
+  {
+    "product_id": "P0096",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0096",
+    "price": 597000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 41
+  },
+  {
+    "product_id": "P0143",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0143",
+    "price": 1339000,
+    "style_type": "practical",
+    "rating": 3.8,
+    "review_count": 60
+  },
+  {
+    "product_id": "P0146",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0146",
+    "price": 343000,
+    "style_type": "design",
+    "rating": 5.0,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0122",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0122",
+    "price": 1295000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 49
+  },
+  {
+    "product_id": "P0048",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0048",
+    "price": 301000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0188",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0188",
+    "price": 652000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 107
+  },
+  {
+    "product_id": "P0142",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0142",
+    "price": 1219000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 94
+  },
+  {
+    "product_id": "P0156",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0156",
+    "price": 1175000,
+    "style_type": "practical",
+    "rating": 3.8,
+    "review_count": 149
+  },
+  {
+    "product_id": "P0148",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0148",
+    "price": 1212000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0100",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0100",
+    "price": 1289000,
+    "style_type": "practical",
+    "rating": 4.9,
+    "review_count": 28
+  },
+  {
+    "product_id": "P0049",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0049",
+    "price": 1351000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0037",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0037",
+    "price": 1123000,
+    "style_type": "practical",
+    "rating": 4.4,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0141",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0141",
+    "price": 1035000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 28
+  },
+  {
+    "product_id": "P0007",
+    "category": "electronics",
+    "item_type": "smartphones",
+    "name": "Smartphones 0007",
+    "price": 12000,
+    "style_type": "design",
+    "rating": 4.9,
+    "review_count": 74
+  },
+  {
+    "product_id": "P0055",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0055",
+    "price": 308000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 20
+  },
+  {
+    "product_id": "P0169",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0169",
+    "price": 329000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 88
+  },
+  {
+    "product_id": "P0136",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0136",
+    "price": 1110000,
+    "style_type": "practical",
+    "rating": 4.5,
+    "review_count": 16
+  },
+  {
+    "product_id": "P0053",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0053",
+    "price": 883000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 25
+  },
+  {
+    "product_id": "P0157",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0157",
+    "price": 748000,
+    "style_type": "practical",
+    "rating": 3.8,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0075",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0075",
+    "price": 1426000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0162",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0162",
+    "price": 477000,
+    "style_type": "practical",
+    "rating": 4.9,
+    "review_count": 16
+  },
+  {
+    "product_id": "P0171",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0171",
+    "price": 1255000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 149
+  },
+  {
+    "product_id": "P0144",
+    "category": "beauty",
+    "item_type": "serums",
+    "name": "Serums 0144",
+    "price": 966000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 20
+  },
+  {
+    "product_id": "P0116",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0116",
+    "price": 637000,
+    "style_type": "design",
+    "rating": 4.0,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0150",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0150",
+    "price": 209000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 21
+  },
+  {
+    "product_id": "P0018",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0018",
+    "price": 568000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 23
+  },
+  {
+    "product_id": "P0170",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0170",
+    "price": 811000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 28
+  },
+  {
+    "product_id": "P0019",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0019",
+    "price": 645000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0036",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0036",
+    "price": 1145000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 110
+  },
+  {
+    "product_id": "P0071",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0071",
+    "price": 1439000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 105
+  },
+  {
+    "product_id": "P0151",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0151",
+    "price": 9000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0145",
+    "category": "beauty",
+    "item_type": "lip balms",
+    "name": "Lip Balms 0145",
+    "price": 378000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 37
+  },
+  {
+    "product_id": "P0067",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0067",
+    "price": 563000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 50
+  },
+  {
+    "product_id": "P0165",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0165",
+    "price": 1332000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 28
+  },
+  {
+    "product_id": "P0181",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0181",
+    "price": 435000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 28
+  },
+  {
+    "product_id": "P0179",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0179",
+    "price": 47000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0166",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0166",
+    "price": 535000,
+    "style_type": "design",
+    "rating": 4.3,
+    "review_count": 14
+  },
+  {
+    "product_id": "P0120",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0120",
+    "price": 318000,
+    "style_type": "design",
+    "rating": 3.8,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0039",
+    "category": "electronics",
+    "item_type": "smartwatches",
+    "name": "Smartwatches 0039",
+    "price": 895000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 27
+  },
+  {
+    "product_id": "P0011",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0011",
+    "price": 1493000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 25
+  },
+  {
+    "product_id": "P0043",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0043",
+    "price": 836000,
+    "style_type": "practical",
+    "rating": 4.0,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0083",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0083",
+    "price": 1371000,
+    "style_type": "design",
+    "rating": 4.7,
+    "review_count": 11
+  },
+  {
+    "product_id": "P0196",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0196",
+    "price": 190000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 10
+  },
+  {
+    "product_id": "P0121",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0121",
+    "price": 1076000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 22
+  },
+  {
+    "product_id": "P0176",
+    "category": "sports equipment",
+    "item_type": "dumbbells",
+    "name": "Dumbbells 0176",
+    "price": 371000,
+    "style_type": "practical",
+    "rating": 4.6,
+    "review_count": 116
+  },
+  {
+    "product_id": "P0131",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0131",
+    "price": 923000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0124",
+    "category": "beauty",
+    "item_type": "moisturizers",
+    "name": "Moisturizers 0124",
+    "price": 1270000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 752
+  },
+  {
+    "product_id": "P0104",
+    "category": "home living",
+    "item_type": "coffee makers",
+    "name": "Coffee Makers 0104",
+    "price": 607000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 40
+  },
+  {
+    "product_id": "P0182",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0182",
+    "price": 1434000,
+    "style_type": "design",
+    "rating": 4.6,
+    "review_count": 69
+  },
+  {
+    "product_id": "P0054",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0054",
+    "price": 1135000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 32
+  },
+  {
+    "product_id": "P0161",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0161",
+    "price": 981000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 23
+  },
+  {
+    "product_id": "P0129",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0129",
+    "price": 740000,
+    "style_type": "design",
+    "rating": 4.8,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0084",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0084",
+    "price": 949000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0086",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0086",
+    "price": 880000,
+    "style_type": "design",
+    "rating": 4.1,
+    "review_count": 30
+  },
+  {
+    "product_id": "P0093",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0093",
+    "price": 42000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 15
+  },
+  {
+    "product_id": "P0088",
+    "category": "home living",
+    "item_type": "desk lamps",
+    "name": "Desk Lamps 0088",
+    "price": 658000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 153
+  },
+  {
+    "product_id": "P0177",
+    "category": "sports equipment",
+    "item_type": "running shoes",
+    "name": "Running Shoes 0177",
+    "price": 280000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 389
+  },
+  {
+    "product_id": "P0068",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0068",
+    "price": 356000,
+    "style_type": "practical",
+    "rating": 4.0,
+    "review_count": 27
+  },
+  {
+    "product_id": "P0051",
+    "category": "fashion",
+    "item_type": "jackets",
+    "name": "Jackets 0051",
+    "price": 1243000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0020",
+    "category": "electronics",
+    "item_type": "earbuds",
+    "name": "Earbuds 0020",
+    "price": 558000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 37
+  },
+  {
+    "product_id": "P0158",
+    "category": "beauty",
+    "item_type": "shampoos",
+    "name": "Shampoos 0158",
+    "price": 1087000,
+    "style_type": "design",
+    "rating": 3.6,
+    "review_count": 19
+  },
+  {
+    "product_id": "P0016",
+    "category": "electronics",
+    "item_type": "laptops",
+    "name": "Laptops 0016",
+    "price": 1479000,
+    "style_type": "practical",
+    "rating": 3.8,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0194",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0194",
+    "price": 690000,
+    "style_type": "practical",
+    "rating": 4.3,
+    "review_count": 76
+  },
+  {
+    "product_id": "P0195",
+    "category": "sports equipment",
+    "item_type": "resistance bands",
+    "name": "Resistance Bands 0195",
+    "price": 480000,
+    "style_type": "practical",
+    "rating": 4.1,
+    "review_count": 250
+  },
+  {
+    "product_id": "P0028",
+    "category": "electronics",
+    "item_type": "tablets",
+    "name": "Tablets 0028",
+    "price": 82000,
+    "style_type": "practical",
+    "rating": 4.8,
+    "review_count": 16
+  },
+  {
+    "product_id": "P0130",
+    "category": "beauty",
+    "item_type": "sunscreens",
+    "name": "Sunscreens 0130",
+    "price": 110000,
+    "style_type": "design",
+    "rating": 4.2,
+    "review_count": 77
+  },
+  {
+    "product_id": "P0117",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0117",
+    "price": 436000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 49
+  },
+  {
+    "product_id": "P0189",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0189",
+    "price": 318000,
+    "style_type": "design",
+    "rating": 3.8,
+    "review_count": 145
+  },
+  {
+    "product_id": "P0070",
+    "category": "fashion",
+    "item_type": "dresses",
+    "name": "Dresses 0070",
+    "price": 1205000,
+    "style_type": "practical",
+    "rating": 4.4,
+    "review_count": 35
+  },
+  {
+    "product_id": "P0047",
+    "category": "fashion",
+    "item_type": "sneakers",
+    "name": "Sneakers 0047",
+    "price": 106000,
+    "style_type": "design",
+    "rating": 3.7,
+    "review_count": 18
+  },
+  {
+    "product_id": "P0078",
+    "category": "fashion",
+    "item_type": "bags",
+    "name": "Bags 0078",
+    "price": 633000,
+    "style_type": "practical",
+    "rating": 3.6,
+    "review_count": 78
+  },
+  {
+    "product_id": "P0090",
+    "category": "home living",
+    "item_type": "air purifiers",
+    "name": "Air Purifiers 0090",
+    "price": 264000,
+    "style_type": "practical",
+    "rating": 3.9,
+    "review_count": 16
+  },
+  {
+    "product_id": "P0186",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0186",
+    "price": 967000,
+    "style_type": "design",
+    "rating": 3.9,
+    "review_count": 12
+  },
+  {
+    "product_id": "P0119",
+    "category": "home living",
+    "item_type": "storage boxes",
+    "name": "Storage Boxes 0119",
+    "price": 784000,
+    "style_type": "practical",
+    "rating": 4.2,
+    "review_count": 13
+  },
+  {
+    "product_id": "P0185",
+    "category": "sports equipment",
+    "item_type": "water bottles",
+    "name": "Water Bottles 0185",
+    "price": 697000,
+    "style_type": "design",
+    "rating": 4.5,
+    "review_count": 30
+  },
+  {
+    "product_id": "P0059",
+    "category": "fashion",
+    "item_type": "jeans",
+    "name": "Jeans 0059",
+    "price": 939000,
+    "style_type": "design",
+    "rating": 4.4,
+    "review_count": 60
+  },
+  {
+    "product_id": "P0168",
+    "category": "sports equipment",
+    "item_type": "yoga mats",
+    "name": "Yoga Mats 0168",
+    "price": 159000,
+    "style_type": "design",
+    "rating": 4.0,
+    "review_count": 24
+  }
+]
