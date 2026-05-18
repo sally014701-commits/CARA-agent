@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>CARA — Context-Aware Recommendation Agent</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
 <style>
 /* ── Variables ── */
 :root {
@@ -518,7 +518,12 @@ select:focus,input:focus{border-color:var(--accent)}
 /* getdesign stripe-inspired layer */
 body{
   color:#0d253d;
+  font-family:'Inter','SF Pro Display',system-ui,-apple-system,sans-serif;
+  font-weight:300;
   font-feature-settings:"ss01";
+}
+button,input,select,textarea{
+  font-family:'Inter','SF Pro Display',system-ui,-apple-system,sans-serif;
 }
 .hero{
   background:
@@ -540,7 +545,64 @@ body{
   border-radius:9999px;
 }
 .pcard-price,.d-price,.stat-val,.trace-metric strong,.results-count{
+  font-family:'Inter','SF Pro Display',system-ui,-apple-system,sans-serif;
   font-feature-settings:"tnum";
+}
+.nav-logo,.card-title,.pcard-brand,.style-tag,.chip,.stat-val,.brainfry-badge{
+  font-family:'Inter','SF Pro Display',system-ui,-apple-system,sans-serif;
+}
+nav,.cat-strip,.card,.pcard,.trace-panel,.confirm-box,.chat-panel,.drawer,.cart-drawer,.checkout-modal{
+  background:#ffffff;
+  border-color:#e3e8ee;
+  box-shadow:0 8px 24px rgba(0,55,112,.08),0 2px 6px rgba(0,55,112,.04);
+}
+.card-title,.pcard-brand,.trace-hdr span,.chip,.style-tag,.d-section,.brainfry-badge,.bf-text{
+  color:#64748d;
+  letter-spacing:0;
+}
+.hero h2,.results-hdr h3,.d-title,.cart-header h3,.checkout-hdr h2{
+  font-family:'Inter','SF Pro Display',system-ui,-apple-system,sans-serif;
+  font-weight:300;
+  letter-spacing:0;
+  color:inherit;
+}
+input,select,.adjust-input,.chat-input-row input{
+  border-color:#a8c3de;
+  border-radius:6px;
+  background:#ffffff;
+  color:#0d253d;
+}
+input:focus,select:focus,.adjust-input:focus,.chat-input-row input:focus{
+  border-color:#533afd;
+  box-shadow:0 0 0 3px rgba(83,58,253,.12);
+}
+.pcard{
+  border-radius:12px;
+}
+.pcard:hover{
+  border-color:#533afd;
+  box-shadow:0 14px 34px rgba(0,55,112,.14);
+}
+.style-tag,.chip,.d-badge,.brainfry-badge{
+  border-radius:9999px;
+}
+.tag-design,.chip.plan{
+  background:#b9b9f9;
+  color:#4434d4;
+}
+.tag-practical,.chip.exec{
+  background:#f6f9fc;
+  color:#273951;
+}
+.confirm-box{
+  background:#f6f9fc;
+  border-color:#a8c3de;
+}
+.chat-header{
+  background:#1c1e54;
+}
+.pcard-img{
+  background:#f6f9fc;
 }
 .section-sep{height:1rem}
 </style>
@@ -2698,6 +2760,7 @@ function escapeSvgText(value){
 
 function productImageUrl(product, id, name){
   const category = product.category || product.item_type || 'ecommerce product';
+  return `assets/products/${encodeURIComponent(id)}.png`;
   const seed = productSeed(id);
   const hue = seed % 360;
   const title = escapeSvgText(name);
