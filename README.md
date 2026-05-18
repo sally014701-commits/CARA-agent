@@ -10,6 +10,7 @@ CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저�
 | --- | --- |
 | `generate_synthetic_dataset.py` | 상품/소비자 mock data를 생성하는 Python 스크립트 |
 | `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
+| `CARA.html` | CARA 라이브 추천 흐름을 호출하는 이커머스 프론트엔드 |
 | `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
 | `executor_agent.py` | 후보 상품 검색과 RAG 기반 재정렬을 수행하는 Executor Agent |
 | `critic_agent.py` | 최종 추천 후보를 검증하고 자가 수정하는 Critic Agent |
@@ -169,8 +170,18 @@ python main.py
 | `GET /consumers/{consumer_id}/history` | 소비자 구매 이력, 세션 행동, 선호 벡터 조회 |
 | `GET /products/search` | 키워드 및 필터 기반 상품 후보군 검색 |
 | `GET /products/trending` | 리뷰 수 기준 인기 상품 Top 20 조회 |
+| `POST /api/plan` | 프론트엔드의 Ask CARA 클릭 시 Planner Agent 실행 |
+| `POST /api/recommend` | 2턴 확인 이후 최종 추천 3~5개 생성 |
 
 `/consumers/{consumer_id}/history` 응답의 `preference_vector`에는 Planner Agent가 사용하는 `top_style`, `average_historical_spend`, `maximum_historical_spend`, `brainfry_score`가 포함됩니다.
+
+프론트엔드는 `CARA.html`을 로컬 정적 서버로 열어 사용할 수 있습니다.
+
+```bash
+python -m http.server 8080 --bind 127.0.0.1
+```
+
+그다음 브라우저에서 `http://127.0.0.1:8080/CARA.html`을 열면 됩니다. FastAPI 서버는 별도 터미널에서 `python main.py`로 실행되어 있어야 합니다.
 
 ## Planner Agent
 

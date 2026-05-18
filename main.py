@@ -18,7 +18,12 @@ from typing import Any, AsyncIterator, Literal
 
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
+from critic_agent import CriticAgent
+from executor_agent import ExecutorAgent, ProductToolClient
+from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -83,6 +88,57 @@ class ProductSearchResponse(BaseModel):
 
     count: int
     products: list[Product]
+
+
+class SessionDataRequest(BaseModel):
+    """Current passive tracking metrics sent by the storefront."""
+
+    n: int = Field(default=0, ge=0)
+    dwell_variance: float = Field(default=0.0, ge=0)
+    ctr: float = Field(default=0.0, ge=0.0, le=1.0)
+
+
+class PlanRequest(BaseModel):
+    """Request body for Planner orchestration."""
+
+    consumer_id: str = "user123"
+    query: str = ""
+    session_data: SessionDataRequest
+
+
+class PlanResponse(BaseModel):
+    """Planner response used by the two-turn confirmation dialog."""
+
+    consumer_id: str
+    query: str
+    budget_ceiling: int
+    preferred_style: StyleType
+    brainfry_level: str
+    brainfry_score: float
+    top_category: str | None = None
+    avg_spend: float | None = None
+
+
+class RecommendRequest(BaseModel):
+    """Request body for end-to-end recommendation orchestration."""
+
+    consumer_id: str = "user123"
+    query: str = ""
+    budget_ceiling: int
+    preferred_style: StyleType
+
+
+class FinalRecommendation(BaseModel):
+    """Critic-approved product result returned to the storefront."""
+
+    id: str
+    product_id: str
+    name: str
+    price: int
+    style: str
+    style_type: str
+    rating: float
+    RAG_score: float
 
 
 products: list[Product] = []
@@ -154,6 +210,15 @@ def build_preference_vector(consumer: ConsumerProfile) -> dict[str, Any]:
     }
 
 
+def normalize_consumer_id(consumer_id: str) -> str:
+    """Map demo storefront IDs to an available synthetic consumer profile."""
+    if consumer_id in consumers:
+        return consumer_id
+    if consumer_id in {"user123", "guest", "USR-001"}:
+        return "C0001"
+    return consumer_id
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     """Initialize the in-memory JSON database when the FastAPI server starts."""
@@ -169,6 +234,13 @@ app = FastAPI(
     ),
     version="0.1.0",
     lifespan=lifespan,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -295,6 +367,82 @@ def get_trending_products(
         count=len(trending_products),
         products=trending_products,
     )
+
+
+@app.post("/api/plan", response_model=PlanResponse)
+def create_recommendation_plan(request: PlanRequest) -> PlanResponse:
+    """
+    Orchestrate the Planner Agent for the storefront confirmation dialog.
+
+    The frontend sends passive tracking metrics, and this endpoint returns the
+    inferred budget, preferred style, and BrainFry state needed for Turn 1.
+    """
+    consumer_id = normalize_consumer_id(request.consumer_id)
+    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    plan = planner.create_plan(
+        consumer_id=consumer_id,
+        session_input=SessionInput(
+            page_visits=request.session_data.n,
+            dwell_time_variance=request.session_data.dwell_variance,
+            ctr=request.session_data.ctr,
+        ),
+        user_intent=UserIntent(query=request.query),
+    )
+
+    return PlanResponse(
+        consumer_id=consumer_id,
+        query=plan["query"],
+        budget_ceiling=int(plan["budget_ceiling"]),
+        preferred_style=plan["preferred_style"],
+        brainfry_level=plan["brainfry_level"],
+        brainfry_score=float(plan["brainfry_score"]),
+        top_category=plan.get("top_category"),
+        avg_spend=plan.get("avg_spend"),
+    )
+
+
+@app.post("/api/recommend", response_model=list[FinalRecommendation])
+def create_final_recommendations(
+    request: RecommendRequest,
+) -> list[FinalRecommendation]:
+    """
+    Run Planner context completion, Executor search/rerank, and Critic checks.
+
+    The frontend calls this endpoint after the user confirms or edits the
+    two-turn dialog. The response is the final 3-5 item visual grid payload.
+    """
+    consumer_id = normalize_consumer_id(request.consumer_id)
+    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    plan = planner.create_plan(
+        consumer_id=consumer_id,
+        session_input=SessionInput(page_visits=0, dwell_time_variance=0.0, ctr=1.0),
+        user_intent=UserIntent(
+            query=request.query,
+            explicit_budget=request.budget_ceiling,
+            explicit_style=request.preferred_style,
+        ),
+    )
+    plan["budget_ceiling"] = request.budget_ceiling
+    plan["preferred_style"] = request.preferred_style
+
+    executor = ExecutorAgent(ProductToolClient("http://127.0.0.1:8000"))
+    critic = CriticAgent()
+    executor_result = executor.execute_plan(plan)
+    final_result = critic.critique(plan=plan, executor_result=executor_result)
+
+    return [
+        FinalRecommendation(
+            id=str(product.get("product_id")),
+            product_id=str(product.get("product_id")),
+            name=str(product.get("name")),
+            price=int(product.get("price", 0)),
+            style=str(product.get("style_type")),
+            style_type=str(product.get("style_type")),
+            rating=float(product.get("rating", 0.0)),
+            RAG_score=float(product.get("RAG_score", 0.0)),
+        )
+        for product in final_result["final_recommendations"][:5]
+    ]
 
 
 if __name__ == "__main__":
