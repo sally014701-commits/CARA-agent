@@ -1,0 +1,154 @@
+/**
+ * design-tokens.css
+ * Generated from DESIGN.md (Stripi design system)
+ * Single source of truth for all visual tokens.
+ * Import this file before any component styles.
+ *
+ * Usage: @import url('design-tokens.css');
+ */
+
+:root {
+  /* ── Colors ── */
+  --color-primary:                  #533afd;
+  --color-primary-deep:             #4434d4;
+  --color-primary-press:            #2e2b8c;
+  --color-primary-soft:             #665efd;
+  --color-primary-bg-subdued-hover: #b9b9f9;
+  --color-brand-dark-900:           #1c1e54;
+  --color-ink:                      #0d253d;
+  --color-ink-secondary:            #273951;
+  --color-ink-mute:                 #64748d;
+  --color-ink-mute-2:               #61718a;
+  --color-on-primary:               #ffffff;
+  --color-canvas:                   #ffffff;
+  --color-canvas-soft:              #f6f9fc;
+  --color-canvas-cream:             #f5e9d4;
+  --color-hairline:                 #e3e8ee;
+  --color-hairline-input:           #a8c3de;
+  --color-ruby:                     #ea2261;
+  --color-magenta:                  #f96bee;
+  --color-lemon:                    #9b6829;
+  --color-shadow-blue:              #003770;
+
+  /* ── Typography ── */
+  --font-family: "sohne-var", "Inter", "SF Pro Display", system-ui, -apple-system, sans-serif;
+
+  /* display-xxl: 56px / 300 / -1.4px */
+  --text-display-xxl-size:    56px;
+  --text-display-xxl-weight:  300;
+  --text-display-xxl-lh:      1.03;
+  --text-display-xxl-ls:      -1.4px;
+
+  /* display-xl: 48px / 300 / -0.96px */
+  --text-display-xl-size:     48px;
+  --text-display-xl-weight:   300;
+  --text-display-xl-lh:       1.15;
+  --text-display-xl-ls:       -0.96px;
+
+  /* display-lg: 32px / 300 / -0.64px */
+  --text-display-lg-size:     32px;
+  --text-display-lg-weight:   300;
+  --text-display-lg-lh:       1.1;
+  --text-display-lg-ls:       -0.64px;
+
+  /* display-md: 26px / 300 / -0.26px */
+  --text-display-md-size:     26px;
+  --text-display-md-weight:   300;
+  --text-display-md-lh:       1.12;
+  --text-display-md-ls:       -0.26px;
+
+  /* heading-lg: 22px / 300 / -0.22px */
+  --text-heading-lg-size:     22px;
+  --text-heading-lg-weight:   300;
+  --text-heading-lg-lh:       1.1;
+  --text-heading-lg-ls:       -0.22px;
+
+  /* heading-md: 20px / 300 / -0.2px */
+  --text-heading-md-size:     20px;
+  --text-heading-md-weight:   300;
+  --text-heading-md-lh:       1.4;
+  --text-heading-md-ls:       -0.2px;
+
+  /* heading-sm: 18px / 300 / 0 */
+  --text-heading-sm-size:     18px;
+  --text-heading-sm-weight:   300;
+  --text-heading-sm-lh:       1.4;
+  --text-heading-sm-ls:       0;
+
+  /* body-lg: 16px / 300 / 0 */
+  --text-body-lg-size:        16px;
+  --text-body-lg-weight:      300;
+  --text-body-lg-lh:          1.4;
+  --text-body-lg-ls:          0;
+
+  /* body-md: 15px / 300 / 0 */
+  --text-body-md-size:        15px;
+  --text-body-md-weight:      300;
+  --text-body-md-lh:          1.4;
+  --text-body-md-ls:          0;
+
+  /* body-tabular: 14px / 300 / -0.42px / tnum */
+  --text-body-tabular-size:   14px;
+  --text-body-tabular-weight: 300;
+  --text-body-tabular-lh:     1.4;
+  --text-body-tabular-ls:     -0.42px;
+  --text-body-tabular-feat:   "tnum";
+
+  /* button-md: 16px / 400 / 0 */
+  --text-button-md-size:      16px;
+  --text-button-md-weight:    400;
+  --text-button-md-lh:        1.0;
+  --text-button-md-ls:        0;
+
+  /* button-sm: 14px / 400 / 0 */
+  --text-button-sm-size:      14px;
+  --text-button-sm-weight:    400;
+  --text-button-sm-lh:        1.0;
+  --text-button-sm-ls:        0;
+
+  /* caption: 13px / 400 / -0.39px / tnum */
+  --text-caption-size:        13px;
+  --text-caption-weight:      400;
+  --text-caption-lh:          1.4;
+  --text-caption-ls:          -0.39px;
+  --text-caption-feat:        "tnum";
+
+  /* micro: 11px / 300 / 0 */
+  --text-micro-size:          11px;
+  --text-micro-weight:        300;
+  --text-micro-lh:            1.4;
+  --text-micro-ls:            0;
+
+  /* micro-cap: 10px / 400 / 0.1px */
+  --text-micro-cap-size:      10px;
+  --text-micro-cap-weight:    400;
+  --text-micro-cap-lh:        1.15;
+  --text-micro-cap-ls:        0.1px;
+
+  /* ── Border radius ── */
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-pill: 9999px;
+
+  /* ── Spacing ── */
+  --space-xxs:  2px;
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   12px;
+  --space-lg:   16px;
+  --space-xl:   24px;
+  --space-xxl:  32px;
+  --space-huge: 64px;
+
+  /* ── Shadows ── */
+  --shadow-blue-rgb: 0, 55, 112;
+  --shadow-1: 0 1px 3px rgba(var(--shadow-blue-rgb), .08);
+  --shadow-2: 0 8px 24px rgba(var(--shadow-blue-rgb), .08),
+              0 2px 6px  rgba(var(--shadow-blue-rgb), .04);
+
+  /* ── Layout ── */
+  --max-width: 1200px;
+}
