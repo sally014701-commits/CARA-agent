@@ -1,4 +1,4 @@
-"""
+﻿"""
 CARA Planner Agent.
 
 The Planner Agent calls the FastAPI Tool Use Module, infers the user's current
@@ -20,10 +20,10 @@ from urllib.request import urlopen
 
 
 BrainFryLevel = Literal["HIGH", "MID", "LOW"]
-StyleType = Literal["practical", "design"]
+StyleType = Literal["utilitarian", "hedonic"]
 
 DEFAULT_BUDGET_CEILING = 200_000
-DEFAULT_STYLE: StyleType = "practical"
+DEFAULT_STYLE: StyleType = "utilitarian"
 
 
 @dataclass(frozen=True)
@@ -174,7 +174,7 @@ class PlannerAgent:
 
     @staticmethod
     def compute_brainfry_score(session_input: SessionInput) -> float:
-        # 논문 Section IV.A: 5-signal BrainFry 공식
+        # ?쇰Ц Section IV.A: 5-signal BrainFry 怨듭떇
         N_norm = min(session_input.page_visits / 50, 1.0)
         sigma2_norm = min(session_input.dwell_time_variance / 10_000, 1.0)
         ctr_clipped = min(max(session_input.ctr, 0.0), 1.0)
@@ -200,9 +200,9 @@ class PlannerAgent:
     @staticmethod
     def classify_psychographic_type(session_input: SessionInput, preference_vector: dict) -> str:
         """
-        논문 Section IV.D 기반 규칙 분류기.
-        consumers.json에 psychographic_type이 있으면 그것을 우선 사용.
-        신규 사용자(구매 이력 없음)에게는 세션 행동 기반으로 추론.
+        ?쇰Ц Section IV.D 湲곕컲 洹쒖튃 遺꾨쪟湲?
+        consumers.json??psychographic_type???덉쑝硫?洹멸쾬???곗꽑 ?ъ슜.
+        ?좉퇋 ?ъ슜??援щℓ ?대젰 ?놁쓬)?먭쾶???몄뀡 ?됰룞 湲곕컲?쇰줈 異붾줎.
         """
         stored_type = preference_vector.get("psychographic_type")
         if stored_type:
@@ -258,12 +258,11 @@ class PlannerAgent:
         price_distributions: dict,
     ) -> tuple[int, str]:
         """
-        논문 Section IV.B: 카테고리 상대적 퍼센타일 예산 추론.
-        우선순위:
-        1. 사용자가 직접 입력한 예산
-        2. 구매 이력 기반 카테고리 퍼센타일 → target_category에 적용
-        3. 플랫폼 기본값 200,000원
-        """
+        ?쇰Ц Section IV.B: 移댄뀒怨좊━ ?곷????쇱꽱????덉궛 異붾줎.
+        ?곗꽑?쒖쐞:
+        1. ?ъ슜?먭? 吏곸젒 ?낅젰???덉궛
+        2. 援щℓ ?대젰 湲곕컲 移댄뀒怨좊━ ?쇱꽱?????target_category???곸슜
+        3. ?뚮옯??湲곕낯媛?200,000??        """
         if explicit_budget is not None:
             return int(explicit_budget), "explicit_user_input"
 
@@ -316,16 +315,16 @@ class PlannerAgent:
         Priority:
         1. Explicit style from user conversation.
         2. Top purchased style from consumer profile.
-        3. Practical default for overloaded consumers.
+        3. utilitarian default for overloaded consumers.
         """
         if explicit_style is not None:
             return explicit_style, "explicit_user_input"
 
         top_style = preference_vector.get("top_style")
-        if top_style in ("practical", "design"):
+        if top_style in ("utilitarian", "hedonic"):
             return top_style, "top_style"
 
-        return DEFAULT_STYLE, "overload_practical_default"
+        return DEFAULT_STYLE, "overload_utilitarian_default"
 
 
 def main() -> None:
@@ -349,3 +348,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

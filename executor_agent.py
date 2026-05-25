@@ -1,4 +1,4 @@
-"""
+﻿"""
 CARA Executor Agent.
 
 The Executor Agent receives a plan dictionary from the Planner Agent, calls the
@@ -281,7 +281,7 @@ def main() -> None:
         "consumer_id": "C0001",
         "query": "dumbbells",
         "budget_ceiling": 1_414_000,
-        "preferred_style": "design",
+        "preferred_style": "hedonic",
         "top_category": "electronics",
         "avg_spend": 752_666.67,
         "psychographic_type": "maximizer",
@@ -293,3 +293,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

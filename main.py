@@ -15,17 +15,20 @@ import json
 from collections import Counter
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+from enum import Enum
 from pathlib import Path
 from typing import Any, AsyncIterator, Literal
 
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session as DBSession
 
 from critic_agent import CriticAgent
+from conversation_agent import ConversationAgent
 from database import engine, Base, AgentTrace, ChatMessage, SessionEvent, get_db
 from executor_agent import ExecutorAgent, ProductToolClient
 from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
@@ -35,8 +38,12 @@ BASE_DIR = Path(__file__).resolve().parent
 PRODUCTS_PATH = BASE_DIR / "products.json"
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
 
-StyleType = Literal["practical", "design"]
 BudgetLevel = Literal["low", "mid", "high"]
+
+
+class StyleType(str, Enum):
+    utilitarian = "utilitarian"
+    hedonic = "hedonic"
 
 
 class Product(BaseModel):
@@ -124,6 +131,28 @@ class PlanRequest(BaseModel):
     consumer_id: str = "user123"
     query: str = ""
     session_data: SessionDataRequest
+
+
+class ChatRequest(BaseModel):
+    """Request body for the two-turn CARA conversation."""
+
+    session_id: str
+    consumer_id: str = "user123"
+    message: str
+    session_data: SessionDataRequest
+    history: list[dict[str, str]] = Field(default_factory=list)
+    plan_context: dict[str, Any] = Field(default_factory=dict)
+
+
+class ChatResponse(BaseModel):
+    """Conversation Agent response plus updated planning context."""
+
+    reply: str
+    plan_context: dict[str, Any]
+    turn_complete: bool
+    self_report_score: float | None = None
+    b_text: float
+    agent_trace: list[dict[str, str]]
 
 
 class PlanResponse(BaseModel):
@@ -246,6 +275,10 @@ def normalize_consumer_id(consumer_id: str) -> str:
     return consumer_id
 
 
+def style_value(style: Any) -> str:
+    return style.value if isinstance(style, StyleType) else str(style)
+
+
 def build_category_price_distributions(products: list) -> dict:
     from collections import defaultdict
     dist = defaultdict(list)
@@ -280,11 +313,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
+
 
 @app.get("/", response_model=dict[str, str])
 def health_check() -> dict[str, str]:
     """Return a lightweight health check for server and agent connectivity."""
     return {"status": "ok", "service": "CARA Tool Use Module"}
+
+
+@app.get("/CARA.html", response_class=FileResponse)
+def serve_cara_html() -> FileResponse:
+    return FileResponse(BASE_DIR / "CARA.html")
+
+
+@app.get("/admin.html", response_class=FileResponse)
+def serve_admin_html() -> FileResponse:
+    return FileResponse(BASE_DIR / "admin.html")
+
+
+@app.get("/app", response_class=FileResponse)
+def serve_app() -> FileResponse:
+    return FileResponse(BASE_DIR / "CARA.html")
 
 
 @app.get(
@@ -327,7 +377,7 @@ def search_products(
     ),
     style_type: StyleType | None = Query(
         default=None,
-        description="Optional style filter: practical or design.",
+        description="Optional style filter: utilitarian or hedonic.",
     ),
     category: str | None = Query(
         default=None,
@@ -462,6 +512,95 @@ def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get
     )
 
 
+@app.post("/api/chat", response_model=ChatResponse)
+def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> ChatResponse:
+    consumer_id = normalize_consumer_id(request.consumer_id)
+    plan_context = dict(request.plan_context or {})
+
+    agent_trace: list[dict[str, str]] = []
+    if not plan_context:
+        planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+        plan_context = planner.create_plan(
+            consumer_id=consumer_id,
+            session_input=SessionInput(
+                page_visits=request.session_data.n,
+                dwell_time_variance=request.session_data.dwell_variance,
+                ctr=request.session_data.ctr,
+                scroll_depth=request.session_data.scroll_depth,
+                query_reformulations=request.session_data.query_reformulations,
+                self_report_score=request.session_data.self_report_score,
+                text_brainfry_score=request.session_data.text_brainfry_score,
+            ),
+            user_intent=UserIntent(query=request.message),
+        )
+        for agent_name in ["User Intent Agent", "BrainFry Detector", "Psychology Agent"]:
+            db.add(AgentTrace(
+                session_id=request.session_id,
+                agent_name=agent_name,
+                status="done",
+                input_data={"message": request.message},
+                output_data=plan_context,
+                finished_at=datetime.now(timezone.utc),
+            ))
+            agent_trace.append({"agent": agent_name, "status": "done"})
+    else:
+        plan_context.setdefault("query", request.message)
+
+    db.add(ChatMessage(
+        session_id=request.session_id,
+        role="user",
+        content=request.message,
+    ))
+    db.add(SessionEvent(
+        session_id=request.session_id,
+        consumer_id=consumer_id,
+        event_type="chat_message",
+        agent_name="Conversation Agent",
+        payload={"message": request.message},
+        brainfry_score=plan_context.get("brainfry_score"),
+    ))
+    db.add(AgentTrace(
+        session_id=request.session_id,
+        agent_name="Conversation Agent",
+        status="running",
+        input_data={"message": request.message, "plan_context": plan_context},
+        output_data=None,
+    ))
+    db.commit()
+
+    conversation = ConversationAgent()
+    messages = list(request.history or []) + [{"role": "user", "content": request.message}]
+    result = conversation.run_turn(messages=messages, plan_context=plan_context)
+    updated_context = result["updated_context"]
+
+    db.add(ChatMessage(
+        session_id=request.session_id,
+        role="assistant",
+        content=result["reply"],
+    ))
+    trace = db.query(AgentTrace).filter(
+        AgentTrace.session_id == request.session_id,
+        AgentTrace.agent_name == "Conversation Agent",
+        AgentTrace.status == "running",
+    ).first()
+    if trace:
+        trace.status = "done"
+        trace.output_data = updated_context
+        trace.finished_at = datetime.now(timezone.utc)
+    db.commit()
+
+    agent_trace.append({"agent": "Conversation Agent", "status": "done"})
+
+    return ChatResponse(
+        reply=result["reply"],
+        plan_context=updated_context,
+        turn_complete=bool(result["turn_complete"]),
+        self_report_score=result["self_report_score"],
+        b_text=float(result["b_text"]),
+        agent_trace=agent_trace,
+    )
+
+
 @app.post("/api/recommend", response_model=list[FinalRecommendation])
 def create_final_recommendations(
     request: RecommendRequest,
@@ -481,11 +620,11 @@ def create_final_recommendations(
         user_intent=UserIntent(
             query=request.query,
             explicit_budget=request.budget_ceiling,
-            explicit_style=request.preferred_style,
+            explicit_style=style_value(request.preferred_style),
         ),
     )
     plan["budget_ceiling"] = request.budget_ceiling
-    plan["preferred_style"] = request.preferred_style
+    plan["preferred_style"] = style_value(request.preferred_style)
     plan["psychographic_type"] = request.psychographic_type
 
     # 카테고리 평균가 주입 (RAG 공식 분모로 사용)
@@ -593,6 +732,55 @@ def brainfry_stats(db: DBSession = Depends(get_db)):
         "mid":     sum(1 for s in scores if 0.35 < s <= 0.65),
         "high":    sum(1 for s in scores if s > 0.65),
         "average": round(sum(scores) / len(scores), 3),
+    }
+
+
+@app.post("/admin/benchmark/evaluate")
+def run_benchmark_evaluation(request: RecommendRequest, db: DBSession = Depends(get_db)):
+    from persona_evaluator import PersonaEvaluator
+
+    consumer_id = normalize_consumer_id(request.consumer_id)
+    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    plan = planner.create_plan(
+        consumer_id=consumer_id,
+        session_input=SessionInput(page_visits=0, dwell_time_variance=0.0, ctr=1.0),
+        user_intent=UserIntent(
+            query=request.query,
+            explicit_budget=request.budget_ceiling,
+            explicit_style=style_value(request.preferred_style),
+        ),
+    )
+    plan["psychographic_type"] = request.psychographic_type
+
+    top_cat = plan.get("top_category")
+    if top_cat and top_cat in category_price_distributions:
+        prices = category_price_distributions[top_cat]
+        plan["category_avg_price"] = sum(prices) / len(prices)
+
+    executor = ExecutorAgent(ProductToolClient("http://127.0.0.1:8000"))
+    critic = CriticAgent()
+    executor_result = executor.execute_plan(plan)
+    final_result = critic.critique(plan=plan, executor_result=executor_result)
+
+    plan["n_rec"] = final_result["n_rec"]
+    evaluator = PersonaEvaluator()
+    persona_scores = evaluator.evaluate_all(
+        recommendations=final_result["final_recommendations"],
+        plan_context=plan,
+    )
+
+    return {
+        "recommendations": final_result["final_recommendations"],
+        "n_rec": final_result["n_rec"],
+        "presentation_hint": final_result["presentation_hint"],
+        "plan": plan,
+        "persona_evaluation": persona_scores,
+        "mean_satisfaction": round(
+            sum(v["persona_satisfaction_score"] for v in persona_scores.values()) / 6, 2
+        ),
+        "mean_decision_ease": round(
+            sum(v["decision_ease_score"] for v in persona_scores.values()) / 6, 2
+        ),
     }
 
 

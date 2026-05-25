@@ -1,4 +1,4 @@
-"""
+﻿"""
 CARA Critic Agent.
 
 The Critic Agent receives the Planner plan and Executor candidates, then runs
@@ -38,11 +38,11 @@ class CriticAgent:
         self.max_iterations = max_iterations
 
     def critique(self, plan: dict, executor_result: dict) -> dict:
-        # 논문 Section III.D: N_rec = max(1, round(7 * (1 - B)))
+        # ?쇰Ц Section III.D: N_rec = max(1, round(7 * (1 - B)))
         brainfry_score = float(plan.get("brainfry_score", 0.5))
         n_rec = max(1, round(7 * (1 - brainfry_score)))
 
-        # Impulsive + HIGH 부하 → 단일 추천 강제 (논문 Section IV.D)
+        # Impulsive + HIGH 遺?????⑥씪 異붿쿇 媛뺤젣 (?쇰Ц Section IV.D)
         psychographic_type = plan.get("psychographic_type", "utilitarian")
         brainfry_level = plan.get("brainfry_level", "LOW")
         if psychographic_type == "impulsive" and brainfry_level == "HIGH":
@@ -50,8 +50,8 @@ class CriticAgent:
 
         max_recs = max(1, min(n_rec, 7))
 
-        # 논문 Section III.D Check 4: "fewer than two products remain"
-        # → 2개 미만일 때 budget 완화 (기존 코드의 MIN_RECOMMENDATIONS=3과 다름)
+        # ?쇰Ц Section III.D Check 4: "fewer than two products remain"
+        # ??2媛?誘몃쭔????budget ?꾪솕 (湲곗〈 肄붾뱶??MIN_RECOMMENDATIONS=3怨??ㅻ쫫)
         MIN_BEFORE_RELAXATION = 2
 
         original_budget = float(plan.get("budget_ceiling") or 0)
@@ -82,7 +82,7 @@ class CriticAgent:
                 recommendations, critique_issues, iteration
             )
 
-            # Check 4: 2개 미만일 때만 budget 완화
+            # Check 4: 2媛?誘몃쭔???뚮쭔 budget ?꾪솕
             if len(recommendations) < MIN_BEFORE_RELAXATION:
                 active_budget *= BUDGET_RELAXATION_FACTOR
                 recommendations = self._restore_after_budget_relaxation(
@@ -107,7 +107,7 @@ class CriticAgent:
             if final_recommendations else 0.0
         )
 
-        # presentation_hint: 심리 유형별 UI 힌트 (논문 Section IV.D)
+        # presentation_hint: ?щ━ ?좏삎蹂?UI ?뚰듃 (?쇰Ц Section IV.D)
         PRESENTATION_HINTS = {
             "maximizer":    "comparison_table",
             "value_seeker": "price_highlight",
@@ -348,10 +348,10 @@ class CriticAgent:
     @staticmethod
     def _opposite_style(style_type: Any) -> str | None:
         """Return the opposite CARA style label."""
-        if style_type == "practical":
-            return "design"
-        if style_type == "design":
-            return "practical"
+        if style_type == "utilitarian":
+            return "hedonic"
+        if style_type == "hedonic":
+            return "utilitarian"
         return None
 
     @staticmethod
@@ -368,7 +368,7 @@ def main() -> None:
     plan = {
         "consumer_id": "C0001",
         "budget_ceiling": 500_000,
-        "preferred_style": "design",
+        "preferred_style": "hedonic",
     }
     executor_result = {
         "top_5": [
@@ -376,7 +376,7 @@ def main() -> None:
                 "product_id": "P1",
                 "name": "A",
                 "price": 450_000,
-                "style_type": "design",
+                "style_type": "hedonic",
                 "rating": 4.4,
                 "RAG_score": 60.0,
             },
@@ -384,7 +384,7 @@ def main() -> None:
                 "product_id": "P2",
                 "name": "B",
                 "price": 650_000,
-                "style_type": "design",
+                "style_type": "hedonic",
                 "rating": 4.2,
                 "RAG_score": 58.0,
             },
@@ -392,7 +392,7 @@ def main() -> None:
                 "product_id": "P3",
                 "name": "C",
                 "price": 320_000,
-                "style_type": "design",
+                "style_type": "hedonic",
                 "rating": 3.4,
                 "RAG_score": 57.0,
             },
@@ -402,7 +402,7 @@ def main() -> None:
                 "product_id": "P1",
                 "name": "A",
                 "price": 450_000,
-                "style_type": "design",
+                "style_type": "hedonic",
                 "rating": 4.4,
                 "RAG_score": 60.0,
             },
@@ -410,7 +410,7 @@ def main() -> None:
                 "product_id": "P4",
                 "name": "D",
                 "price": 470_000,
-                "style_type": "practical",
+                "style_type": "utilitarian",
                 "rating": 4.0,
                 "RAG_score": 54.0,
             },
@@ -418,7 +418,7 @@ def main() -> None:
                 "product_id": "P2",
                 "name": "B",
                 "price": 650_000,
-                "style_type": "design",
+                "style_type": "hedonic",
                 "rating": 4.2,
                 "RAG_score": 58.0,
             },
@@ -431,3 +431,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

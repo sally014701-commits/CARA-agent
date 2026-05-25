@@ -2,7 +2,7 @@
   {
     "consumer_id": "C0001",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P01552",
@@ -93,7 +93,7 @@
   {
     "consumer_id": "C0002",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P08004",
@@ -191,7 +191,7 @@
   {
     "consumer_id": "C0003",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P06505",
@@ -283,7 +283,7 @@
   {
     "consumer_id": "C0004",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P19867",
@@ -361,7 +361,7 @@
   {
     "consumer_id": "C0005",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P17258",
@@ -444,7 +444,7 @@
   {
     "consumer_id": "C0006",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P06228",
@@ -541,7 +541,7 @@
   {
     "consumer_id": "C0007",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P17887",
@@ -647,7 +647,7 @@
   {
     "consumer_id": "C0008",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P00393",
@@ -736,7 +736,7 @@
   {
     "consumer_id": "C0009",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P07535",
@@ -836,7 +836,7 @@
   {
     "consumer_id": "C0010",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P04452",
@@ -928,7 +928,7 @@
   {
     "consumer_id": "C0011",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P16253",
@@ -1016,7 +1016,7 @@
   {
     "consumer_id": "C0012",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P19498",
@@ -1099,7 +1099,7 @@
   {
     "consumer_id": "C0013",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P13878",
@@ -1191,7 +1191,7 @@
   {
     "consumer_id": "C0014",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P10076",
@@ -1280,7 +1280,7 @@
   {
     "consumer_id": "C0015",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P01363",
@@ -1390,7 +1390,7 @@
   {
     "consumer_id": "C0016",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P03965",
@@ -1479,7 +1479,7 @@
   {
     "consumer_id": "C0017",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P11502",
@@ -1566,7 +1566,7 @@
   {
     "consumer_id": "C0018",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P05659",
@@ -1651,7 +1651,7 @@
   {
     "consumer_id": "C0019",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P16026",
@@ -1751,7 +1751,7 @@
   {
     "consumer_id": "C0020",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P18562",
@@ -1865,7 +1865,7 @@
   {
     "consumer_id": "C0021",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P14963",
@@ -1971,7 +1971,7 @@
   {
     "consumer_id": "C0022",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P19372",
@@ -2082,7 +2082,7 @@
   {
     "consumer_id": "C0023",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P15484",
@@ -2163,7 +2163,7 @@
   {
     "consumer_id": "C0024",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P11011",
@@ -2276,7 +2276,7 @@
   {
     "consumer_id": "C0025",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P19599",
@@ -2359,7 +2359,7 @@
   {
     "consumer_id": "C0026",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P02846",
@@ -2464,7 +2464,7 @@
   {
     "consumer_id": "C0027",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P06757",
@@ -2565,7 +2565,7 @@
   {
     "consumer_id": "C0028",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P04717",
@@ -2646,7 +2646,7 @@
   {
     "consumer_id": "C0029",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P00281",
@@ -2735,7 +2735,7 @@
   {
     "consumer_id": "C0030",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P10633",
@@ -2850,7 +2850,7 @@
   {
     "consumer_id": "C0031",
     "psychographic_type": "maximizer",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P14463",
@@ -2948,7 +2948,7 @@
   {
     "consumer_id": "C0032",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P10616",
@@ -3053,7 +3053,7 @@
   {
     "consumer_id": "C0033",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P00314",
@@ -3165,7 +3165,7 @@
   {
     "consumer_id": "C0034",
     "psychographic_type": "maximizer",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P10304",
@@ -3242,7 +3242,7 @@
   {
     "consumer_id": "C0035",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P04365",
@@ -3306,7 +3306,7 @@
   {
     "consumer_id": "C0036",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P02655",
@@ -3360,7 +3360,7 @@
   {
     "consumer_id": "C0037",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P13861",
@@ -3449,7 +3449,7 @@
   {
     "consumer_id": "C0038",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P09794",
@@ -3527,7 +3527,7 @@
   {
     "consumer_id": "C0039",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P09153",
@@ -3587,7 +3587,7 @@
   {
     "consumer_id": "C0040",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P03009",
@@ -3667,7 +3667,7 @@
   {
     "consumer_id": "C0041",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P14693",
@@ -3729,7 +3729,7 @@
   {
     "consumer_id": "C0042",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P16863",
@@ -3781,7 +3781,7 @@
   {
     "consumer_id": "C0043",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P03051",
@@ -3859,7 +3859,7 @@
   {
     "consumer_id": "C0044",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P09403",
@@ -3913,7 +3913,7 @@
   {
     "consumer_id": "C0045",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P01110",
@@ -3981,7 +3981,7 @@
   {
     "consumer_id": "C0046",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P15817",
@@ -4035,7 +4035,7 @@
   {
     "consumer_id": "C0047",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P04116",
@@ -4110,7 +4110,7 @@
   {
     "consumer_id": "C0048",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P11071",
@@ -4159,7 +4159,7 @@
   {
     "consumer_id": "C0049",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P04452",
@@ -4211,7 +4211,7 @@
   {
     "consumer_id": "C0050",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P04049",
@@ -4285,7 +4285,7 @@
   {
     "consumer_id": "C0051",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P16194",
@@ -4346,7 +4346,7 @@
   {
     "consumer_id": "C0052",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P09073",
@@ -4415,7 +4415,7 @@
   {
     "consumer_id": "C0053",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P12173",
@@ -4482,7 +4482,7 @@
   {
     "consumer_id": "C0054",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P13766",
@@ -4542,7 +4542,7 @@
   {
     "consumer_id": "C0055",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P05854",
@@ -4608,7 +4608,7 @@
   {
     "consumer_id": "C0056",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P12749",
@@ -4692,7 +4692,7 @@
   {
     "consumer_id": "C0057",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P03087",
@@ -4746,7 +4746,7 @@
   {
     "consumer_id": "C0058",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P14264",
@@ -4815,7 +4815,7 @@
   {
     "consumer_id": "C0059",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P08239",
@@ -4876,7 +4876,7 @@
   {
     "consumer_id": "C0060",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P18690",
@@ -4954,7 +4954,7 @@
   {
     "consumer_id": "C0061",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P02131",
@@ -5025,7 +5025,7 @@
   {
     "consumer_id": "C0062",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P00985",
@@ -5088,7 +5088,7 @@
   {
     "consumer_id": "C0063",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P15151",
@@ -5153,7 +5153,7 @@
   {
     "consumer_id": "C0064",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P01992",
@@ -5209,7 +5209,7 @@
   {
     "consumer_id": "C0065",
     "psychographic_type": "value_seeker",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P04864",
@@ -5292,7 +5292,7 @@
   {
     "consumer_id": "C0066",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P09308",
@@ -5367,7 +5367,7 @@
   {
     "consumer_id": "C0067",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P15682",
@@ -5423,7 +5423,7 @@
   {
     "consumer_id": "C0068",
     "psychographic_type": "value_seeker",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P14555",
@@ -5479,7 +5479,7 @@
   {
     "consumer_id": "C0069",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P05281",
@@ -5570,7 +5570,7 @@
   {
     "consumer_id": "C0070",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P05744",
@@ -5644,7 +5644,7 @@
   {
     "consumer_id": "C0071",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P14048",
@@ -5724,7 +5724,7 @@
   {
     "consumer_id": "C0072",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P08269",
@@ -5782,7 +5782,7 @@
   {
     "consumer_id": "C0073",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P01636",
@@ -5860,7 +5860,7 @@
   {
     "consumer_id": "C0074",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P16788",
@@ -5956,7 +5956,7 @@
   {
     "consumer_id": "C0075",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P01116",
@@ -6037,7 +6037,7 @@
   {
     "consumer_id": "C0076",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P02203",
@@ -6127,7 +6127,7 @@
   {
     "consumer_id": "C0077",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P05373",
@@ -6221,7 +6221,7 @@
   {
     "consumer_id": "C0078",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P11523",
@@ -6281,7 +6281,7 @@
   {
     "consumer_id": "C0079",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P11287",
@@ -6365,7 +6365,7 @@
   {
     "consumer_id": "C0080",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P15262",
@@ -6438,7 +6438,7 @@
   {
     "consumer_id": "C0081",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P00556",
@@ -6527,7 +6527,7 @@
   {
     "consumer_id": "C0082",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P13207",
@@ -6625,7 +6625,7 @@
   {
     "consumer_id": "C0083",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P16629",
@@ -6708,7 +6708,7 @@
   {
     "consumer_id": "C0084",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P16417",
@@ -6806,7 +6806,7 @@
   {
     "consumer_id": "C0085",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P04687",
@@ -6888,7 +6888,7 @@
   {
     "consumer_id": "C0086",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P18711",
@@ -6977,7 +6977,7 @@
   {
     "consumer_id": "C0087",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P19624",
@@ -7078,7 +7078,7 @@
   {
     "consumer_id": "C0088",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P08819",
@@ -7171,7 +7171,7 @@
   {
     "consumer_id": "C0089",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P17779",
@@ -7242,7 +7242,7 @@
   {
     "consumer_id": "C0090",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P11691",
@@ -7320,7 +7320,7 @@
   {
     "consumer_id": "C0091",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P08364",
@@ -7418,7 +7418,7 @@
   {
     "consumer_id": "C0092",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P13635",
@@ -7491,7 +7491,7 @@
   {
     "consumer_id": "C0093",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P03447",
@@ -7590,7 +7590,7 @@
   {
     "consumer_id": "C0094",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P02006",
@@ -7664,7 +7664,7 @@
   {
     "consumer_id": "C0095",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P02930",
@@ -7756,7 +7756,7 @@
   {
     "consumer_id": "C0096",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P09330",
@@ -7815,7 +7815,7 @@
   {
     "consumer_id": "C0097",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P15380",
@@ -7887,7 +7887,7 @@
   {
     "consumer_id": "C0098",
     "psychographic_type": "loss_averse",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P05825",
@@ -7970,7 +7970,7 @@
   {
     "consumer_id": "C0099",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P12522",
@@ -8029,7 +8029,7 @@
   {
     "consumer_id": "C0100",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P01690",
@@ -8128,7 +8128,7 @@
   {
     "consumer_id": "C0101",
     "psychographic_type": "loss_averse",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P16215",
@@ -8204,7 +8204,7 @@
   {
     "consumer_id": "C0102",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P01583",
@@ -8252,7 +8252,7 @@
   {
     "consumer_id": "C0103",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P02456",
@@ -8296,7 +8296,7 @@
   {
     "consumer_id": "C0104",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P03954",
@@ -8351,7 +8351,7 @@
   {
     "consumer_id": "C0105",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P15089",
@@ -8392,7 +8392,7 @@
   {
     "consumer_id": "C0106",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P09459",
@@ -8432,7 +8432,7 @@
   {
     "consumer_id": "C0107",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P08657",
@@ -8479,7 +8479,7 @@
   {
     "consumer_id": "C0108",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P13219",
@@ -8517,7 +8517,7 @@
   {
     "consumer_id": "C0109",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P14816",
@@ -8563,7 +8563,7 @@
   {
     "consumer_id": "C0110",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P07285",
@@ -8620,7 +8620,7 @@
   {
     "consumer_id": "C0111",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P06868",
@@ -8676,7 +8676,7 @@
   {
     "consumer_id": "C0112",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P15643",
@@ -8719,7 +8719,7 @@
   {
     "consumer_id": "C0113",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P10901",
@@ -8775,7 +8775,7 @@
   {
     "consumer_id": "C0114",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P05353",
@@ -8828,7 +8828,7 @@
   {
     "consumer_id": "C0115",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P09796",
@@ -8888,7 +8888,7 @@
   {
     "consumer_id": "C0116",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P11826",
@@ -8936,7 +8936,7 @@
   {
     "consumer_id": "C0117",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P04322",
@@ -8974,7 +8974,7 @@
   {
     "consumer_id": "C0118",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P12235",
@@ -9023,7 +9023,7 @@
   {
     "consumer_id": "C0119",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P03337",
@@ -9056,7 +9056,7 @@
   {
     "consumer_id": "C0120",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P15583",
@@ -9109,7 +9109,7 @@
   {
     "consumer_id": "C0121",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P06937",
@@ -9171,7 +9171,7 @@
   {
     "consumer_id": "C0122",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P04962",
@@ -9216,7 +9216,7 @@
   {
     "consumer_id": "C0123",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P07027",
@@ -9259,7 +9259,7 @@
   {
     "consumer_id": "C0124",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P13900",
@@ -9300,7 +9300,7 @@
   {
     "consumer_id": "C0125",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P16433",
@@ -9342,7 +9342,7 @@
   {
     "consumer_id": "C0126",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P19496",
@@ -9387,7 +9387,7 @@
   {
     "consumer_id": "C0127",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P10909",
@@ -9421,7 +9421,7 @@
   {
     "consumer_id": "C0128",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P17543",
@@ -9476,7 +9476,7 @@
   {
     "consumer_id": "C0129",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P14217",
@@ -9512,7 +9512,7 @@
   {
     "consumer_id": "C0130",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P04443",
@@ -9559,7 +9559,7 @@
   {
     "consumer_id": "C0131",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P00851",
@@ -9607,7 +9607,7 @@
   {
     "consumer_id": "C0132",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P09940",
@@ -9653,7 +9653,7 @@
   {
     "consumer_id": "C0133",
     "psychographic_type": "impulsive",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P08004",
@@ -9690,7 +9690,7 @@
   {
     "consumer_id": "C0134",
     "psychographic_type": "impulsive",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P08845",
@@ -9726,7 +9726,7 @@
   {
     "consumer_id": "C0135",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P00375",
@@ -9823,7 +9823,7 @@
   {
     "consumer_id": "C0136",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P04577",
@@ -9900,7 +9900,7 @@
   {
     "consumer_id": "C0137",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P00368",
@@ -10005,7 +10005,7 @@
   {
     "consumer_id": "C0138",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P13732",
@@ -10098,7 +10098,7 @@
   {
     "consumer_id": "C0139",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P03310",
@@ -10171,7 +10171,7 @@
   {
     "consumer_id": "C0140",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P18698",
@@ -10247,7 +10247,7 @@
   {
     "consumer_id": "C0141",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P00370",
@@ -10316,7 +10316,7 @@
   {
     "consumer_id": "C0142",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P03204",
@@ -10393,7 +10393,7 @@
   {
     "consumer_id": "C0143",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P16964",
@@ -10478,7 +10478,7 @@
   {
     "consumer_id": "C0144",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P17647",
@@ -10566,7 +10566,7 @@
   {
     "consumer_id": "C0145",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P10332",
@@ -10641,7 +10641,7 @@
   {
     "consumer_id": "C0146",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P07595",
@@ -10715,7 +10715,7 @@
   {
     "consumer_id": "C0147",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P11283",
@@ -10804,7 +10804,7 @@
   {
     "consumer_id": "C0148",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P09047",
@@ -10882,7 +10882,7 @@
   {
     "consumer_id": "C0149",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P17776",
@@ -10956,7 +10956,7 @@
   {
     "consumer_id": "C0150",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P12384",
@@ -11039,7 +11039,7 @@
   {
     "consumer_id": "C0151",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P14158",
@@ -11132,7 +11132,7 @@
   {
     "consumer_id": "C0152",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P05531",
@@ -11213,7 +11213,7 @@
   {
     "consumer_id": "C0153",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P02195",
@@ -11312,7 +11312,7 @@
   {
     "consumer_id": "C0154",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P01395",
@@ -11413,7 +11413,7 @@
   {
     "consumer_id": "C0155",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P02525",
@@ -11503,7 +11503,7 @@
   {
     "consumer_id": "C0156",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "low",
     "purchase_history": [
       "P02897",
@@ -11583,7 +11583,7 @@
   {
     "consumer_id": "C0157",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P07186",
@@ -11679,7 +11679,7 @@
   {
     "consumer_id": "C0158",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P14149",
@@ -11770,7 +11770,7 @@
   {
     "consumer_id": "C0159",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P04213",
@@ -11860,7 +11860,7 @@
   {
     "consumer_id": "C0160",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P15583",
@@ -11942,7 +11942,7 @@
   {
     "consumer_id": "C0161",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P13659",
@@ -12024,7 +12024,7 @@
   {
     "consumer_id": "C0162",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P15106",
@@ -12110,7 +12110,7 @@
   {
     "consumer_id": "C0163",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P14027",
@@ -12185,7 +12185,7 @@
   {
     "consumer_id": "C0164",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P12968",
@@ -12286,7 +12286,7 @@
   {
     "consumer_id": "C0165",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "mid",
     "purchase_history": [
       "P12540",
@@ -12384,7 +12384,7 @@
   {
     "consumer_id": "C0166",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P00898",
@@ -12460,7 +12460,7 @@
   {
     "consumer_id": "C0167",
     "psychographic_type": "hedonic",
-    "preference_style": "design",
+    "preference_style": "hedonic",
     "budget_level": "high",
     "purchase_history": [
       "P06818",
@@ -12557,7 +12557,7 @@
   {
     "consumer_id": "C0168",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P05124",
@@ -12614,7 +12614,7 @@
   {
     "consumer_id": "C0169",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P18281",
@@ -12679,7 +12679,7 @@
   {
     "consumer_id": "C0170",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P14560",
@@ -12735,7 +12735,7 @@
   {
     "consumer_id": "C0171",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P18029",
@@ -12799,7 +12799,7 @@
   {
     "consumer_id": "C0172",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P00865",
@@ -12865,7 +12865,7 @@
   {
     "consumer_id": "C0173",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P06188",
@@ -12931,7 +12931,7 @@
   {
     "consumer_id": "C0174",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P12631",
@@ -13001,7 +13001,7 @@
   {
     "consumer_id": "C0175",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P14039",
@@ -13056,7 +13056,7 @@
   {
     "consumer_id": "C0176",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P06804",
@@ -13107,7 +13107,7 @@
   {
     "consumer_id": "C0177",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P13127",
@@ -13165,7 +13165,7 @@
   {
     "consumer_id": "C0178",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P13652",
@@ -13218,7 +13218,7 @@
   {
     "consumer_id": "C0179",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P09241",
@@ -13294,7 +13294,7 @@
   {
     "consumer_id": "C0180",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P16251",
@@ -13342,7 +13342,7 @@
   {
     "consumer_id": "C0181",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P08046",
@@ -13401,7 +13401,7 @@
   {
     "consumer_id": "C0182",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P15955",
@@ -13455,7 +13455,7 @@
   {
     "consumer_id": "C0183",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P02666",
@@ -13507,7 +13507,7 @@
   {
     "consumer_id": "C0184",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P12500",
@@ -13571,7 +13571,7 @@
   {
     "consumer_id": "C0185",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P10378",
@@ -13632,7 +13632,7 @@
   {
     "consumer_id": "C0186",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P15654",
@@ -13695,7 +13695,7 @@
   {
     "consumer_id": "C0187",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P17240",
@@ -13750,7 +13750,7 @@
   {
     "consumer_id": "C0188",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P10392",
@@ -13795,7 +13795,7 @@
   {
     "consumer_id": "C0189",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P19890",
@@ -13839,7 +13839,7 @@
   {
     "consumer_id": "C0190",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P02941",
@@ -13883,7 +13883,7 @@
   {
     "consumer_id": "C0191",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P11800",
@@ -13949,7 +13949,7 @@
   {
     "consumer_id": "C0192",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P09651",
@@ -14004,7 +14004,7 @@
   {
     "consumer_id": "C0193",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P13891",
@@ -14054,7 +14054,7 @@
   {
     "consumer_id": "C0194",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P04772",
@@ -14092,7 +14092,7 @@
   {
     "consumer_id": "C0195",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P02472",
@@ -14152,7 +14152,7 @@
   {
     "consumer_id": "C0196",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "low",
     "purchase_history": [
       "P11204",
@@ -14217,7 +14217,7 @@
   {
     "consumer_id": "C0197",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "mid",
     "purchase_history": [
       "P09020",
@@ -14254,7 +14254,7 @@
   {
     "consumer_id": "C0198",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P16696",
@@ -14305,7 +14305,7 @@
   {
     "consumer_id": "C0199",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P13643",
@@ -14357,7 +14357,7 @@
   {
     "consumer_id": "C0200",
     "psychographic_type": "utilitarian",
-    "preference_style": "practical",
+    "preference_style": "utilitarian",
     "budget_level": "high",
     "purchase_history": [
       "P10092",
