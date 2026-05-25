@@ -10,18 +10,23 @@ exposes RESTful API tools for CARA agents.
 
 from __future__ import annotations
 
+import asyncio
 import json
 from collections import Counter
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, AsyncIterator, Literal
 
 import uvicorn
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session as DBSession
 
 from critic_agent import CriticAgent
+from database import engine, Base, AgentTrace, ChatMessage, SessionEvent, get_db
 from executor_agent import ExecutorAgent, ProductToolClient
 from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
 
@@ -39,13 +44,23 @@ class Product(BaseModel):
 
     product_id: str
     category: str
-    item_type: str
+    subcategory: str | None = None
+    item_type: str | None = None
     name: str
     price: int
+    brand: str | None = None
     style_type: StyleType
-    rating: float
+    star_rating: float | None = None
+    rating: float | None = None
     review_count: int
+    review_text: str | None = None
+    sentiment_score: float | None = None
+    stock_status: bool | None = None
     description: str | None = None
+
+    @property
+    def effective_rating(self) -> float:
+        return self.star_rating or self.rating or 0.0
 
 
 class SessionBehavior(BaseModel):
@@ -64,6 +79,7 @@ class ConsumerProfile(BaseModel):
     """Consumer profile record loaded from consumers.json."""
 
     consumer_id: str
+    psychographic_type: str = "utilitarian"
     preference_style: StyleType
     budget_level: BudgetLevel
     purchase_history: list[str]
@@ -96,6 +112,10 @@ class SessionDataRequest(BaseModel):
     n: int = Field(default=0, ge=0)
     dwell_variance: float = Field(default=0.0, ge=0)
     ctr: float = Field(default=0.0, ge=0.0, le=1.0)
+    scroll_depth: float = Field(default=0.5, ge=0.0, le=1.0)
+    query_reformulations: int = Field(default=0, ge=0)
+    self_report_score: float = Field(default=0.0, ge=0.0, le=1.0)
+    text_brainfry_score: float = Field(default=0.0, ge=0.0, le=1.0)
 
 
 class PlanRequest(BaseModel):
@@ -115,6 +135,8 @@ class PlanResponse(BaseModel):
     preferred_style: StyleType
     brainfry_level: str
     brainfry_score: float
+    n_rec: int
+    psychographic_type: str
     top_category: str | None = None
     avg_spend: float | None = None
 
@@ -126,6 +148,7 @@ class RecommendRequest(BaseModel):
     query: str = ""
     budget_ceiling: int
     preferred_style: StyleType
+    psychographic_type: str = "utilitarian"
 
 
 class FinalRecommendation(BaseModel):
@@ -139,10 +162,13 @@ class FinalRecommendation(BaseModel):
     style_type: str
     rating: float
     RAG_score: float
+    presentation_hint: str = "spec_first"
+    n_rec: int = 5
 
 
 products: list[Product] = []
 consumers: dict[str, ConsumerProfile] = {}
+category_price_distributions: dict = {}
 
 
 def load_json(path: Path) -> list[dict[str, Any]]:
@@ -199,6 +225,7 @@ def build_preference_vector(consumer: ConsumerProfile) -> dict[str, Any]:
     maximum_historical_spend = max(historical_prices) if historical_prices else None
 
     return {
+        "psychographic_type": consumer.psychographic_type,
         "preference_style": consumer.preference_style,
         "budget_level": consumer.budget_level,
         "top_style": top_style,
@@ -219,10 +246,20 @@ def normalize_consumer_id(consumer_id: str) -> str:
     return consumer_id
 
 
+def build_category_price_distributions(products: list) -> dict:
+    from collections import defaultdict
+    dist = defaultdict(list)
+    for product in products:
+        dist[product.category].append(float(product.price))
+    return {cat: sorted(prices) for cat, prices in dist.items()}
+
+
 @asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+async def lifespan(_: FastAPI):
     """Initialize the in-memory JSON database when the FastAPI server starts."""
     load_database()
+    global category_price_distributions
+    category_price_distributions = build_category_price_distributions(products)
     yield
 
 
@@ -369,8 +406,13 @@ def get_trending_products(
     )
 
 
+@app.get("/products/price-distributions", response_model=dict)
+def get_price_distributions():
+    return category_price_distributions
+
+
 @app.post("/api/plan", response_model=PlanResponse)
-def create_recommendation_plan(request: PlanRequest) -> PlanResponse:
+def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get_db)):
     """
     Orchestrate the Planner Agent for the storefront confirmation dialog.
 
@@ -385,9 +427,26 @@ def create_recommendation_plan(request: PlanRequest) -> PlanResponse:
             page_visits=request.session_data.n,
             dwell_time_variance=request.session_data.dwell_variance,
             ctr=request.session_data.ctr,
+            scroll_depth=request.session_data.scroll_depth,
+            query_reformulations=request.session_data.query_reformulations,
+            self_report_score=request.session_data.self_report_score,
+            text_brainfry_score=request.session_data.text_brainfry_score,
         ),
         user_intent=UserIntent(query=request.query),
     )
+    brainfry_score = float(plan["brainfry_score"])
+    n_rec = max(1, round(7 * (1 - brainfry_score)))
+
+    # AgentTrace 기록
+    for agent_name in ["User Intent Agent", "BrainFry Detector", "Psychology Agent"]:
+        db.add(AgentTrace(
+            session_id=request.consumer_id,
+            agent_name=agent_name,
+            status="done",
+            input_data={"query": request.query, "brainfry_score": brainfry_score},
+            output_data=plan,
+        ))
+    db.commit()
 
     return PlanResponse(
         consumer_id=consumer_id,
@@ -395,7 +454,9 @@ def create_recommendation_plan(request: PlanRequest) -> PlanResponse:
         budget_ceiling=int(plan["budget_ceiling"]),
         preferred_style=plan["preferred_style"],
         brainfry_level=plan["brainfry_level"],
-        brainfry_score=float(plan["brainfry_score"]),
+        brainfry_score=brainfry_score,
+        n_rec=n_rec,
+        psychographic_type=plan.get("psychographic_type", "utilitarian"),
         top_category=plan.get("top_category"),
         avg_spend=plan.get("avg_spend"),
     )
@@ -404,6 +465,7 @@ def create_recommendation_plan(request: PlanRequest) -> PlanResponse:
 @app.post("/api/recommend", response_model=list[FinalRecommendation])
 def create_final_recommendations(
     request: RecommendRequest,
+    db: DBSession = Depends(get_db),
 ) -> list[FinalRecommendation]:
     """
     Run Planner context completion, Executor search/rerank, and Critic checks.
@@ -424,25 +486,138 @@ def create_final_recommendations(
     )
     plan["budget_ceiling"] = request.budget_ceiling
     plan["preferred_style"] = request.preferred_style
+    plan["psychographic_type"] = request.psychographic_type
+
+    # 카테고리 평균가 주입 (RAG 공식 분모로 사용)
+    top_cat = plan.get("top_category")
+    if top_cat and top_cat in category_price_distributions:
+        prices = category_price_distributions[top_cat]
+        plan["category_avg_price"] = sum(prices) / len(prices)
 
     executor = ExecutorAgent(ProductToolClient("http://127.0.0.1:8000"))
     critic = CriticAgent()
+
+    # AgentTrace 기록
+    for agent_name in ["Product Search Agent", "Decision Simplifier", "Critic Agent"]:
+        db.add(AgentTrace(
+            session_id=consumer_id,
+            agent_name=agent_name,
+            status="running",
+            input_data=plan,
+            output_data=None,
+        ))
+    db.commit()
+
     executor_result = executor.execute_plan(plan)
     final_result = critic.critique(plan=plan, executor_result=executor_result)
 
+    # AgentTrace 완료 업데이트
+    for agent_name in ["Product Search Agent", "Decision Simplifier", "Critic Agent"]:
+        trace = db.query(AgentTrace).filter(
+            AgentTrace.session_id == consumer_id,
+            AgentTrace.agent_name == agent_name,
+            AgentTrace.status == "running"
+        ).first()
+        if trace:
+            trace.status = "done"
+            trace.output_data = {"n_rec": final_result["n_rec"]}
+            trace.finished_at = datetime.now(timezone.utc)
+    db.commit()
+
     return [
         FinalRecommendation(
-            id=str(product.get("product_id")),
-            product_id=str(product.get("product_id")),
-            name=str(product.get("name")),
-            price=int(product.get("price", 0)),
-            style=str(product.get("style_type")),
-            style_type=str(product.get("style_type")),
-            rating=float(product.get("rating", 0.0)),
-            RAG_score=float(product.get("RAG_score", 0.0)),
+            id=str(p.get("product_id")),
+            product_id=str(p.get("product_id")),
+            name=str(p.get("name")),
+            price=int(p.get("price", 0)),
+            style=str(p.get("style_type")),
+            style_type=str(p.get("style_type")),
+            rating=float(p.get("rating") if p.get("rating") is not None else p.get("star_rating", 0.0)),
+            RAG_score=float(p.get("RAG_score", 0.0)),
+            presentation_hint=final_result.get("presentation_hint", "spec_first"),
+            n_rec=final_result.get("n_rec", 5),
         )
-        for product in final_result["final_recommendations"][:5]
+        for p in final_result["final_recommendations"]
     ]
+
+
+@app.get("/admin/sessions")
+def list_sessions(db: DBSession = Depends(get_db)):
+    from sqlalchemy import select, func
+    rows = db.execute(
+        select(
+            AgentTrace.session_id,
+            func.min(AgentTrace.started_at).label("started_at"),
+            func.count(AgentTrace.id).label("agent_calls"),
+        )
+        .group_by(AgentTrace.session_id)
+        .order_by(func.min(AgentTrace.started_at).desc())
+        .limit(50)
+    ).all()
+    return [
+        {"session_id": r.session_id, "started_at": str(r.started_at), "agent_calls": r.agent_calls}
+        for r in rows
+    ]
+
+
+@app.get("/admin/sessions/{session_id}")
+def get_session_detail(session_id: str, db: DBSession = Depends(get_db)):
+    traces = db.query(AgentTrace).filter(
+        AgentTrace.session_id == session_id
+    ).order_by(AgentTrace.started_at).all()
+    messages = db.query(ChatMessage).filter(
+        ChatMessage.session_id == session_id
+    ).order_by(ChatMessage.timestamp).all()
+    return {
+        "agent_timeline": [
+            {"agent": t.agent_name, "status": t.status,
+             "input": t.input_data, "output": t.output_data,
+             "started_at": str(t.started_at)}
+            for t in traces
+        ],
+        "chat_history": [
+            {"role": m.role, "content": m.content, "timestamp": str(m.timestamp)}
+            for m in messages
+        ],
+    }
+
+
+@app.get("/admin/stats/brainfry")
+def brainfry_stats(db: DBSession = Depends(get_db)):
+    events = db.query(SessionEvent).filter(SessionEvent.brainfry_score.isnot(None)).all()
+    scores = [e.brainfry_score for e in events]
+    if not scores:
+        return {"low": 0, "mid": 0, "high": 0, "average": 0.0}
+    return {
+        "low":     sum(1 for s in scores if s <= 0.35),
+        "mid":     sum(1 for s in scores if 0.35 < s <= 0.65),
+        "high":    sum(1 for s in scores if s > 0.65),
+        "average": round(sum(scores) / len(scores), 3),
+    }
+
+
+@app.get("/admin/sessions/{session_id}/stream")
+async def stream_agent_trace(session_id: str):
+    async def event_generator():
+        last_id = 0
+        import json as _json
+        while True:
+            with DBSession(engine) as db:
+                new_traces = db.query(AgentTrace).filter(
+                    AgentTrace.session_id == session_id,
+                    AgentTrace.id > last_id
+                ).order_by(AgentTrace.id).all()
+            for trace in new_traces:
+                last_id = trace.id
+                data = _json.dumps({
+                    "agent": trace.agent_name,
+                    "status": trace.status,
+                    "output": trace.output_data,
+                    "started_at": str(trace.started_at),
+                })
+                yield f"data: {data}\n\n"
+            await asyncio.sleep(0.5)
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 if __name__ == "__main__":

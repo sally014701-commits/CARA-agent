@@ -19,6 +19,16 @@ from urllib.parse import urlencode
 from urllib.request import urlopen
 
 
+PSYCHOGRAPHIC_RAG_WEIGHTS = {
+    "maximizer":    {"rating_w": 5.0, "review_w": 3.0, "price_w": 10.0},
+    "value_seeker": {"rating_w": 3.0, "review_w": 1.0, "price_w": 20.0},
+    "loss_averse":  {"rating_w": 4.0, "review_w": 5.0, "price_w": 10.0},
+    "impulsive":    {"rating_w": 4.0, "review_w": 4.0, "price_w": 10.0},
+    "hedonic":      {"rating_w": 3.0, "review_w": 2.0, "price_w": 10.0},
+    "utilitarian":  {"rating_w": 4.0, "review_w": 2.0, "price_w": 10.0},
+}
+
+
 class ProductToolClient:
     """HTTP client for product search tools exposed by the FastAPI module."""
 
@@ -125,7 +135,10 @@ class ExecutorAgent:
         budget_ceiling = self._optional_float(plan.get("budget_ceiling"))
         preferred_style = plan.get("preferred_style")
         top_category = plan.get("top_category")
-        avg_spend = self._safe_avg_spend(plan.get("avg_spend"))
+        psychographic_type = str(plan.get("psychographic_type") or "utilitarian")
+        avg_price = self._safe_avg_price(
+            plan.get("category_avg_price", plan.get("avg_spend")),
+        )
 
         candidates = self.product_client.search_products(
             query=query,
@@ -150,7 +163,8 @@ class ExecutorAgent:
                     query=query,
                     preferred_style=preferred_style,
                     top_category=top_category,
-                    avg_spend=avg_spend,
+                    avg_price=avg_price,
+                    psychographic_type=psychographic_type,
                 ),
             )
             for product in candidates
@@ -165,40 +179,47 @@ class ExecutorAgent:
             "query": query,
             "fallback_used": fallback_used,
             "candidate_count": len(candidates),
-            "top_5": reranked_products[:5],
+            "top_n": reranked_products[:5],
             "ranked_candidates": reranked_products,
         }
 
     @staticmethod
     def compute_rag_score(
-        product: dict[str, Any],
+        product: dict,
         query: str,
         preferred_style: str | None,
         top_category: str | None,
-        avg_spend: float,
+        avg_price: float,
+        psychographic_type: str = "utilitarian",
     ) -> float:
         """
         Compute RAG score for a single product.
 
         RAG_score = 10*S + 20*delta_cat + 15*delta_style
-                    + 10*exp(-abs(delta_price)/avg_price) + 3*rating
+                    + 10*exp(-abs(delta_price)/avg_price)
+                    + 3*rating + 5*sentiment_score
         """
-        normalized_query = query.strip().lower()
-        searchable_text = (
-            f"{product.get('name', '')} {product.get('description') or ''}".lower()
-        )
-        keyword_score = 1 if normalized_query and normalized_query in searchable_text else 0
+        weights = PSYCHOGRAPHIC_RAG_WEIGHTS.get(psychographic_type, PSYCHOGRAPHIC_RAG_WEIGHTS["utilitarian"])
+
+        keyword_score = 1 if query.strip().lower() in f"{product.get('name','')} {product.get('description') or ''}".lower() else 0
         category_match = 1 if product.get("category") == top_category else 0
         style_match = 1 if product.get("style_type") == preferred_style else 0
-        price_delta = abs(float(product.get("price", 0)) - avg_spend)
-        rating = float(product.get("rating", 0.0))
+        price_delta = abs(float(product.get("price", 0)) - avg_price)
+        rating_value = product.get("rating")
+        if rating_value is None:
+            rating_value = product.get("star_rating", 0.0)
+        rating = float(rating_value)
+        sentiment = float(product.get("sentiment_score") or 0.0)
+        review_norm = math.log1p(product.get("review_count", 0)) / math.log1p(5000)
 
         rag_score = (
             10 * keyword_score
             + 20 * category_match
             + 15 * style_match
-            + 10 * math.exp(-price_delta / avg_spend)
-            + 3 * rating
+            + weights["price_w"] * math.exp(-price_delta / max(avg_price, 1.0))
+            + weights["rating_w"] * rating
+            + 5 * sentiment
+            + weights["review_w"] * review_norm
         )
         return round(rag_score, 4)
 
@@ -213,7 +234,7 @@ class ExecutorAgent:
             "name": product.get("name"),
             "price": product.get("price"),
             "style_type": product.get("style_type"),
-            "rating": product.get("rating"),
+            "rating": product.get("rating") if product.get("rating") is not None else product.get("star_rating"),
             "RAG_score": rag_score,
         }
 
@@ -243,15 +264,15 @@ class ExecutorAgent:
         return float(value)
 
     @staticmethod
-    def _safe_avg_spend(value: Any) -> float:
-        """Return avg_spend with a non-zero denominator fallback."""
+    def _safe_avg_price(value: Any) -> float:
+        """Return avg_price with a non-zero denominator fallback."""
         if value is None:
             return 1.0
 
-        avg_spend = float(value)
-        if avg_spend == 0:
+        avg_price = float(value)
+        if avg_price == 0:
             return 1.0
-        return avg_spend
+        return avg_price
 
 
 def main() -> None:
@@ -263,6 +284,7 @@ def main() -> None:
         "preferred_style": "design",
         "top_category": "electronics",
         "avg_spend": 752_666.67,
+        "psychographic_type": "maximizer",
     }
     executor = ExecutorAgent()
     result = executor.execute_plan(example_plan)

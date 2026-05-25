@@ -11,14 +11,11 @@ Example:
 from __future__ import annotations
 
 import json
-from statistics import mean
 from typing import Any
 
 
 MIN_RATING = 3.8
 MAX_ITERATIONS = 2
-MIN_RECOMMENDATIONS = 3
-MAX_RECOMMENDATIONS = 5
 BUDGET_RELAXATION_FACTOR = 1.2
 
 
@@ -40,34 +37,34 @@ class CriticAgent:
         self.min_rating = min_rating
         self.max_iterations = max_iterations
 
-    def critique(
-        self,
-        plan: dict[str, Any],
-        executor_result: dict[str, Any],
-    ) -> dict[str, Any]:
-        """
-        Validate and self-correct Executor recommendations.
+    def critique(self, plan: dict, executor_result: dict) -> dict:
+        # 논문 Section III.D: N_rec = max(1, round(7 * (1 - B)))
+        brainfry_score = float(plan.get("brainfry_score", 0.5))
+        n_rec = max(1, round(7 * (1 - brainfry_score)))
 
-        Args:
-            plan: Planner dictionary containing at least budget_ceiling and
-                preferred_style.
-            executor_result: Executor dictionary containing top_5 and,
-                preferably, ranked_candidates as the reserve pool.
+        # Impulsive + HIGH 부하 → 단일 추천 강제 (논문 Section IV.D)
+        psychographic_type = plan.get("psychographic_type", "utilitarian")
+        brainfry_level = plan.get("brainfry_level", "LOW")
+        if psychographic_type == "impulsive" and brainfry_level == "HIGH":
+            n_rec = 1
 
-        Returns:
-            Final recommendation set with 3-5 products, mean rating,
-            critique issue logs, and correction iteration count.
-        """
+        max_recs = max(1, min(n_rec, 7))
+
+        # 논문 Section III.D Check 4: "fewer than two products remain"
+        # → 2개 미만일 때 budget 완화 (기존 코드의 MIN_RECOMMENDATIONS=3과 다름)
+        MIN_BEFORE_RELAXATION = 2
+
         original_budget = float(plan.get("budget_ceiling") or 0)
         active_budget = original_budget
         ranked_pool = self._dedupe_products(
             list(executor_result.get("ranked_candidates") or [])
-            or list(executor_result.get("top_5") or [])
+            or list(executor_result.get("top_n") or executor_result.get("top_5") or [])
         )
         recommendations = self._dedupe_products(
-            list(executor_result.get("top_5") or [])
-        )[:MAX_RECOMMENDATIONS]
-        critique_issues: list[dict[str, Any]] = []
+            list(executor_result.get("top_n") or executor_result.get("top_5") or [])
+        )[:max_recs]
+
+        critique_issues = []
         correction_iterations = 0
 
         for iteration in range(1, self.max_iterations + 1):
@@ -75,62 +72,57 @@ class CriticAgent:
             before_iteration = [item.get("product_id") for item in recommendations]
 
             recommendations, budget_removed = self._apply_budget_compliance(
-                recommendations=recommendations,
-                budget_ceiling=active_budget,
-                critique_issues=critique_issues,
-                iteration=iteration,
+                recommendations, active_budget, critique_issues, iteration
             )
             recommendations = self._apply_style_diversity(
-                recommendations=recommendations,
-                ranked_pool=ranked_pool,
-                preferred_style=plan.get("preferred_style"),
-                budget_ceiling=active_budget,
-                critique_issues=critique_issues,
-                iteration=iteration,
+                recommendations, ranked_pool, plan.get("preferred_style"),
+                active_budget, critique_issues, iteration
             )
             recommendations = self._apply_rating_quality(
-                recommendations=recommendations,
-                critique_issues=critique_issues,
-                iteration=iteration,
+                recommendations, critique_issues, iteration
             )
 
-            if len(recommendations) < MIN_RECOMMENDATIONS:
+            # Check 4: 2개 미만일 때만 budget 완화
+            if len(recommendations) < MIN_BEFORE_RELAXATION:
                 active_budget *= BUDGET_RELAXATION_FACTOR
                 recommendations = self._restore_after_budget_relaxation(
-                    recommendations=recommendations,
-                    ranked_pool=ranked_pool,
-                    budget_removed=budget_removed,
-                    relaxed_budget=active_budget,
-                    critique_issues=critique_issues,
-                    iteration=iteration,
+                    recommendations, ranked_pool, budget_removed,
+                    active_budget, critique_issues, iteration
                 )
 
-            recommendations = recommendations[:MAX_RECOMMENDATIONS]
+            recommendations = recommendations[:max_recs]
             after_iteration = [item.get("product_id") for item in recommendations]
 
-            if (
-                len(recommendations) >= MIN_RECOMMENDATIONS
-                and before_iteration == after_iteration
-            ):
+            if len(recommendations) >= 1 and before_iteration == after_iteration:
                 break
 
-        if len(recommendations) < MIN_RECOMMENDATIONS:
+        if len(recommendations) < 1:
             recommendations = self._force_minimum_backfill(
-                recommendations=recommendations,
-                ranked_pool=ranked_pool,
-                critique_issues=critique_issues,
+                recommendations, ranked_pool, critique_issues
             )
 
-        final_recommendations = recommendations[:MAX_RECOMMENDATIONS]
+        final_recommendations = recommendations[:max_recs]
         mean_rating_score = (
-            round(mean(float(item.get("rating", 0.0)) for item in final_recommendations), 4)
-            if final_recommendations
-            else 0.0
+            round(sum(self._rating(i) for i in final_recommendations) / len(final_recommendations), 4)
+            if final_recommendations else 0.0
         )
+
+        # presentation_hint: 심리 유형별 UI 힌트 (논문 Section IV.D)
+        PRESENTATION_HINTS = {
+            "maximizer":    "comparison_table",
+            "value_seeker": "price_highlight",
+            "loss_averse":  "social_proof",
+            "impulsive":    "single_hero",
+            "hedonic":      "visual_first",
+            "utilitarian":  "spec_first",
+        }
+        presentation_hint = PRESENTATION_HINTS.get(psychographic_type, "spec_first")
 
         return {
             "consumer_id": plan.get("consumer_id"),
             "final_recommendations": final_recommendations,
+            "n_rec": max_recs,
+            "presentation_hint": presentation_hint,
             "mean_rating_score": mean_rating_score,
             "critique_issues": critique_issues,
             "correction_iterations": correction_iterations,
@@ -198,7 +190,7 @@ class CriticAgent:
                 if product.get("product_id") not in existing_ids
                 and product.get("style_type") == opposite_style
                 and float(product.get("price", 0)) <= budget_ceiling
-                and float(product.get("rating", 0.0)) >= self.min_rating
+                and self._rating(product) >= self.min_rating
             ),
             None,
         )
@@ -232,12 +224,12 @@ class CriticAgent:
         kept = [
             product
             for product in recommendations
-            if float(product.get("rating", 0.0)) >= self.min_rating
+            if self._rating(product) >= self.min_rating
         ]
         removed = [
             product
             for product in recommendations
-            if float(product.get("rating", 0.0)) < self.min_rating
+            if self._rating(product) < self.min_rating
         ]
 
         if removed:
@@ -269,13 +261,13 @@ class CriticAgent:
         restored: list[dict[str, Any]] = []
 
         for product in restoration_pool:
-            if len(recommendations) + len(restored) >= MIN_RECOMMENDATIONS:
+            if len(recommendations) + len(restored) >= 2:
                 break
             if product.get("product_id") in existing_ids:
                 continue
             if float(product.get("price", 0)) > relaxed_budget:
                 continue
-            if float(product.get("rating", 0.0)) < self.min_rating:
+            if self._rating(product) < self.min_rating:
                 continue
             restored.append(product)
             existing_ids.add(product.get("product_id"))
@@ -284,7 +276,7 @@ class CriticAgent:
             {
                 "iteration": iteration,
                 "check": "Minimum Count Guarantee",
-                "violations": max(0, MIN_RECOMMENDATIONS - len(recommendations)),
+                "violations": max(0, 2 - len(recommendations)),
                 "action": "relaxed_budget_and_restored_candidates",
                 "relaxed_budget_ceiling": int(relaxed_budget),
                 "restored_product_ids": [item.get("product_id") for item in restored],
@@ -302,7 +294,7 @@ class CriticAgent:
         critique_issues: list[dict[str, Any]],
     ) -> list[dict[str, Any]]:
         """
-        Guarantee at least three recommendations after max Reflexion iterations.
+        Guarantee at least one recommendation after max Reflexion iterations.
 
         This deterministic fallback keeps the rating threshold intact and uses
         the highest-ranked remaining reserve candidates, logging that the final
@@ -312,11 +304,11 @@ class CriticAgent:
         backfilled: list[dict[str, Any]] = []
 
         for product in ranked_pool:
-            if len(recommendations) + len(backfilled) >= MIN_RECOMMENDATIONS:
+            if len(recommendations) + len(backfilled) >= 1:
                 break
             if product.get("product_id") in existing_ids:
                 continue
-            if float(product.get("rating", 0.0)) < self.min_rating:
+            if self._rating(product) < self.min_rating:
                 continue
             backfilled.append(product)
             existing_ids.add(product.get("product_id"))
@@ -326,7 +318,7 @@ class CriticAgent:
                 {
                     "iteration": self.max_iterations,
                     "check": "Minimum Count Guarantee",
-                    "violations": max(0, MIN_RECOMMENDATIONS - len(recommendations)),
+                    "violations": max(0, 1 - len(recommendations)),
                     "action": "forced_minimum_backfill_after_max_iterations",
                     "restored_product_ids": [
                         item.get("product_id") for item in backfilled
@@ -361,6 +353,14 @@ class CriticAgent:
         if style_type == "design":
             return "practical"
         return None
+
+    @staticmethod
+    def _rating(product: dict[str, Any]) -> float:
+        """Return rating from either Executor or catalog field names."""
+        rating = product.get("rating")
+        if rating is None:
+            rating = product.get("star_rating", 0.0)
+        return float(rating)
 
 
 def main() -> None:
