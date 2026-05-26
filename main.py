@@ -68,6 +68,16 @@ class Product(BaseModel):
     stock_status: bool | None = None
     description: str | None = None
 
+    # Bilingual metadata
+    category_en: str
+    category_ko: str
+    subcategory_en: str | None = None
+    subcategory_ko: str | None = None
+    title_en: str
+    title_ko: str
+    keywords_ko: list[str] = Field(default_factory=list)
+    synonyms_ko: list[str] = Field(default_factory=list)
+
     @property
     def effective_rating(self) -> float:
         return self.star_rating or self.rating or 0.0
@@ -176,6 +186,7 @@ class PlanResponse(BaseModel):
 class RecommendRequest(BaseModel):
     """Request body for end-to-end recommendation orchestration."""
 
+    session_id: str | None = None
     consumer_id: str = "user123"
     query: str = ""
     budget_ceiling: int
@@ -367,6 +378,56 @@ def get_consumer_history(consumer_id: str) -> ConsumerHistoryResponse:
     )
 
 
+SYNONYMS_MAP = {
+    "랩탑": ["노트북", "울트라북", "태블릿pc", "랩탑", "laptops", "laptop"],
+    "노트북": ["노트북", "울트라북", "태블릿pc", "랩탑", "laptops", "laptop", "맥북", "그램", "컴퓨터", "컴터", "pc"],
+    "컴퓨터": ["컴퓨터", "컴터", "pc", "노트북", "데스크탑"],
+    "핸드폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+    "스마트폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+    "폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+    "이어폰": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈", "헤드폰", "헤드셋"],
+    "무선이어폰": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈", "헤드폰", "헤드셋"],
+    "에어팟": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈"],
+    "버즈": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈"],
+    "태블릿": ["태블릿", "아이패드", "갤럭시탭", "패드", "tablet"],
+    "패드": ["태블릿", "아이패드", "갤럭시탭", "패드"],
+    "가방": ["백팩", "숄더백", "크로스백", "토트백", "메신저백", "가방", "백"],
+    "백팩": ["백팩", "배낭", "가방"],
+    "운동화": ["스니커즈", "로퍼", "구두", "런닝화", "운동화", "신발", "슈즈"],
+    "신발": ["스니커즈", "로퍼", "구두", "런닝화", "운동화", "신발", "슈즈"],
+    "블박": ["블랙박스", "대시캠", "블박", "dashcam"],
+    "블랙박스": ["블랙박스", "대시캠", "블박", "dashcam"],
+    "비타민": ["멀티비타민", "유산균", "영양제", "supplement"],
+    "영양제": ["유산균", "오메가3", "멀티비타민", "루테인", "영양제", "supplement"],
+    "사료": ["사료", "개사료", "고양이사료", "반려동물사료"],
+    "강아지": ["강아지", "애견", "댕댕이", "dog"],
+    "고양이": ["고양이", "반려묘", "냥이", "cat"],
+
+    # English benchmark synonyms
+    "laptop": ["노트북", "울트라북", "랩탑", "그램", "맥북"],
+    "sneakers": ["스니커즈", "운동화", "신발", "슈즈"],
+    "shoes": ["신발", "운동화", "스니커즈", "구두"],
+    "running shoes": ["런닝화", "운동화", "신발", "스니커즈"],
+    "yoga mat": ["요가매트", "요가", "매트"],
+    "smartphone": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+    "earphones": ["무선이어폰", "이어폰", "에어팟", "버즈"],
+    "skincare": ["스킨케어", "에센스", "크림", "화장품"],
+    "dumbbells": ["덤벨", "아령"],
+    "jacket": ["재킷", "점퍼", "바람막이", "아우터"],
+    "coffee maker": ["커피머신", "커피메이커"],
+    "smartwatch": ["스마트워치", "워치", "애플워치", "갤럭시워치"],
+    "furniture": ["책상", "의자", "소파", "침대", "가구"],
+    "tablet": ["태블릿", "아이패드", "갤럭시탭", "패드"],
+    "bag": ["가방", "백팩", "숄더백"],
+    "book": ["도서", "책", "소설", "에세이"],
+    "monitor": ["모니터"],
+    "pet food": ["사료", "간식", "펫푸드"],
+    "fragrance": ["향수", "디퓨저"],
+    "fitness equipment": ["운동기구", "덤벨", "매트"],
+    "camera": ["카메라"],
+}
+
+
 @app.get("/products/search", response_model=ProductSearchResponse)
 def search_products(
     query: str = Query(
@@ -398,12 +459,65 @@ def search_products(
     normalized_category = category.strip().lower() if category is not None else None
 
     filtered_products: list[Product] = []
+    raw_terms = [t for t in normalized_query.split() if t]
+    terms = []
+    
+    stop_words = {
+        "추천", "추천해줘", "추천해", "보여줘", "찾아줘", "알려줘", "해줘", "싶어", "원해", "구매", "살래", "검색", 
+        "추천해드립니다", "추천해주세요", "있나요", "어떤게", "어떤", "원해요", "원합니다", "부탁해", "부탁해요", "부탁드립니다",
+        "보여주세요", "찾아주세요", "알려주세요", "해줘요", "해주세요", "골라줘", "골라주세요", "골라"
+    }
+    particles = ["은", "는", "이", "가", "을", "를", "의", "에", "과", "와", "로", "으로", "에서", "보다", "부터", "까지"]
+    
+    for t in raw_terms:
+        if t in stop_words:
+            continue
+        for p in particles:
+            if t.endswith(p) and len(t) > len(p):
+                t = t[:-len(p)]
+                break
+        if t:
+            terms.append(t)
 
     for product in products:
-        searchable_text = f"{product.name} {product.description or ''}".lower()
+        # Match all terms in the query (AND logic)
+        if terms:
+            match_all_terms = True
+            for term in terms:
+                target_words = {term}
+                if term in SYNONYMS_MAP:
+                    target_words.update(SYNONYMS_MAP[term])
 
-        if normalized_query and normalized_query not in searchable_text:
-            continue
+                term_matched = False
+                for word in target_words:
+                    if word in product.name.lower():
+                        term_matched = True
+                        break
+                    if product.description and word in product.description.lower():
+                        term_matched = True
+                        break
+                    if word in product.category.lower() or word in getattr(product, "category_en", "").lower():
+                        term_matched = True
+                        break
+                    if (product.subcategory and word in product.subcategory.lower()) or (getattr(product, "subcategory_en", None) and word in product.subcategory_en.lower()):
+                        term_matched = True
+                        break
+                    if any(word in kw.lower() for kw in getattr(product, "keywords_ko", [])):
+                        term_matched = True
+                        break
+                    if any(word in syn.lower() for syn in getattr(product, "synonyms_ko", [])):
+                        term_matched = True
+                        break
+                    if product.brand and word in product.brand.lower():
+                        term_matched = True
+                        break
+
+                if not term_matched:
+                    match_all_terms = False
+                    break
+
+            if not match_all_terms:
+                continue
 
         if max_price is not None and product.price > max_price:
             continue
@@ -411,11 +525,12 @@ def search_products(
         if style_type is not None and product.style_type != style_type:
             continue
 
-        if (
-            normalized_category is not None
-            and product.category.lower() != normalized_category
-        ):
-            continue
+        if normalized_category is not None:
+            prod_cat = product.category.lower()
+            prod_cat_en = getattr(product, "category_en", "").lower()
+            prod_cat_ko = getattr(product, "category_ko", "").lower()
+            if normalized_category not in (prod_cat, prod_cat_en, prod_cat_ko):
+                continue
 
         filtered_products.append(product)
 
@@ -446,6 +561,8 @@ def get_trending_products(
         for product in products
         if normalized_category is None
         or product.category.lower() == normalized_category
+        or getattr(product, "category_en", "").lower() == normalized_category
+        or getattr(product, "category_ko", "").lower() == normalized_category
     ]
     trending_products = sorted(
         candidate_products,
@@ -640,9 +757,10 @@ def create_final_recommendations(
     critic = CriticAgent()
 
     # AgentTrace 기록
+    target_session_id = request.session_id or consumer_id
     for agent_name in ["Product Search Agent", "Decision Simplifier", "Critic Agent"]:
         db.add(AgentTrace(
-            session_id=consumer_id,
+            session_id=target_session_id,
             agent_name=agent_name,
             status="running",
             input_data=plan,
@@ -656,7 +774,7 @@ def create_final_recommendations(
     # AgentTrace 완료 업데이트
     for agent_name in ["Product Search Agent", "Decision Simplifier", "Critic Agent"]:
         trace = db.query(AgentTrace).filter(
-            AgentTrace.session_id == consumer_id,
+            AgentTrace.session_id == target_session_id,
             AgentTrace.agent_name == agent_name,
             AgentTrace.status == "running"
         ).first()

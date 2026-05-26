@@ -1,4 +1,4 @@
-﻿"""
+"""
 CARA Executor Agent.
 
 The Executor Agent receives a plan dictionary from the Planner Agent, calls the
@@ -143,7 +143,7 @@ class ExecutorAgent:
         candidates = self.product_client.search_products(
             query=query,
             max_price=budget_ceiling,
-            style_type=preferred_style,
+            style_type=None,
             category=None,
         )
         fallback_used = False
@@ -201,7 +201,111 @@ class ExecutorAgent:
         """
         weights = PSYCHOGRAPHIC_RAG_WEIGHTS.get(psychographic_type, PSYCHOGRAPHIC_RAG_WEIGHTS["utilitarian"])
 
-        keyword_score = 1 if query.strip().lower() in f"{product.get('name','')} {product.get('description') or ''}".lower() else 0
+        # Clean terms (conversational stop words and particles removed)
+        normalized_query = query.strip().lower()
+        stop_words = {
+            "추천", "추천해줘", "추천해", "보여줘", "찾아줘", "알려줘", "해줘", "싶어", "원해", "구매", "살래", "검색", 
+            "추천해드립니다", "추천해주세요", "있나요", "어떤게", "어떤", "원해요", "원합니다", "부탁해", "부탁해요", "부탁드립니다",
+            "보여주세요", "찾아주세요", "알려주세요", "해줘요", "해주세요", "골라줘", "골라주세요", "골라"
+        }
+        particles = ["은", "는", "이", "가", "을", "를", "의", "에", "과", "와", "로", "으로", "에서", "보다", "부터", "까지"]
+        
+        terms = []
+        for t in normalized_query.split():
+            if not t:
+                continue
+            if t in stop_words:
+                continue
+            for p in particles:
+                if t.endswith(p) and len(t) > len(p):
+                    t = t[:-len(p)]
+                    break
+            if t:
+                terms.append(t)
+                
+        LOCAL_SYNONYMS_MAP = {
+            "랩탑": ["노트북", "울트라북", "태블릿pc", "랩탑", "laptops", "laptop"],
+            "노트북": ["노트북", "울트라북", "태블릿pc", "랩탑", "laptops", "laptop", "맥북", "그램", "컴퓨터", "컴터", "pc"],
+            "컴퓨터": ["컴퓨터", "컴터", "pc", "노트북", "데스크탑"],
+            "핸드폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+            "스마트폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+            "폰": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+            "이어폰": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈", "헤드폰", "헤드셋"],
+            "무선이어폰": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈", "헤드폰", "헤드셋"],
+            "에어팟": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈"],
+            "버즈": ["무선 이어폰", "블루투스 이어폰", "이어버드", "에어팟", "버즈"],
+            "태블릿": ["태블릿", "아이패드", "갤럭시탭", "패드", "tablet"],
+            "패드": ["태블릿", "아이패드", "갤럭시탭", "패드"],
+            "가방": ["백팩", "숄더백", "크로스백", "토트백", "메신저백", "가방", "백"],
+            "백팩": ["백팩", "배낭", "가방"],
+            "운동화": ["스니커즈", "로퍼", "구두", "런닝화", "운동화", "신발", "슈즈"],
+            "신발": ["스니커즈", "로퍼", "구두", "런닝화", "운동화", "신발", "슈즈"],
+            "블박": ["블랙박스", "대시캠", "블박", "dashcam"],
+            "블랙박스": ["블랙박스", "대시캠", "블박", "dashcam"],
+            "비타민": ["멀티비타민", "유산균", "영양제", "supplement"],
+            "영양제": ["유산균", "오메가3", "멀티비타민", "루테인", "영양제", "supplement"],
+            "사료": ["사료", "개사료", "고양이사료", "반려동물사료"],
+            "강아지": ["강아지", "애견", "댕댕이", "dog"],
+            "고양이": ["고양이", "반려묘", "냥이", "cat"],
+            "laptop": ["노트북", "울트라북", "랩탑", "그램", "맥북"],
+            "sneakers": ["스니커즈", "운동화", "신발", "슈즈"],
+            "shoes": ["신발", "운동화", "스니커즈", "구두"],
+            "running shoes": ["런닝화", "운동화", "신발", "스니커즈"],
+            "yoga mat": ["요가매트", "요가", "매트"],
+            "smartphone": ["스마트폰", "휴대폰", "폰", "갤럭시", "아이폰"],
+            "earphones": ["무선이어폰", "이어폰", "에어팟", "버즈"],
+            "skincare": ["스킨케어", "에센스", "크림", "화장품"],
+            "dumbbells": ["덤벨", "아령"],
+            "jacket": ["재킷", "점퍼", "바람막이", "아우터"],
+            "coffee maker": ["커피머신", "커피메이커"],
+            "smartwatch": ["스마트워치", "워치", "애플워치", "갤럭시워치"],
+            "furniture": ["책상", "의자", "소파", "침대", "가구"],
+            "tablet": ["태블릿", "아이패드", "갤럭시탭", "패드"],
+            "bag": ["가방", "백팩", "숄더백"],
+            "book": ["도서", "책", "소설", "에세이"],
+            "monitor": ["모니터"],
+            "pet food": ["사료", "간식", "펫푸드"],
+            "fragrance": ["향수", "디퓨저"],
+            "fitness equipment": ["운동기구", "덤벨", "매트"],
+            "camera": ["카메라"],
+        }
+        
+        keyword_score = 0
+        if terms:
+            match_all_terms = True
+            for term in terms:
+                target_words = {term}
+                if term in LOCAL_SYNONYMS_MAP:
+                    target_words.update(LOCAL_SYNONYMS_MAP[term])
+                
+                term_matched = False
+                for word in target_words:
+                    if word in product.get("name", "").lower():
+                        term_matched = True
+                        break
+                    if product.get("description") and word in product.get("description", "").lower():
+                        term_matched = True
+                        break
+                    if word in product.get("category", "").lower() or word in product.get("category_en", "").lower():
+                        term_matched = True
+                        break
+                    if (product.get("subcategory") and word in product.get("subcategory", "").lower()) or (product.get("subcategory_en") and word in product.get("subcategory_en", "").lower()):
+                        term_matched = True
+                        break
+                    if any(word in kw.lower() for kw in product.get("keywords_ko", [])):
+                        term_matched = True
+                        break
+                    if any(word in syn.lower() for syn in product.get("synonyms_ko", [])):
+                        term_matched = True
+                        break
+                    if product.get("brand") and word in product.get("brand", "").lower():
+                        term_matched = True
+                        break
+                if not term_matched:
+                    match_all_terms = False
+                    break
+            if match_all_terms:
+                keyword_score = 1
         category_match = 1 if product.get("category") == top_category else 0
         style_match = 1 if product.get("style_type") == preferred_style else 0
         price_delta = abs(float(product.get("price", 0)) - avg_price)

@@ -1,4 +1,4 @@
-﻿"""
+"""
 CARA Planner Agent.
 
 The Planner Agent calls the FastAPI Tool Use Module, infers the user's current
@@ -12,11 +12,80 @@ Example:
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Literal
 from urllib.error import HTTPError, URLError
 from urllib.parse import quote
 from urllib.request import urlopen
+from dotenv import load_dotenv
+import openai as _openai
+
+load_dotenv(Path(__file__).parent / ".env", override=True)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+
+
+def clean_query_with_llm_and_fallback(query: str) -> str:
+    """Use GPT-4o-mini to extract clean search keywords from natural language query, with a rule-based fallback."""
+    if not query or len(query.strip()) < 2:
+        return query
+
+    # Try LLM first
+    if OPENAI_API_KEY:
+        try:
+            client = _openai.OpenAI(api_key=OPENAI_API_KEY)
+            prompt = f"""당신은 쇼핑 검색 시스템의 한국어 쿼리 정제기입니다.
+사용자가 입력한 자연어 검색어에서 검색의 핵심이 되는 상품 키워드(단일 명사 또는 핵심 복합 명사)만 추출해 주세요.
+
+규칙:
+1. "추천", "해줘", "보여줘", "살래", "싶어", "있어" 등 대화체, 서술어, 조사, 수식어는 모두 제외하십시오.
+2. 예시:
+   - "휴대폰 추천해줘" -> "휴대폰"
+   - "가성비 좋은 노트북 보여줄래?" -> "노트북"
+   - "러닝화 원해요" -> "러닝화"
+   - "이쁜 백팩" -> "백팩"
+   - "스마트워치" -> "스마트워치"
+3. 추출된 키워드 한 단어(혹은 띄어쓰기로 연결된 핵심 단어)만 직접 출력하십시오. 다른 설명이나 포맷팅은 절대 하지 마십시오.
+
+사용자 검색어: "{query}"
+"""
+            resp = client.chat.completions.create(
+                model="gpt-4o-mini",
+                max_tokens=20,
+                temperature=0,
+                messages=[{"role": "user", "content": prompt}],
+            )
+            result = resp.choices[0].message.content.strip()
+            if result:
+                return result
+        except Exception:
+            pass
+
+    # Rule-based fallback if LLM fails or API key is missing
+    normalized_query = query.strip().lower()
+    raw_terms = [t for t in normalized_query.split() if t]
+    
+    stop_words = {
+        "추천", "추천해줘", "추천해", "보여줘", "찾아줘", "알려줘", "해줘", "싶어", "원해", "구매", "살래", "검색", 
+        "추천해드립니다", "추천해주세요", "있나요", "어떤게", "어떤", "원해요", "원합니다", "부탁해", "부탁해요", "부탁드립니다",
+        "보여주세요", "찾아주세요", "알려주세요", "해줘요", "해주세요", "골라줘", "골라주세요", "골라"
+    }
+    particles = ["은", "는", "이", "가", "을", "를", "의", "에", "과", "와", "로", "으로", "에서", "보다", "부터", "까지"]
+    
+    terms = []
+    for t in raw_terms:
+        if t in stop_words:
+            continue
+        for p in particles:
+            if t.endswith(p) and len(t) > len(p):
+                t = t[:-len(p)]
+                break
+        if t:
+            terms.append(t)
+            
+    return " ".join(terms) if terms else query
+
 
 
 BrainFryLevel = Literal["HIGH", "MID", "LOW"]
@@ -121,12 +190,13 @@ class PlannerAgent:
             and lightweight trace metadata.
         """
         intent = user_intent or UserIntent()
+        cleaned_query = clean_query_with_llm_and_fallback(intent.query)
 
         consumer_profile = self.tool_client.get_consumer_history(consumer_id)
         preference_vector = consumer_profile.get("preference_vector", {})
         price_distributions = self.tool_client.get_price_distributions()
         target_category = self.infer_target_category(
-            query=intent.query,
+            query=cleaned_query,
             preference_vector=preference_vector,
             price_distributions=price_distributions,
         )
@@ -156,7 +226,7 @@ class PlannerAgent:
 
         return {
             "consumer_id": consumer_id,
-            "query": intent.query,
+            "query": cleaned_query,
             "budget_ceiling": budget_ceiling,
             "preferred_style": preferred_style,
             "top_category": target_category,
@@ -293,11 +363,98 @@ class PlannerAgent:
         price_distributions: dict,
     ) -> str | None:
         """Use a query category match first, then fall back to historical top category."""
+        CATEGORY_ENG_TO_KO = {
+            "electronics": "전자기기",
+            "fashion": "패션",
+            "home_living": "홈/리빙",
+            "beauty": "뷰티/퍼스널케어",
+            "sports_outdoors": "스포츠/아웃도어",
+            "food_grocery": "식품",
+            "baby_kids": "유아/키즈",
+            "books_media": "도서/미디어",
+            "automotive": "자동차용품",
+            "pet_supplies": "반려동물용품",
+        }
         normalized_query = query.strip().lower()
+        mapped_query = CATEGORY_ENG_TO_KO.get(normalized_query, normalized_query)
+
+        # 1. Direct Category Match
         for category in price_distributions:
-            if category.lower() == normalized_query:
+            if category.lower() == mapped_query:
                 return category
 
+        # 2. Subcategory or Keyword to Parent Category Mapping
+        SUB_TO_CAT = {
+            # 전자기기 (electronics)
+            "smartphones": "전자기기", "laptops": "전자기기", "earphones": "전자기기", "tablets": "전자기기",
+            "smartwatches": "전자기기", "cameras": "전자기기", "monitors": "전자기기", "keyboards": "전자기기",
+            "mice": "전자기기", "chargers": "전자기기",
+            "스마트폰": "전자기기", "노트북": "전자기기", "무선이어폰": "전자기기", "이어폰": "전자기기", "태블릿": "전자기기",
+            "스마트워치": "전자기기", "카메라": "전자기기", "모니터": "전자기기", "키보드": "전자기기",
+            "마우스": "전자기기", "충전기": "전자기기", "랩탑": "전자기기", "laptop": "전자기기",
+            "핸드폰": "전자기기", "휴대폰": "전자기기", "폰": "전자기기", "아이폰": "전자기기", "갤럭시": "전자기기",
+            "에어팟": "전자기기", "버즈": "전자기기", "헤드폰": "전자기기", "패드": "전자기기", "맥북": "전자기기", "그램": "전자기기",
+            "smartphone": "전자기기", "earphone": "전자기기", "tablet": "전자기기", "smartwatch": "전자기기", "camera": "전자기기", "monitor": "전자기기",
+            # 패션 (fashion)
+            "mens_apparel": "패션", "womens_apparel": "패션", "footwear": "패션", "bags": "패션",
+            "accessories": "패션", "watches": "패션", "hats": "패션", "scarves": "패션", "belts": "패션",
+            "남성의류": "패션", "여성의류": "패션", "신발": "패션", "가방": "패션", "악세사리": "패션",
+            "시계": "패션", "모자": "패션", "스카프": "패션", "벨트": "패션", "백팩": "패션", "운동화": "패션",
+            "스니커즈": "패션", "구두": "패션", "런닝화": "패션", "의류": "패션", "옷": "패션", "재킷": "패션", "jacket": "패션",
+            "sneakers": "패션", "running shoes": "패션", "shoes": "패션", "bag": "패션",
+            # 홈/리빙 (home_living)
+            "furniture": "홈/리빙", "lighting": "홈/리빙", "kitchenware": "홈/리빙", "bedding": "홈/리빙",
+            "storage": "홈/리빙", "cleaning_supplies": "홈/리빙", "candles": "홈/리빙", "rugs": "홈/리빙",
+            "가구": "홈/리빙", "조명": "홈/리빙", "주방용품": "홈/리빙", "침구류": "홈/리빙", "수납용품": "홈/리빙",
+            "청소용품": "홈/리빙", "캔들/방향제": "홈/리빙", "책상": "홈/리빙", "의자": "홈/리빙", "침대": "홈/리빙", "소파": "홈/리빙",
+            "coffee maker": "홈/리빙", "coffee": "홈/리빙",
+            # 뷰티/퍼스널케어 (beauty)
+            "skincare": "뷰티/퍼스널케어", "haircare": "뷰티/퍼스널케어", "fragrance": "뷰티/퍼스널케어",
+            "mens_grooming": "뷰티/퍼스널케어", "body_care": "뷰티/퍼스널케어", "makeup": "뷰티/퍼스널케어", "nail_care": "뷰티/퍼스널케어",
+            "스킨케어": "뷰티/퍼스널케어", "헤어케어": "뷰티/퍼스널케어", "향수": "뷰티/퍼스널케어", "남성그루밍": "뷰티/퍼스널케어",
+            "바디케어": "뷰티/퍼스널케어", "메이크업": "뷰티/퍼스널케어", "네일케어": "뷰티/퍼스널케어", "화장품": "뷰티/퍼스널케어",
+            # 스포츠/아웃도어 (sports_outdoors)
+            "fitness_equipment": "스포츠/아웃도어", "outdoor_gear": "스포츠/아웃도어", "cycling": "스포츠/아웃도어",
+            "swimming": "스포츠/아웃도어", "yoga_pilates": "스포츠/아웃도어", "hiking": "스포츠/아웃도어", "team_sports": "스포츠/아웃도어",
+            "운동기구": "스포츠/아웃도어", "아웃도어장비": "스포츠/아웃도어", "자전거용품": "스포츠/아웃도어", "수영용품": "스포츠/아웃도어",
+            "요가/필라테스": "스포츠/아웃도어", "등산용품": "스포츠/아웃도어", "구기스포츠": "스포츠/아웃도어", "요가": "스포츠/아웃도어",
+            "필라테스": "스포츠/아웃도어", "덤벨": "스포츠/아웃도어", "자전거": "스포츠/아웃도어",
+            "yoga mat": "스포츠/아웃도어", "dumbbells": "스포츠/아웃도어", "fitness equipment": "스포츠/아웃도어", "fitness": "스포츠/아웃도어",
+            # 식품 (food_grocery)
+            "health_foods": "식품", "beverages": "식품", "snacks": "식품", "fresh_produce": "식품",
+            "condiments": "식품", "supplements": "식품",
+            "건강식품": "식품", "음료/차": "식품", "간식/과자": "식품", "신선식품": "식품", "조미료/소스": "식품",
+            "영양제": "식품", "과자": "식품", "음료": "식품", "소스": "식품", "유산균": "식품", "비타민": "식품",
+            # 유아/키즈 (baby_kids)
+            "infant_products": "유아/키즈", "toys": "유아/키즈", "childrens_apparel": "유아/키즈",
+            "school_supplies": "유아/키즈", "baby_care": "유아/키즈",
+            "영유아용품": "유아/키즈", "완구/장난감": "유아/키즈", "아동의류": "유아/키즈", "학용품": "유아/키즈",
+            "베이비케어": "유아/키즈", "장난감": "유아/키즈", "유아": "유아/키즈", "키즈": "유아/키즈",
+            # 도서/미디어 (books_media)
+            "books": "도서/미디어", "music": "도서/미디어", "film": "도서/미디어", "games": "도서/미디어",
+            "stationery": "도서/미디어",
+            "도서": "도서/미디어", "음반/음악": "도서/미디어", "영화/블루레이": "도서/미디어", "게임/콘솔": "도서/미디어",
+            "문구류": "도서/미디어", "책": "도서/미디어", "음악": "도서/미디어", "게임": "도서/미디어", "book": "도서/미디어",
+            # 자동차용품 (automotive)
+            "car_accessories": "자동차용품", "car_care": "자동차용품", "dash_cameras": "자동차용품",
+            "car_electronics": "자동차용품",
+            "차량용액세서리": "자동차용품", "차량관리용품": "자동차용품", "블랙박스": "자동차용품", "차량용전자기기": "자동차용품",
+            "블박": "자동차용품",
+            # 반려동물용품 (pet_supplies)
+            "dog_supplies": "반려동물용품", "cat_supplies": "반려동물용품", "pet_food": "반려동물용품",
+            "treats": "반려동물용품", "pet_accessories": "반려동물용품", "pet_grooming": "반려동물용품",
+            "강아지용품": "반려동물용품", "고양이용품": "반려동물용품", "반려동물사료": "반려동물용품", "반려동물간식": "반려동물용품",
+            "반려동물액세서리": "반려동물용품", "반려동물미용": "반려동물용품", "사료": "반려동물용품", "간식": "반려동물용품",
+            "강아지": "반려동물용품", "고양이": "반려동물용품", "pet food": "반려동물용품",
+        }
+
+        for kw, cat in SUB_TO_CAT.items():
+            if kw in normalized_query:
+                for pc in price_distributions:
+                    if pc.lower() == cat.lower():
+                        return pc
+
+        # 3. Fallback to consumer historical top category
         top_category = preference_vector.get("top_category")
         if top_category:
             return top_category

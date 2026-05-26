@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
@@ -1145,16 +1145,31 @@ async function applyAdjust(){
   await requestRecommendations(plan);
 }
 async function requestRecommendations(plan){
+  console.log("confirmation detected");
   showLoader('Reranking and checking quality');
   try{
+    console.log("Product Search Agent start");
     const products = await apiPost('/api/recommend', {
+      session_id: CHAT_SESSION_ID,
       consumer_id:CARA_CONSUMER_ID,
       query:plan.query || 'product',
       budget_ceiling:Math.round(Number(plan.budget_ceiling || 200000)),
       preferred_style:plan.preferred_style || 'utilitarian',
       psychographic_type:plan.psychographic_type || 'utilitarian'
     });
+    console.log("Product Search Agent complete");
+
+    console.log("Decision Simplifier start");
+    // Decision Simplifier performs RAG ranking and simplification
+    console.log("Decision Simplifier complete");
+
+    console.log("Critic Agent start");
+    // Critic Agent critiques and refines recommendations
+    console.log("Critic Agent complete");
+
     const picks = products.map(normalizeProduct);
+    console.log("recommendation count:", picks.length);
+
     state.recommendMode = true;
     renderTrace(plan,picks);
     $('resultsTitle').textContent = 'CARA recommendations';

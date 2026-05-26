@@ -1,0 +1,1162 @@
+[
+  {
+    "scenario": {
+      "consumer_id": "C0001",
+      "query": "laptop",
+      "budget_ceiling": 1500000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "utilitarian"
+    },
+    "cara": {
+      "mean_satisfaction": 2.58,
+      "mean_decision_ease": 2.65,
+      "hit_at_n": 1,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0484,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.1,
+          "reasoning": "상세 스펙 부족, 가격대 편차 심함, 리뷰 근거 불명확하여 비교 분석 어려움"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "최저가 3.5만원부터 다양한 가격대 제시로 가성비 선택 용이"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 선택지가 많고 가격대가 3만원~132만원으로 너무 넓어 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "실용성 중심 제품들로 디자인과 감성적 가치가 전혀 드러나지 않아 불만족"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "고성능 제품들이지만 구체적 내구성 정보와 기능 스펙이 부족해 판단 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.58
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0002",
+      "query": "sneakers",
+      "budget_ceiling": 150000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "hedonic"
+    },
+    "cara": {
+      "mean_satisfaction": 1.42,
+      "mean_decision_ease": 1.17,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.8,
+      "brainfry_reduction": 0.05,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "운동화 검색에 만년필과 DVD 추천, 스펙 정보 부족, 완전히 부적합한 상품들"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "운동화 검색했는데 만년필과 DVD 추천. 가격은 저렴하나 원하는 상품 없음"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "검색어와 무관한 상품들이고 리뷰 수·베스트셀러 정보 없어 사회적 증거 판단 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "sneakers 검색에 만년필과 DVD 추천은 전혀 무관하고 결정이 불가능함"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "스니커즈 검색에 만년필과 DVD 추천은 감성적 연결 전무, 디자인 평가 불가"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "운동화 검색에 만년필과 DVD 추천은 기능 부적합, 실용성 전혀 없음"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.42
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0003",
+      "query": "yoga mat",
+      "budget_ceiling": 80000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "value_seeker"
+    },
+    "cara": {
+      "mean_satisfaction": 1.1,
+      "mean_decision_ease": 1.08,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0546,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "요가매트 검색에 셔츠와 벨트 추천, 스펙 불충분, 2개만 제공되어 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "요가매트 검색했는데 셔츠와 벨트 추천. 완전히 무관한 상품이라 평가 불가"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "요가매트 검색에 셔츠와 벨트 추천, 리뷰수/베스트셀러 정보 없어 신뢰 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "요가매트 검색인데 셔츠와 벨트 추천, 2개만 제시되어 선택 불가능"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.5,
+          "reasoning": "요가매트 검색에 셔츠와 벨트 추천은 감성적 연결 전무, 디자인 평가 불가"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "요가매트 검색에 셔츠와 벨트 추천은 기능 불일치, 실용성 전무"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.1
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0004",
+      "query": "smartphone",
+      "budget_ceiling": 1200000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "maximizer"
+    },
+    "cara": {
+      "mean_satisfaction": 2.65,
+      "mean_decision_ease": 2.62,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0556,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "상세 스펙 부재, 리뷰 근거 불명확, 가격대만 다양하고 실질적 차별점 파악 어려움"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "저렴한 옵션 다수 포함되나 할인정보 부재, 가격대 편차 커서 선택 고민"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수, 베스트셀러 여부, 반품 정책 정보가 전혀 없어 후회 방지 판단 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 상품 모두 비슷한 실용형 스타일로 차별성 없고, 명확한 베스트 선택이 보이지 않아 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "실용성 중심 제품들로 디자인과 감성적 가치 부족, 브랜드 스토리 전무"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "전문가용 기기가 있으나 구체적 기능/내구성 정보 부족, 가격대 편차로 비교 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.65
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0005",
+      "query": "earphones",
+      "budget_ceiling": 200000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "impulsive"
+    },
+    "cara": {
+      "mean_satisfaction": 2.75,
+      "mean_decision_ease": 2.63,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0519,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "상세 스펙 부재, 리뷰 내용 없음, 가격대만 다양하고 실질적 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "최저가 48,000원 상품이 있고 예산 내 선택지 충분하나 할인정보 부재"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 없어 사회적 증거 확인 불가능, 후회 회피 판단 어려움"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 선택지는 많고 가격대가 넓어 결정이 어려움. 명확한 베스트 옵션 부재"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "헤도닉 제품군이나 디자인·브랜드 스토리 정보 부족, 가격대만 다양해 감성적 선택 어려움"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "기능과 내구성 정보 부족, 스타일 중심 제품으로 실용성 판단 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.75
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0006",
+      "query": "skincare",
+      "budget_ceiling": 100000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "hedonic"
+    },
+    "cara": {
+      "mean_satisfaction": 2.77,
+      "mean_decision_ease": 2.57,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0515,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.1,
+          "reasoning": "상세 스펙 부재, 리뷰 내용 없음, 가격대만 다양해 비교 기준 불충분"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "예산 내 가격대 다양하고 P08365가 가성비 최고. 할인정보 없어 아쉬움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 상품 모두 유사한 등급과 스타일로 차별점 불명확, 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "제품명이 기능 중심이라 감성적 매력 부족, 브랜드 스토리 전달 안됨"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "기능 설명 부족, 내구성 정보 없음, hedonic 제품만 추천되어 실용성 평가 불가"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.77
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0007",
+      "query": "dumbbells",
+      "budget_ceiling": 300000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "utilitarian"
+    },
+    "cara": {
+      "mean_satisfaction": 1.37,
+      "mean_decision_ease": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.6667,
+      "brainfry_reduction": 0.0549,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색에 의자·브러쉬·옷걸이 추천, 스펙 불충분, 3개만 제공되어 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색했는데 의자, 브러쉬, 옷걸이가 나옴. 가성비 판단 불가능한 엉뚱한 추천"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색에 의자와 청소용품 추천, 리뷰수·베스트셀러 정보 없어 검증 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색했는데 의자와 청소용품 추천. 원하는 상품 없고 선택 불가능."
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색에 관련없는 가구/청소용품만 추천되어 감성적 만족 불가능"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "덤벨 검색에 의자, 청소브러쉬, 옷걸이 추천. 기능 충족도 완전 불일치"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.37
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0008",
+      "query": "jacket",
+      "budget_ceiling": 200000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "loss_averse"
+    },
+    "cara": {
+      "mean_satisfaction": 1.58,
+      "mean_decision_ease": 1.25,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.8,
+      "brainfry_reduction": 0.0453,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "jacket 검색에 전혀 무관한 상품들, 스펙 정보 부족, 비교 불가능한 구성"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 1.5,
+          "reasoning": "jacket 검색에 무관한 상품들이고 가격대비 품질 판단 불가능, 할인혜택 정보 없음"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "jacket 검색인데 무관한 유모차·원피스 등 추천. 리뷰수·베스트셀러 정보 없어 판단 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "재킷 검색했는데 유모차·원피스·스케치북 추천으로 혼란, 즉시 결정 불가능"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "재킷 검색했는데 유모차·원피스·스케치북 추천. 검색 의도 완전 불일치로 감성 평가 불가"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "재킷 검색에 유모차·원피스 등 무관한 상품만 추천되어 기능 충족 불가"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.58
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0009",
+      "query": "coffee maker",
+      "budget_ceiling": 500000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "value_seeker"
+    },
+    "cara": {
+      "mean_satisfaction": 1.37,
+      "mean_decision_ease": 1.03,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.8,
+      "brainfry_reduction": 0.0544,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "커피메이커 검색에 토퍼, 브러쉬, 의자 등 무관한 상품만 제공되어 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "커피메이커 검색인데 토퍼, 브러쉬, 의자 등 전혀 무관한 상품만 추천되어 가성비 판단 불가"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "커피메이커 검색에 토퍼, 브러쉬, 의자 등 무관한 제품만 추천되어 리뷰/베스트셀러 판단 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.2,
+          "reasoning": "커피 메이커를 찾는데 토퍼, 브러쉬, 의자 등 전혀 무관한 상품만 추천되어 즉시 결정 불가"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "커피메이커 검색에 토퍼, 청소브러쉬 등 무관한 실용품만 추천되어 감성적 만족 불가"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "커피메이커 검색에 토퍼, 브러쉬, 의자 등 무관한 상품만 추천되어 기능 충족 불가"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.37
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0010",
+      "query": "smartwatch",
+      "budget_ceiling": 400000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "impulsive"
+    },
+    "cara": {
+      "mean_satisfaction": 2.6,
+      "mean_decision_ease": 2.43,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0485,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "상세 스펙 없이 이름과 평점만 제공되어 비교 불가능, 리뷰 근거 없음"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 3.5,
+          "reasoning": "가성비 최우선인데 최저가 상품이 평점 낮고, 고가 상품들이 상위 노출되어 아쉬움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 항목은 많고, 가격·등급 차이가 애매해 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "감성적 디자인과 브랜드 스토리 정보 부족, 제품명만으론 미적 가치 판단 어려움"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "기능/내구성 정보 부족하고 감성지향 제품만 추천되어 실용성 판단 불가"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.6
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0011",
+      "query": "furniture",
+      "budget_ceiling": 800000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "hedonic"
+    },
+    "cara": {
+      "mean_satisfaction": 2.28,
+      "mean_decision_ease": 1.9,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.057,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 1.8,
+          "reasoning": "상세 스펙 부재, 리뷰 내용 없음, 유사한 고가 상품만 5개로 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.5,
+          "reasoning": "모두 70만원대 고가 상품으로 할인정보 없고, 가격차이 미미해 선택 어려움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "리뷰 수, 베스트셀러 여부, 반품 정책 정보가 전혀 없어 검증 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 추천은 많고, 가격·평점이 비슷해 차별점 없어 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.1,
+          "reasoning": "실속형 중심 구성으로 감성적 디자인과 브랜드 스토리 부재, 미적 차별성 없음"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "기능과 내구성 정보 부족, 모두 hedonic 타입으로 실용성 판단 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.28
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0012",
+      "query": "running shoes",
+      "budget_ceiling": 180000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "maximizer"
+    },
+    "cara": {
+      "mean_satisfaction": 1.1,
+      "mean_decision_ease": 1.08,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 0.5,
+      "brainfry_reduction": 0.0556,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "러닝화 검색에 의자와 옷걸이 추천, 스펙 부족, 요청 5개 중 2개만 제공"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "러닝화 검색했는데 의자와 옷걸이 추천, 완전히 무관하고 가성비 판단 불가"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "러닝화 검색에 의자와 옷걸이 추천, 리뷰수·베스트셀러 정보 전무로 검증 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.0,
+          "reasoning": "러닝화 검색에 의자와 옷걸이 추천, 관련성 전무로 즉각 결정 불가"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.2,
+          "decision_ease_score": 1.5,
+          "reasoning": "러닝화 검색에 가구 추천, 감성적 가치 전무, 디자인 정보 부족"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 1.0,
+          "decision_ease_score": 1.0,
+          "reasoning": "러닝화 검색에 의자와 옷걸이 추천은 기능 불일치, 실용성 전무"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 0.1
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0013",
+      "query": "tablet",
+      "budget_ceiling": 700000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "loss_averse"
+    },
+    "cara": {
+      "mean_satisfaction": 2.32,
+      "mean_decision_ease": 2.57,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0526,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "상세 스펙 부재, 리뷰 근거 불명확, 유사 상품만 나열되어 비교 기준 불충분"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 3.0,
+          "reasoning": "할인정보 없고 가격대가 비슷해 가성비 판단 어려움. 최저가는 35.9만원이나 특별한 혜택 부재"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "5개 선택지가 너무 많고 유사한 스펙으로 차별점 불명확, 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "모든 상품이 실용형 스타일로 디자인과 감성적 가치 정보가 부족해 만족도 낮음"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "기능 상세 정보 부족으로 충족도 판단 어려움. 내구성 정보 없어 실용적 선택 곤란"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.32
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0014",
+      "query": "bag",
+      "budget_ceiling": 250000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "hedonic"
+    },
+    "cara": {
+      "mean_satisfaction": 2.65,
+      "mean_decision_ease": 2.57,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0475,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 1.8,
+          "reasoning": "상세 스펙 부족, 리뷰 내용 없음, 가격대만 다른 유사 제품으로 비교 불가"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 4.0,
+          "reasoning": "가성비 최우선인데 고가 제품 4개, 저렴한 P03991 1개만 추천되어 만족도 낮음"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 1.5,
+          "reasoning": "리뷰 수, 베스트셀러 여부, 반품 정책 정보가 전혀 없어 후회 회피 판단 불가"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 추천은 많고, 가격과 스펙이 비슷해 즉각 결정이 어려움. 명확한 1순위 부재"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "고급스러운 디자인 중심 상품들이지만 브랜드 스토리와 감성적 차별점이 불명확함"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "기능과 내구성 정보 부족, 감성적 디자인 중심 제품만 추천되어 실용성 판단 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.65
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0015",
+      "query": "book",
+      "budget_ceiling": 30000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "utilitarian"
+    },
+    "cara": {
+      "mean_satisfaction": 2.55,
+      "mean_decision_ease": 2.3,
+      "hit_at_n": 1,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0504,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 1.5,
+          "reasoning": "상세 스펙 부재, 모호한 상품명으로 비교 불가능, 실제 책이 아닌 잡다한 품목들"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "모두 예산 내 가격이나 할인정보 없고 최저가 21000원 상품이 평점만 소폭 낮아 선택 고민됨"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 선택지가 많고 상품명이 복잡해 즉각 결정 어려움. 가격/평점 비슷해 차별점 불명확"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "실용성 위주 상품들로 디자인과 감성적 스토리 부족. 브랜드 이미지 불명확"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "책 검색에 악보집, 퍼즐, 콘솔 등 무관한 상품 많음. 기능 충족도 낮음"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.55
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0016",
+      "query": "monitor",
+      "budget_ceiling": 600000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "maximizer"
+    },
+    "cara": {
+      "mean_satisfaction": 2.77,
+      "mean_decision_ease": 2.82,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0483,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.1,
+          "reasoning": "상세 스펙 부족, 단순 이름만으로 비교 불가, 리뷰 근거 없음"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "32000원 고평점 모니터가 압도적 가성비, 선택 쉬우나 할인정보 부재 아쉬움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 누락되어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.5,
+          "reasoning": "5개 선택지가 많고 가격대가 32,000~162,000원으로 넓어 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "모두 실용형 제품이라 디자인·감성 정보 부족, 브랜드 스토리 전무"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 3.5,
+          "reasoning": "기능 명시가 모호하고 내구성 정보 부족. 가격대비 스펙 비교 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.77
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0017",
+      "query": "pet food",
+      "budget_ceiling": 50000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "value_seeker"
+    },
+    "cara": {
+      "mean_satisfaction": 2.87,
+      "mean_decision_ease": 2.93,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0565,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "상세 스펙 부족, 리뷰 내용 없음, 유사 옵션만 5개로 비교 어려움"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "최저가 2.2만원 옵션 2개 있으나 품질 차이 불분명해 선택 고민됨"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 모두 유사한 실용형 사료로 차별점 불분명, 빠른 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 3.5,
+          "reasoning": "실용적 사료만 추천되어 디자인과 감성적 가치가 부족하고 브랜드 스토리가 보이지 않음"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "기능성 사료들이지만 구체적 기능 차이가 불명확해 비교 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.87
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0018",
+      "query": "fragrance",
+      "budget_ceiling": 120000,
+      "preferred_style": "hedonic",
+      "psychographic_type": "impulsive"
+    },
+    "cara": {
+      "mean_satisfaction": 2.5,
+      "mean_decision_ease": 2.52,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0509,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 1.8,
+          "reasoning": "상세 스펙 전무, 리뷰 내용 없음, 가격대만 다양해 비교 불가능"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "5천원 초특가 상품이 있어 만족. 가격대 다양하나 품질 정보 부족이 아쉬움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 확인 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 선택지가 많고 가격대가 5천원~11만원으로 너무 다양해 즉각 결정 어려움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "제품명이 기능 중심이라 감성과 브랜드 스토리 파악 불가, 디자인 정보 전무"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "향수는 감성 제품으로 기능/내구성 평가 불가. 실용적 쇼퍼에게 부적합한 추천."
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.5
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0019",
+      "query": "fitness equipment",
+      "budget_ceiling": 1000000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "loss_averse"
+    },
+    "cara": {
+      "mean_satisfaction": 2.72,
+      "mean_decision_ease": 2.85,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0485,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "상세 스펙 부족, 리뷰 내용 없음, 가격대만 높고 차별점 불명확"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "모두 예산 내 저렴한 편이나 할인정보 없고 가격차이 커서 가성비 판단 어려움"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 2.0,
+          "decision_ease_score": 2.5,
+          "reasoning": "리뷰 수, 베스트셀러 여부, 반품 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 모두 비슷한 스타일과 가격대로 차별성 없어 선택이 어렵고, 시각 정보 부재"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 2.0,
+          "reasoning": "모든 상품이 utilitarian 스타일로 디자인 감성과 브랜드 스토리가 부재해 감성 소비자에게 부적합"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 3.8,
+          "reasoning": "실용적 제품들이나 가격대가 높고 기능 설명 부족으로 비교가 어려움"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.72
+  },
+  {
+    "scenario": {
+      "consumer_id": "C0020",
+      "query": "camera",
+      "budget_ceiling": 900000,
+      "preferred_style": "utilitarian",
+      "psychographic_type": "maximizer"
+    },
+    "cara": {
+      "mean_satisfaction": 2.6,
+      "mean_decision_ease": 2.45,
+      "hit_at_n": 0,
+      "budget_compliance": 1.0,
+      "preference_alignment": 1.0,
+      "brainfry_reduction": 0.0522,
+      "n_rec": 5,
+      "persona_scores": {
+        "maximizer": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.1,
+          "reasoning": "상세 스펙 부재, 제품명만으론 차이 불명확, 카메라 검색에 블랙박스 위주 추천 부적합"
+        },
+        "value_seeker": {
+          "persona_satisfaction_score": 4.2,
+          "decision_ease_score": 4.5,
+          "reasoning": "최저가 P17871이 고화질에 최고평점으로 가성비 우수, 예산 여유로 선택 용이"
+        },
+        "loss_averse": {
+          "persona_satisfaction_score": 1.5,
+          "decision_ease_score": 1.0,
+          "reasoning": "리뷰 수와 베스트셀러 정보가 전혀 없어 사회적 증거 판단 불가능"
+        },
+        "impulsive": {
+          "persona_satisfaction_score": 2.3,
+          "decision_ease_score": 2.0,
+          "reasoning": "5개 모두 비슷한 블랙박스 제품이라 차별성 없고, camera 검색에 맞지 않아 혼란스러움"
+        },
+        "hedonic": {
+          "persona_satisfaction_score": 2.1,
+          "decision_ease_score": 2.3,
+          "reasoning": "블랙박스 위주 실용성 제품들로 디자인 감성과 브랜드 스토리가 부족해 만족도 낮음"
+        },
+        "utilitarian": {
+          "persona_satisfaction_score": 3.2,
+          "decision_ease_score": 2.8,
+          "reasoning": "블랙박스 중심 추천으로 카메라 검색의도와 불일치, 기능은 우수하나 선택 혼란"
+        }
+      }
+    },
+    "baseline": {
+      "mean_satisfaction": 1.0,
+      "hit_at_n": 0,
+      "budget_compliance": 0.0,
+      "preference_alignment": 0.0,
+      "brainfry_reduction": 0.0
+    },
+    "delta_satisfaction": 1.6
+  }
+]
