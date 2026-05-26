@@ -1030,7 +1030,10 @@ def create_final_recommendations(
         ).first()
         if trace:
             trace.status = "done"
-            trace.output_data = {"n_rec": final_result["n_rec"]}
+            trace.output_data = {
+                "n_rec": final_result["n_rec"],
+                "decision_debug": final_result.get("decision_debug"),
+            }
             trace.finished_at = datetime.now(timezone.utc)
     db.commit()
 

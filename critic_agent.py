@@ -60,9 +60,11 @@ class CriticAgent:
             list(executor_result.get("ranked_candidates") or [])
             or list(executor_result.get("top_n") or executor_result.get("top_5") or [])
         )
-        recommendations = self._dedupe_products(
-            list(executor_result.get("top_n") or executor_result.get("top_5") or [])
-        )[:max_recs]
+        initial_candidates = ranked_pool
+        recommendations, decision_debug = self._select_by_rating(
+            initial_candidates,
+            max_recs,
+        )
 
         critique_issues = []
         correction_iterations = 0
@@ -127,6 +129,7 @@ class CriticAgent:
             "critique_issues": critique_issues,
             "correction_iterations": correction_iterations,
             "final_budget_ceiling": int(active_budget),
+            "decision_debug": decision_debug,
         }
 
     def _apply_budget_compliance(
@@ -354,13 +357,46 @@ class CriticAgent:
             return "utilitarian"
         return None
 
+    @classmethod
+    def _select_by_rating(
+        cls,
+        candidates: list[dict[str, Any]],
+        n_rec: int,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        if len(candidates) <= n_rec:
+            selected_candidates = candidates
+        else:
+            selected_candidates = sorted(
+                candidates,
+                key=cls._rating,
+                reverse=True,
+            )[:n_rec]
+
+        decision_debug = {
+            "selection_basis": "rating_desc",
+            "input_count": len(candidates),
+            "n_rec": n_rec,
+            "output_count": len(selected_candidates),
+            "selected_ratings": [
+                {
+                    "product_id": p.get("product_id"),
+                    "name": p.get("name"),
+                    "rating": cls._rating(p),
+                }
+                for p in selected_candidates
+            ],
+        }
+        return selected_candidates, decision_debug
+
     @staticmethod
     def _rating(product: dict[str, Any]) -> float:
         """Return rating from either Executor or catalog field names."""
-        rating = product.get("rating")
-        if rating is None:
-            rating = product.get("star_rating", 0.0)
-        return float(rating)
+        return float(
+            product.get("rating")
+            or product.get("star_rating")
+            or product.get("stars")
+            or 0
+        )
 
 
 def main() -> None:
