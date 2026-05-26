@@ -65,7 +65,7 @@ class PersonaEvaluator:
             n_rec=plan_context.get("n_rec", 5),
         )
         response = self.client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=300,
             messages=[{"role": "user", "content": prompt}],
         )

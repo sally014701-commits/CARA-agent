@@ -11,6 +11,9 @@ exposes RESTful API tools for CARA agents.
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent / ".env", override=True)
 import json
 from collections import Counter
 from contextlib import asynccontextmanager

@@ -631,8 +631,7 @@ button{cursor:pointer}
       </div>
       <div class="nav-actions">
         <div class="badge" id="bfBadge">BrainFry: MID</div>
-        <button class="button ghost" id="askTop">Ask CARA</button>
-        <button class="button icon ghost" id="cartButton" title="Cart">Cart</button>
+        <a href="/admin.html" class="button ghost" style="text-decoration:none">Developer Dashboard</a>
       </div>
     </div>
   </header>
@@ -1189,7 +1188,6 @@ function addToCart(){
 function bind(){
   $('searchButton').onclick = applySearch;
   $('navSearch').addEventListener('keydown', e => { if(e.key === 'Enter') applySearch(); });
-  $('askTop').onclick = openChatPanel;
   $('askFloating').onclick = openChatPanel;
   $('chatSend').onclick = sendChatMessage;
   $('chatInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendChatMessage(); });

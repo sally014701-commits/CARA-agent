@@ -6,7 +6,7 @@ import openai as _openai
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(Path(__file__).parent / ".env", override=True)
 
 
 def _ensure_env_file():
@@ -151,7 +151,7 @@ class ConversationAgent:
         if self.anthropic_client:
             try:
                 response = self.anthropic_client.messages.create(
-                    model="claude-sonnet-4-20250514",
+                    model="claude-sonnet-4-5",
                     max_tokens=500,
                     system=system,
                     messages=messages,
