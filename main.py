@@ -11,6 +11,7 @@ exposes RESTful API tools for CARA agents.
 from __future__ import annotations
 
 import asyncio
+import re
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent / ".env", override=True)
@@ -34,7 +35,7 @@ from critic_agent import CriticAgent
 from conversation_agent import ConversationAgent
 from database import engine, Base, AgentTrace, ChatMessage, SessionEvent, get_db
 from executor_agent import ExecutorAgent, ProductToolClient
-from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
+from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent, clean_query_with_llm_and_fallback
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -42,6 +43,202 @@ PRODUCTS_PATH = BASE_DIR / "products.json"
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
 
 BudgetLevel = Literal["low", "mid", "high"]
+
+SIMPLE_CONFIRMATIONS = {
+    "yes",
+    "y",
+    "ok",
+    "okay",
+    "응",
+    "네",
+    "예",
+    "좋아",
+    "그걸로",
+    "그걸로 해줘",
+    "그걸로 추천해줘",
+}
+
+QUERY_NORMALIZATION_MAP = {
+    "노트북": "노트북",
+    "laptop": "노트북",
+    "laptops": "노트북",
+    "백팩": "백팩",
+    "backpack": "백팩",
+    "backpacks": "백팩",
+    "운동화": "운동화",
+    "running shoes": "운동화",
+    "running shoe": "운동화",
+    "shoes": "운동화",
+    "sneakers": "운동화",
+    "커피머신": "커피머신",
+    "커피 머신": "커피머신",
+    "coffee maker": "커피머신",
+    "coffee machine": "커피머신",
+    "헤어팩": "헤어팩",
+    "hair pack": "헤어팩",
+    "hair mask": "헤어팩",
+}
+
+QUERY_FILLER_WORDS = {
+    "가성비",
+    "좋은",
+    "예쁜",
+    "추천",
+    "추천해",
+    "추천해줘",
+    "보여줘",
+    "찾아줘",
+    "이하",
+    "이상",
+    "under",
+    "for",
+    "daily",
+    "workout",
+    "미만",
+    "초과",
+    "below",
+    "over",
+}
+
+UTILITARIAN_TERM_ALIASES = {
+    "가성비": ["가성비", "가격 대비", "저렴", "저렴한"],
+    "튼튼한": ["튼튼", "튼튼한", "내구성"],
+    "가벼운": ["가벼운", "가벼워", "경량"],
+    "휴대성": ["휴대성", "휴대"],
+    "성능": ["성능", "스펙"],
+    "배터리": ["배터리"],
+    "수납력": ["수납력", "수납"],
+    "방수": ["방수"],
+    "실용적인": ["실용", "실용적인"],
+    "업무용": ["업무용", "업무"],
+    "공부용": ["공부용", "공부"],
+}
+
+HEDONIC_TERM_ALIASES = {
+    "예쁜": ["예쁜", "예쁘", "이쁜", "이쁘"],
+    "감성적인": ["감성", "감성적인"],
+    "고급스러운": ["고급", "고급스러운"],
+    "깔끔한": ["깔끔", "깔끔한"],
+    "귀여운": ["귀여운", "귀엽"],
+    "힙한": ["힙한", "힙하"],
+    "트렌디한": ["트렌디", "트렌디한"],
+    "미니멀한": ["미니멀", "미니멀한"],
+    "색감": ["색감"],
+    "디자인": ["디자인"],
+    "세련된": ["세련", "세련된"],
+    "무드 있는": ["무드"],
+}
+
+
+def is_price_constraint_term(term: str) -> bool:
+    normalized = term.strip().lower().replace(",", "")
+    if normalized in QUERY_FILLER_WORDS:
+        return True
+    return bool(re.fullmatch(r"[$₩]?\d+(\.\d+)?(원|만원|천원|만|k|krw)?", normalized))
+
+
+def extract_budget_ceiling(text: str) -> int | None:
+    normalized = text.replace(",", "").lower()
+    if re.search(r"(이상|초과|\bover\b)", normalized):
+        return None
+    return extract_price_amount(text)
+
+
+def extract_budget_floor(text: str) -> int | None:
+    normalized = text.replace(",", "").lower()
+    if not re.search(r"(이상|초과|\bover\b)", normalized):
+        return None
+    return extract_price_amount(text)
+
+
+def extract_price_amount(text: str) -> int | None:
+    normalized = text.replace(",", "").lower()
+    match = re.search(r"(\d+(?:\.\d+)?)\s*(만원|만\s*원|천원|원|만|k|krw)?", normalized)
+    if not match:
+        return None
+
+    amount = float(match.group(1))
+    unit = (match.group(2) or "원").replace(" ", "")
+    if unit in {"만원", "만"}:
+        amount *= 10000
+    elif unit == "천원":
+        amount *= 1000
+    elif unit == "k":
+        amount *= 1000
+
+    return int(amount)
+
+
+def is_simple_confirmation(message: str) -> bool:
+    normalized = " ".join(message.strip().lower().split())
+    compact = normalized.replace(" ", "")
+    return normalized in SIMPLE_CONFIRMATIONS or compact in {
+        item.replace(" ", "") for item in SIMPLE_CONFIRMATIONS
+    }
+
+
+def extract_chat_query(message: str) -> str:
+    cleaned = clean_query_with_llm_and_fallback(message).strip()
+    if not cleaned:
+        return ""
+
+    normalized_message = " ".join(message.strip().lower().split())
+    normalized_cleaned = " ".join(cleaned.lower().split())
+    for key, value in QUERY_NORMALIZATION_MAP.items():
+        if key in normalized_cleaned or key in normalized_message:
+            return value
+
+    if normalized_cleaned == normalized_message and " " in cleaned:
+        terms = []
+        for term in cleaned.split():
+            stripped = term.strip(".,!?~")
+            if not stripped or stripped.lower() in QUERY_FILLER_WORDS:
+                continue
+            if is_price_constraint_term(stripped):
+                continue
+            terms.append(stripped)
+        if terms:
+            return terms[-1]
+
+    return cleaned
+
+
+def _matched_style_terms(message: str, aliases: dict[str, list[str]]) -> list[str]:
+    normalized = message.lower().replace(" ", "")
+    matched: list[str] = []
+    for canonical, variants in aliases.items():
+        if any(variant.replace(" ", "").lower() in normalized for variant in variants):
+            matched.append(canonical)
+    return matched
+
+
+def parse_user_utterance(
+    message: str,
+    existing_preferred_style: str | None = None,
+) -> dict[str, Any]:
+    utilitarian_terms = _matched_style_terms(message, UTILITARIAN_TERM_ALIASES)
+    hedonic_terms = _matched_style_terms(message, HEDONIC_TERM_ALIASES)
+    util_score = len(utilitarian_terms)
+    hedonic_score = len(hedonic_terms)
+    preferred_style: str | None = None
+    style_confidence = 0.0
+
+    if util_score > hedonic_score:
+        preferred_style = "utilitarian"
+        style_confidence = round((util_score - hedonic_score) / max(util_score + hedonic_score, 1), 4)
+    elif hedonic_score > util_score:
+        preferred_style = "hedonic"
+        style_confidence = round((hedonic_score - util_score) / max(util_score + hedonic_score, 1), 4)
+    elif util_score or hedonic_score:
+        preferred_style = existing_preferred_style
+
+    return {
+        "query": extract_chat_query(message),
+        "utilitarian_terms": utilitarian_terms,
+        "hedonic_terms": hedonic_terms,
+        "preferred_style": preferred_style,
+        "style_confidence": style_confidence,
+    }
 
 
 class StyleType(str, Enum):
@@ -192,6 +389,9 @@ class RecommendRequest(BaseModel):
     budget_ceiling: int
     preferred_style: StyleType
     psychographic_type: str = "utilitarian"
+    utilitarian_terms: list[str] = Field(default_factory=list)
+    hedonic_terms: list[str] = Field(default_factory=list)
+    style_confidence: float = 0.0
 
 
 class FinalRecommendation(BaseModel):
@@ -439,6 +639,11 @@ def search_products(
         ge=0,
         description="Optional upper price bound.",
     ),
+    min_price: float | None = Query(
+        default=None,
+        ge=0,
+        description="Optional lower price bound.",
+    ),
     style_type: StyleType | None = Query(
         default=None,
         description="Optional style filter: utilitarian or hedonic.",
@@ -457,6 +662,12 @@ def search_products(
     """
     normalized_query = query.strip().lower()
     normalized_category = category.strip().lower() if category is not None else None
+    effective_max_price = max_price
+    if effective_max_price is None:
+        effective_max_price = extract_budget_ceiling(query)
+    effective_min_price = min_price
+    if effective_min_price is None:
+        effective_min_price = extract_budget_floor(query)
 
     filtered_products: list[Product] = []
     raw_terms = [t for t in normalized_query.split() if t]
@@ -470,7 +681,7 @@ def search_products(
     particles = ["은", "는", "이", "가", "을", "를", "의", "에", "과", "와", "로", "으로", "에서", "보다", "부터", "까지"]
     
     for t in raw_terms:
-        if t in stop_words:
+        if t in stop_words or is_price_constraint_term(t):
             continue
         for p in particles:
             if t.endswith(p) and len(t) > len(p):
@@ -519,7 +730,10 @@ def search_products(
             if not match_all_terms:
                 continue
 
-        if max_price is not None and product.price > max_price:
+        if effective_max_price is not None and product.price > effective_max_price:
+            continue
+
+        if effective_min_price is not None and product.price < effective_min_price:
             continue
 
         if style_type is not None and product.style_type != style_type:
@@ -590,6 +804,7 @@ def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get
     inferred budget, preferred style, and BrainFry state needed for Turn 1.
     """
     consumer_id = normalize_consumer_id(request.consumer_id)
+    explicit_budget = extract_budget_ceiling(request.query)
     planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
     plan = planner.create_plan(
         consumer_id=consumer_id,
@@ -602,8 +817,11 @@ def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get
             self_report_score=request.session_data.self_report_score,
             text_brainfry_score=request.session_data.text_brainfry_score,
         ),
-        user_intent=UserIntent(query=request.query),
+        user_intent=UserIntent(query=request.query, explicit_budget=explicit_budget),
     )
+    if explicit_budget is not None:
+        plan["budget_ceiling"] = explicit_budget
+        plan.setdefault("trace", {})["budget_source"] = "explicit_query_budget"
     brainfry_score = float(plan["brainfry_score"])
     n_rec = max(1, round(7 * (1 - brainfry_score)))
 
@@ -638,6 +856,11 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
     plan_context = dict(request.plan_context or {})
 
     agent_trace: list[dict[str, str]] = []
+    explicit_budget = extract_budget_ceiling(request.message)
+    parsed_utterance = parse_user_utterance(
+        request.message,
+        existing_preferred_style=plan_context.get("preferred_style"),
+    )
     if not plan_context:
         planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
         plan_context = planner.create_plan(
@@ -651,8 +874,17 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
                 self_report_score=request.session_data.self_report_score,
                 text_brainfry_score=request.session_data.text_brainfry_score,
             ),
-            user_intent=UserIntent(query=request.message),
+            user_intent=UserIntent(query=request.message, explicit_budget=explicit_budget),
         )
+        if explicit_budget is not None:
+            plan_context["budget_ceiling"] = explicit_budget
+            plan_context.setdefault("trace", {})["budget_source"] = "explicit_chat_budget"
+        plan_context["query"] = parsed_utterance["query"] or plan_context.get("query", "")
+        plan_context["utilitarian_terms"] = parsed_utterance["utilitarian_terms"]
+        plan_context["hedonic_terms"] = parsed_utterance["hedonic_terms"]
+        plan_context["style_confidence"] = parsed_utterance["style_confidence"]
+        if parsed_utterance["preferred_style"]:
+            plan_context["preferred_style"] = parsed_utterance["preferred_style"]
         for agent_name in ["User Intent Agent", "BrainFry Detector", "Psychology Agent"]:
             db.add(AgentTrace(
                 session_id=request.session_id,
@@ -664,7 +896,18 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             ))
             agent_trace.append({"agent": agent_name, "status": "done"})
     else:
-        plan_context.setdefault("query", request.message)
+        if not is_simple_confirmation(request.message):
+            cleaned_query = parsed_utterance["query"]
+            if cleaned_query:
+                plan_context["query"] = cleaned_query
+            plan_context["utilitarian_terms"] = parsed_utterance["utilitarian_terms"]
+            plan_context["hedonic_terms"] = parsed_utterance["hedonic_terms"]
+            plan_context["style_confidence"] = parsed_utterance["style_confidence"]
+            if parsed_utterance["preferred_style"]:
+                plan_context["preferred_style"] = parsed_utterance["preferred_style"]
+            if explicit_budget is not None:
+                plan_context["budget_ceiling"] = explicit_budget
+                plan_context["budget_source"] = "explicit_chat_budget"
 
     db.add(ChatMessage(
         session_id=request.session_id,
@@ -710,6 +953,7 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
     db.commit()
 
     agent_trace.append({"agent": "Conversation Agent", "status": "done"})
+    print(f'/api/chat plan_context.query = "{updated_context.get("query", "")}"')
 
     return ChatResponse(
         reply=result["reply"],
@@ -732,20 +976,26 @@ def create_final_recommendations(
     The frontend calls this endpoint after the user confirms or edits the
     two-turn dialog. The response is the final 3-5 item visual grid payload.
     """
+    print(f'/api/recommend request.query = "{request.query}"')
     consumer_id = normalize_consumer_id(request.consumer_id)
+    explicit_budget = extract_budget_ceiling(request.query)
+    budget_ceiling = explicit_budget if explicit_budget is not None else request.budget_ceiling
     planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
     plan = planner.create_plan(
         consumer_id=consumer_id,
         session_input=SessionInput(page_visits=0, dwell_time_variance=0.0, ctr=1.0),
         user_intent=UserIntent(
             query=request.query,
-            explicit_budget=request.budget_ceiling,
+            explicit_budget=budget_ceiling,
             explicit_style=style_value(request.preferred_style),
         ),
     )
-    plan["budget_ceiling"] = request.budget_ceiling
+    plan["budget_ceiling"] = budget_ceiling
     plan["preferred_style"] = style_value(request.preferred_style)
     plan["psychographic_type"] = request.psychographic_type
+    plan["utilitarian_terms"] = request.utilitarian_terms
+    plan["hedonic_terms"] = request.hedonic_terms
+    plan["style_confidence"] = request.style_confidence
 
     # 카테고리 평균가 주입 (RAG 공식 분모로 사용)
     top_cat = plan.get("top_category")

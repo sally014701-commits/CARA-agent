@@ -966,10 +966,36 @@ function filterCategory(cat){
   renderCategories();
   applySearch();
 }
+function parseBudgetConstraint(text){
+  const compact = text.replace(/,/g,'').toLowerCase();
+  const match = compact.match(/(\d+(?:\.\d+)?)\s*(만원|만\s*원|천원|원|만|k|krw)?/);
+  if(!match) return null;
+  let amount = Number(match[1]);
+  const unit = (match[2] || '원').replace(/\s/g,'');
+  if(unit === '만원' || unit === '만') amount *= 10000;
+  else if(unit === '천원' || unit === 'k') amount *= 1000;
+  const direction = /(이상|초과|\bover\b)/.test(compact) ? 'min' : 'max';
+  return { amount: Math.round(amount), direction };
+}
+function stripBudgetTerms(text){
+  return text
+    .replace(/\d+(?:\.\d+)?\s*(만원|만\s*원|천원|원|만|k|krw)?/gi,' ')
+    .replace(/\b(under|below|over)\b/gi,' ')
+    .replace(/(이하|이상|미만|초과)/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+}
 function applySearch(){
-  const q = $('navSearch').value.trim().toLowerCase();
+  const raw = $('navSearch').value.trim();
+  const budgetConstraint = parseBudgetConstraint(raw);
+  const q = stripBudgetTerms(raw).toLowerCase();
   const pool = state.category === 'all' ? state.products : state.products.filter(p => p.category === state.category);
-  state.filtered = q ? pool.filter(p => [p.name,p.category,p.item_type].join(' ').toLowerCase().includes(q)) : pool;
+  const budgetPool = budgetConstraint
+    ? pool.filter(p => budgetConstraint.direction === 'min'
+      ? Number(p.price || 0) >= budgetConstraint.amount
+      : Number(p.price || 0) <= budgetConstraint.amount)
+    : pool;
+  state.filtered = q ? budgetPool.filter(p => [p.name,p.category,p.item_type].join(' ').toLowerCase().includes(q)) : budgetPool;
   $('resultsTitle').textContent = q ? `Search results` : 'Catalog';
   $('resultsCount').textContent = `${state.filtered.length} products`;
   renderGrid(state.filtered);
@@ -1155,7 +1181,10 @@ async function requestRecommendations(plan){
       query:plan.query || 'product',
       budget_ceiling:Math.round(Number(plan.budget_ceiling || 200000)),
       preferred_style:plan.preferred_style || 'utilitarian',
-      psychographic_type:plan.psychographic_type || 'utilitarian'
+      psychographic_type:plan.psychographic_type || 'utilitarian',
+      utilitarian_terms:plan.utilitarian_terms || [],
+      hedonic_terms:plan.hedonic_terms || [],
+      style_confidence:Number(plan.style_confidence || 0)
     });
     console.log("Product Search Agent complete");
 

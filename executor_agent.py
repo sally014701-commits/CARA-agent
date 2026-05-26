@@ -132,10 +132,13 @@ class ExecutorAgent:
             with product ID, name, price, style, rating, and RAG_score.
         """
         query = str(plan.get("query") or "")
+        print(f'executor_agent.py plan["query"] = "{query}"')
         budget_ceiling = self._optional_float(plan.get("budget_ceiling"))
         preferred_style = plan.get("preferred_style")
         top_category = plan.get("top_category")
         psychographic_type = str(plan.get("psychographic_type") or "utilitarian")
+        utilitarian_terms = list(plan.get("utilitarian_terms") or [])
+        hedonic_terms = list(plan.get("hedonic_terms") or [])
         avg_price = self._safe_avg_price(
             plan.get("category_avg_price", plan.get("avg_spend")),
         )
@@ -162,6 +165,8 @@ class ExecutorAgent:
                     product=product,
                     query=query,
                     preferred_style=preferred_style,
+                    utilitarian_terms=utilitarian_terms,
+                    hedonic_terms=hedonic_terms,
                     top_category=top_category,
                     avg_price=avg_price,
                     psychographic_type=psychographic_type,
@@ -188,6 +193,8 @@ class ExecutorAgent:
         product: dict,
         query: str,
         preferred_style: str | None,
+        utilitarian_terms: list[str] | None,
+        hedonic_terms: list[str] | None,
         top_category: str | None,
         avg_price: float,
         psychographic_type: str = "utilitarian",
@@ -307,7 +314,12 @@ class ExecutorAgent:
             if match_all_terms:
                 keyword_score = 1
         category_match = 1 if product.get("category") == top_category else 0
-        style_match = 1 if product.get("style_type") == preferred_style else 0
+        product_style = product.get("preference_style") or product.get("style_type")
+        style_match = 1 if product_style == preferred_style else 0
+        style_term_boost = ExecutorAgent._style_term_boost(
+            product=product,
+            terms=(utilitarian_terms or []) + (hedonic_terms or []),
+        )
         price_delta = abs(float(product.get("price", 0)) - avg_price)
         rating_value = product.get("rating")
         if rating_value is None:
@@ -320,12 +332,30 @@ class ExecutorAgent:
             10 * keyword_score
             + 20 * category_match
             + 15 * style_match
+            + style_term_boost
             + weights["price_w"] * math.exp(-price_delta / max(avg_price, 1.0))
             + weights["rating_w"] * rating
             + 5 * sentiment
             + weights["review_w"] * review_norm
         )
         return round(rag_score, 4)
+
+    @staticmethod
+    def _style_term_boost(product: dict, terms: list[str]) -> float:
+        if not terms:
+            return 0.0
+
+        searchable_parts = [
+            str(product.get("name") or ""),
+            str(product.get("description") or ""),
+            str(product.get("title_ko") or ""),
+            str(product.get("title_en") or ""),
+        ]
+        searchable_parts.extend(str(item) for item in product.get("keywords_ko", []) or [])
+        searchable_parts.extend(str(item) for item in product.get("synonyms_ko", []) or [])
+        haystack = " ".join(searchable_parts).lower()
+        matches = sum(1 for term in terms if term.lower() in haystack)
+        return min(matches * 1.5, 4.5)
 
     @staticmethod
     def _format_scored_product(

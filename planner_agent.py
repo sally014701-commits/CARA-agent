@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -24,6 +25,13 @@ import openai as _openai
 
 load_dotenv(Path(__file__).parent / ".env", override=True)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+
+
+def is_price_constraint_term(term: str) -> bool:
+    normalized = term.strip().lower().replace(",", "")
+    if normalized in {"이하", "이상", "미만", "초과", "under", "below", "over"}:
+        return True
+    return bool(re.fullmatch(r"[$₩]?\d+(\.\d+)?(원|만원|천원|만|k|krw)?", normalized))
 
 
 def clean_query_with_llm_and_fallback(query: str) -> str:
@@ -69,13 +77,14 @@ def clean_query_with_llm_and_fallback(query: str) -> str:
     stop_words = {
         "추천", "추천해줘", "추천해", "보여줘", "찾아줘", "알려줘", "해줘", "싶어", "원해", "구매", "살래", "검색", 
         "추천해드립니다", "추천해주세요", "있나요", "어떤게", "어떤", "원해요", "원합니다", "부탁해", "부탁해요", "부탁드립니다",
-        "보여주세요", "찾아주세요", "알려주세요", "해줘요", "해주세요", "골라줘", "골라주세요", "골라"
+        "보여주세요", "찾아주세요", "알려주세요", "해줘요", "해주세요", "골라줘", "골라주세요", "골라",
+        "이하", "이상", "미만", "초과", "under", "below", "over"
     }
     particles = ["은", "는", "이", "가", "을", "를", "의", "에", "과", "와", "로", "으로", "에서", "보다", "부터", "까지"]
     
     terms = []
     for t in raw_terms:
-        if t in stop_words:
+        if t in stop_words or is_price_constraint_term(t):
             continue
         for p in particles:
             if t.endswith(p) and len(t) > len(p):
