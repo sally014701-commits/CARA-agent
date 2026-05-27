@@ -109,12 +109,13 @@ async def run_baseline_popular(scenario: dict, client: httpx.AsyncClient, produc
 
 
 async def main():
-    with open("products.json", encoding="utf-8") as f:
-        all_products = json.load(f)
-
     results = []
 
     async with httpx.AsyncClient() as client:
+        catalog_resp = await client.get(f"{BASE_URL}/products/search", params={"query": ""}, timeout=30)
+        catalog_resp.raise_for_status()
+        all_products = catalog_resp.json().get("products", [])
+
         for i, scenario in enumerate(SCENARIOS):
             print(f"[{i+1}/20] {scenario['query']} ({scenario['psychographic_type']}) running...")
 

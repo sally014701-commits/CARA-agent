@@ -14,7 +14,7 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 
 ## 주요 기능
 
-- 상품 카탈로그 20,000개와 소비자 프로필 200개를 로컬 JSON 데이터로 로드
+- 실제 화장품 상품 200개를 `cara.db`에서 로드하고 소비자 프로필 200개를 로컬 데이터로 로드
 - 한국어/영어 검색어, 동의어, 가격 조건, 스타일 조건을 반영한 상품 검색
 - 사용자 행동 지표 기반 BrainFry score 계산
 - BrainFry score에 따른 추천 개수 자동 조절
@@ -39,7 +39,7 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 | `benchmark_runner.py` | 20개 시나리오로 CARA와 baseline 비교 |
 | `generate_synthetic_dataset.py` | 상품/소비자 synthetic dataset 생성 |
 | `generate_product_images.py` | 상품 이미지 PNG 생성 |
-| `products.json` | 상품 카탈로그 20,000개 |
+| `cara.db` | 실제 화장품 상품 카탈로그 200개 |
 | `consumers.json` | 소비자 프로필 200명 |
 | `benchmark_results.json` | 최근 벤치마크 결과 |
 | `assets/products/` | 상품 이미지 파일 |
@@ -125,7 +125,7 @@ python main.py
 
 ### Product
 
-`products.json`의 상품은 다음 핵심 필드를 포함합니다.
+`cara.db`의 `products` 테이블은 다음 핵심 필드를 포함합니다.
 
 - `product_id`: 상품 ID
 - `category`, `subcategory`: 상품 카테고리
@@ -219,7 +219,7 @@ python generate_product_images.py
 
 ## 개발 참고
 
-- 서버 실행 시 `products.json`, `consumers.json`을 메모리에 로드합니다.
+- 서버 실행 시 `cara.db`의 상품과 `consumers.json`의 소비자 프로필을 메모리에 로드합니다.
 - 세션 로그는 `cara_sessions.db` SQLite 파일에 저장됩니다.
 - `cara.db`, `cara_sessions.db`, `.env`는 로컬 실행 산출물로 취급하는 것이 좋습니다.
 - 에이전트 단독 예시는 각 파일의 `main()`에서 실행할 수 있지만, 대부분 FastAPI 서버가 켜져 있어야 정상 동작합니다.

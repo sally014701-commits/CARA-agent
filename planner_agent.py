@@ -23,6 +23,8 @@ from urllib.request import urlopen
 from dotenv import load_dotenv
 import openai as _openai
 
+from search_rules import clean_query_rule_based
+
 load_dotenv(Path(__file__).parent / ".env", override=True)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 
@@ -36,6 +38,8 @@ def is_price_constraint_term(term: str) -> bool:
 
 def clean_query_with_llm_and_fallback(query: str) -> str:
     """Use GPT-4o-mini to extract clean search keywords from natural language query, with a rule-based fallback."""
+    return clean_query_rule_based(query)
+
     if not query or len(query.strip()) < 2:
         return query
 

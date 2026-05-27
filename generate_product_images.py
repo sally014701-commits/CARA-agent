@@ -14,7 +14,7 @@ Output:
 
 from __future__ import annotations
 
-import json
+import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -25,7 +25,7 @@ from PIL import Image, ImageDraw, ImageFilter
 CANVAS_SIZE = 1024
 PRODUCT_BOX = (188, 164, 836, 760)
 OUTPUT_DIR = Path("assets/products")
-PRODUCTS_PATH = Path("products.json")
+CARA_DB_PATH = Path("cara.db")
 
 Color = tuple[int, int, int, int]
 DrawFn = Callable[[ImageDraw.ImageDraw, "Palette"], None]
@@ -253,8 +253,31 @@ def render_product(product: dict[str, object]) -> Image.Image:
     return img
 
 
+def load_products_from_db(path: Path = CARA_DB_PATH) -> list[dict[str, object]]:
+    if not path.exists() or path.stat().st_size == 0:
+        raise FileNotFoundError(f"Required product database not found: {path}")
+
+    with sqlite3.connect(path) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT product_id, subcategory
+            FROM products
+            ORDER BY product_id
+            """
+        ).fetchall()
+
+    return [
+        {
+            "product_id": f"P{int(row['product_id']):04d}",
+            "item_type": str(row["subcategory"]),
+        }
+        for row in rows
+    ]
+
+
 def main() -> None:
-    products = json.loads(PRODUCTS_PATH.read_text(encoding="utf-8"))
+    products = load_products_from_db()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for product in products:
         image = render_product(product)

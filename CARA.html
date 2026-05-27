@@ -356,6 +356,111 @@ button{cursor:pointer}
   font-size:14px;
   line-height:1.45;
 }
+.chat-bubble.agent-bubble{
+  max-width:100%;
+  width:100%;
+}
+.agent-status{
+  margin-bottom:12px;
+  color:var(--ink);
+  font-size:13px;
+  line-height:1.55;
+}
+.agent-card-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+}
+.agent-product-card{
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  background:var(--canvas);
+  padding:12px;
+  transition:opacity .18s,filter .18s;
+}
+.agent-product-card.dimmed{
+  opacity:.28;
+  filter:grayscale(.7);
+}
+.agent-product-title{
+  margin:0 0 6px;
+  color:var(--ink);
+  font-size:13px;
+  line-height:1.25;
+  font-weight:600;
+}
+.agent-product-meta{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+  color:var(--ink-mute);
+  font-size:12px;
+}
+.agent-action{
+  margin-top:12px;
+  width:100%;
+}
+.simplifier-note{
+  margin-top:12px;
+  border-top:1px solid var(--hairline);
+  padding-top:10px;
+  color:var(--ink-secondary);
+  font-size:13px;
+}
+.selected-products-panel{
+  border-top:2px solid var(--hairline);
+  background:#f8fafc;
+  padding:14px 20px;
+  max-height:260px;
+  overflow-y:auto;
+}
+.sp-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
+}
+.sp-title{
+  font-size:11px;
+  font-weight:700;
+  color:var(--ink-mute);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+}
+.sp-count{
+  font-size:11px;
+  color:var(--ink-mute);
+}
+.sp-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  gap:8px;
+}
+.sp-card{
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  background:var(--canvas);
+  padding:10px;
+  transition:opacity .18s,filter .18s;
+}
+.sp-card.dimmed{
+  opacity:.22;
+  filter:grayscale(.7);
+}
+.sp-name{
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink);
+  margin-bottom:5px;
+  line-height:1.3;
+}
+.sp-meta{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  font-size:11px;
+  color:var(--ink-mute);
+}
 .chat-row.user .chat-bubble{background:var(--primary);color:#fff}
 .chat-row.assistant .chat-bubble{background:#eef2f7;color:var(--ink)}
 .chat-input-row{
@@ -697,6 +802,13 @@ button{cursor:pointer}
           <div class="chat-messages" id="chatMessages">
             <div class="chat-row assistant"><div class="chat-bubble">Tell me what you are looking for, and I will help narrow it down.</div></div>
           </div>
+          <div class="selected-products-panel" id="selectedProductsPanel" hidden>
+            <div class="sp-head">
+              <span class="sp-title">Selected Products</span>
+              <span class="sp-count" id="selectedProductsCount"></span>
+            </div>
+            <div class="sp-grid" id="selectedProductsGrid"></div>
+          </div>
           <div class="chat-input-row">
             <input class="input" id="chatInput" type="text" placeholder="Example: utilitarian earphones under 200000 KRW" />
             <button class="button primary" id="chatSend">Send</button>
@@ -1018,7 +1130,7 @@ function renderGrid(products){
         <h3 class="product-name">${p.name}</h3>
         <div class="product-price">${money(p.price)}</div>
         <div class="product-meta">
-          <span class="rating">Rating ${p.rating.toFixed(1)}${p.RAG_score ? ` 쨌 RAG ${Number(p.RAG_score).toFixed(2)}` : ''}</span>
+          <span class="rating">Rating ${p.rating.toFixed(1)}${p.RAG_score !== undefined && p.RAG_score !== null ? ` · RAG ${Number(p.RAG_score).toFixed(2)}` : ''}</span>
           <span class="style-tag ${p.style_type}">${p.style_type}</span>
         </div>
       </div>`;
@@ -1080,6 +1192,68 @@ function appendChat(role, content){
   row.innerHTML = `<div class="chat-bubble">${escapeHtml(content).replace(/\n/g,'<br>')}</div>`;
   $('chatMessages').appendChild(row);
   $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+}
+function appendAgentSearch(plan, searchPayload){
+  const candidates = (searchPayload.products || []).map(normalizeProduct);
+  candidates.sort((a, b) => (Number(b.RAG_score) || 0) - (Number(a.RAG_score) || 0));
+
+  const subcatText = searchPayload.subcategory || plan.query || '-';
+  const budgetText = searchPayload.budget ? `${Number(searchPayload.budget).toLocaleString('ko-KR')}원 이하` : '제한 없음';
+  const skinText = searchPayload.skin_type || 'all';
+
+  // 1. 텍스트 전용 채팅 메시지
+  appendChat('assistant',
+    `Product Search Agent: ${subcatText} ${budgetText} ${skinText} 조건으로 ${candidates.length}개 검색 완료. RAG 재랭킹으로 순위 결정됨.`
+  );
+
+  // 2. Selected Products 고정 영역 채우기
+  $('selectedProductsGrid').innerHTML = candidates.map((p, i) => `
+    <article class="sp-card" data-sp-index="${i}">
+      <div class="sp-name">${escapeHtml(p.name)}</div>
+      <div class="sp-meta">
+        <span>${escapeHtml(p.brand || '-')}</span>
+        <span>${money(p.price)}</span>
+        <span>★ ${Number(p.rating || 0).toFixed(1)}</span>
+        <span>RAG ${p.RAG_score !== undefined && p.RAG_score !== null ? Number(p.RAG_score).toFixed(2) : '-'}</span>
+      </div>
+    </article>`).join('');
+  $('selectedProductsCount').textContent = `${candidates.length}개`;
+  $('selectedProductsPanel').hidden = false;
+
+  // 3. 버튼을 채팅 메시지로 표시
+  const btnRow = document.createElement('div');
+  btnRow.className = 'chat-row assistant';
+  const btn = document.createElement('button');
+  btn.className = 'button primary agent-action';
+  btn.type = 'button';
+  btn.textContent = 'Decision Simplifier 작동 → BrainFry 기반 최종 추천 보기';
+  btn.onclick = () => { btn.disabled = true; runDecisionSimplifier(plan, candidates); };
+  btnRow.appendChild(btn);
+  $('chatMessages').appendChild(btnRow);
+  $('chatMessages').scrollTop = $('chatMessages').scrollHeight;
+
+  return candidates;
+}
+function runDecisionSimplifier(plan, candidates){
+  const score = Number(plan.brainfry_score ?? state.chatPlanContext.brainfry_score ?? 0.5);
+  const level = String(plan.brainfry_level || state.chatPlanContext.brainfry_level || (score <= .35 ? 'LOW' : score <= .65 ? 'MID' : 'HIGH')).toUpperCase();
+  const n = Math.max(1, Math.round(7 * (1 - Math.min(Math.max(score, 0), 1))));
+
+  // 채팅창에 텍스트 메시지 추가
+  appendChat('assistant', `BrainFry: ${score.toFixed(2)} (${level}) → 추천 ${n}개로 압축`);
+
+  // Selected Products: 상위 N개만 남기고 나머지 흐리게
+  $('selectedProductsGrid').querySelectorAll('.sp-card').forEach((card, i) => {
+    card.classList.toggle('dimmed', i >= n);
+  });
+
+  const picks = candidates.slice(0, n);
+  state.recommendMode = true;
+  renderTrace(plan, picks);
+  $('resultsTitle').textContent = 'CARA recommendations';
+  $('resultsCount').textContent = `${picks.length} focused picks`;
+  renderGrid(picks);
+  updateBrainfryGauge(score, level);
 }
 function escapeHtml(value){
   return String(value ?? '')
@@ -1172,38 +1346,24 @@ async function applyAdjust(){
 }
 async function requestRecommendations(plan){
   console.log("confirmation detected");
-  showLoader('Reranking and checking quality');
+  showLoader('Product Search Agent running');
   try{
-    console.log("Product Search Agent start");
-    const products = await apiPost('/api/recommend', {
-      session_id: CHAT_SESSION_ID,
-      consumer_id:CARA_CONSUMER_ID,
-      query:plan.query || 'product',
-      budget_ceiling:Math.round(Number(plan.budget_ceiling || 200000)),
-      preferred_style:plan.preferred_style || 'utilitarian',
-      psychographic_type:plan.psychographic_type || 'utilitarian',
-      utilitarian_terms:plan.utilitarian_terms || [],
-      hedonic_terms:plan.hedonic_terms || [],
-      style_confidence:Number(plan.style_confidence || 0)
-    });
-    console.log("Product Search Agent complete");
-
-    console.log("Decision Simplifier start");
-    // Decision Simplifier performs RAG ranking and simplification
-    console.log("Decision Simplifier complete");
-
-    console.log("Critic Agent start");
-    // Critic Agent critiques and refines recommendations
-    console.log("Critic Agent complete");
-
-    const picks = products.map(normalizeProduct);
-    console.log("recommendation count:", picks.length);
-
+    const params = new URLSearchParams();
+    params.set('query', plan.search_text || plan.query || $('navSearch').value.trim() || '');
+    if(plan.budget_ceiling) params.set('max_price', Math.round(Number(plan.budget_ceiling)));
+    if(plan.preferred_style) params.set('style_type', plan.preferred_style);
+    if(plan.skin_type) params.set('skin_type', plan.skin_type);
+    const searchPayload = await apiGet(`/products/search?${params.toString()}`);
+    if(searchPayload.clarification_needed){
+      appendChat('assistant', searchPayload.message || '어떤 종류의 화장품을 찾으시나요?');
+      return;
+    }
+    const candidates = appendAgentSearch(plan, searchPayload);
+    console.log("Product Search Agent candidates:", candidates.length);
     state.recommendMode = true;
-    renderTrace(plan,picks);
-    $('resultsTitle').textContent = 'CARA recommendations';
-    $('resultsCount').textContent = `${picks.length} focused picks`;
-    renderGrid(picks);
+    $('resultsTitle').textContent = 'RAG-ranked candidates';
+    $('resultsCount').textContent = `${candidates.length} candidates`;
+    renderGrid(candidates);
   } catch(error){
     console.error(error);
     toast('Recommendations failed.');

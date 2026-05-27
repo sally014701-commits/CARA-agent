@@ -2,7 +2,7 @@
 Generate the CARA backend synthetic dataset.
 
 Outputs:
-  - products.json
+  - synthetic_products.generated.json
   - consumers.json
 
 Python: 3.11+
@@ -756,10 +756,10 @@ def main() -> None:
     products = build_products(rng)
     consumers = build_consumers(rng, products)
 
-    write_json(output_dir / "products.json", products)
+    write_json(output_dir / "synthetic_products.generated.json", products)
     write_json(output_dir / "consumers.json", consumers)
 
-    print(f"Generated {len(products)} products -> products.json")
+    print(f"Generated {len(products)} products -> synthetic_products.generated.json")
     print(f"Generated {len(consumers)} consumers -> consumers.json")
 
 

@@ -4,14 +4,16 @@ CARA Tool Use Module.
 Run:
   python main.py
 
-The server loads products.json and consumers.json into memory at startup and
-exposes RESTful API tools for CARA agents.
+The server loads the active product catalog from cara.db and consumer profiles
+from consumers.json into memory at startup, then exposes RESTful API tools for
+CARA agents.
 """
 
 from __future__ import annotations
 
 import asyncio
 import re
+import sqlite3
 from pathlib import Path
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).parent / ".env", override=True)
@@ -35,12 +37,14 @@ from critic_agent import CriticAgent
 from conversation_agent import ConversationAgent
 from database import engine, Base, AgentTrace, ChatMessage, SessionEvent, get_db
 from executor_agent import ExecutorAgent, ProductToolClient
-from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent, clean_query_with_llm_and_fallback
+from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
+from search_rules import CLARIFICATION_PROMPT, parse_budget, parse_search
+from vector_search import ensure_embedding_column, lexical_rag_rerank_rows, rag_rerank_rows
 
 
 BASE_DIR = Path(__file__).resolve().parent
-PRODUCTS_PATH = BASE_DIR / "products.json"
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
+CARA_DB_PATH = BASE_DIR / "cara.db"
 
 BudgetLevel = Literal["low", "mid", "high"]
 
@@ -49,6 +53,16 @@ SIMPLE_CONFIRMATIONS = {
     "y",
     "ok",
     "okay",
+    "네",
+    "응",
+    "예",
+    "좋아",
+    "좋아요",
+    "추천 시작",
+    "시작",
+    "바로 추천",
+    "추천해줘",
+    "그대로",
     "응",
     "네",
     "예",
@@ -138,6 +152,9 @@ def is_price_constraint_term(term: str) -> bool:
 
 
 def extract_budget_ceiling(text: str) -> int | None:
+    parsed = parse_budget(text)
+    if parsed is not None:
+        return parsed
     normalized = text.replace(",", "").lower()
     if re.search(r"(이상|초과|\bover\b)", normalized):
         return None
@@ -152,6 +169,9 @@ def extract_budget_floor(text: str) -> int | None:
 
 
 def extract_price_amount(text: str) -> int | None:
+    parsed = parse_budget(text)
+    if parsed is not None:
+        return parsed
     normalized = text.replace(",", "").lower()
     match = re.search(r"(\d+(?:\.\d+)?)\s*(만원|만\s*원|천원|원|만|k|krw)?", normalized)
     if not match:
@@ -178,6 +198,11 @@ def is_simple_confirmation(message: str) -> bool:
 
 
 def extract_chat_query(message: str) -> str:
+    mapped_subcategory = parse_search(message).subcategory
+    if mapped_subcategory:
+        return mapped_subcategory
+    return ""
+
     cleaned = clean_query_with_llm_and_fallback(message).strip()
     if not cleaned:
         return ""
@@ -216,6 +241,7 @@ def parse_user_utterance(
     message: str,
     existing_preferred_style: str | None = None,
 ) -> dict[str, Any]:
+    parsed_search = parse_search(message)
     utilitarian_terms = _matched_style_terms(message, UTILITARIAN_TERM_ALIASES)
     hedonic_terms = _matched_style_terms(message, HEDONIC_TERM_ALIASES)
     util_score = len(utilitarian_terms)
@@ -233,7 +259,9 @@ def parse_user_utterance(
         preferred_style = existing_preferred_style
 
     return {
-        "query": extract_chat_query(message),
+        "query": parsed_search.subcategory or "",
+        "skin_type": parsed_search.skin_type,
+        "search_text": message,
         "utilitarian_terms": utilitarian_terms,
         "hedonic_terms": hedonic_terms,
         "preferred_style": preferred_style,
@@ -247,7 +275,7 @@ class StyleType(str, Enum):
 
 
 class Product(BaseModel):
-    """Product catalog record loaded from products.json."""
+    """Product catalog record loaded from cara.db."""
 
     product_id: str
     category: str
@@ -262,6 +290,9 @@ class Product(BaseModel):
     review_count: int
     review_text: str | None = None
     sentiment_score: float | None = None
+    skin_type: str | None = None
+    similarity_score: float | None = None
+    RAG_score: float | None = None
     stock_status: bool | None = None
     description: str | None = None
 
@@ -321,6 +352,11 @@ class ProductSearchResponse(BaseModel):
 
     count: int
     products: list[Product]
+    clarification_needed: bool = False
+    message: str | None = None
+    subcategory: str | None = None
+    budget: int | None = None
+    skin_type: str | None = None
 
 
 class SessionDataRequest(BaseModel):
@@ -428,11 +464,239 @@ def load_json(path: Path) -> list[dict[str, Any]]:
     return data
 
 
+def load_products_from_cara_db(path: Path = CARA_DB_PATH) -> list[Product]:
+    """Load the active product catalog from cara.db."""
+    if not path.exists() or path.stat().st_size == 0:
+        raise FileNotFoundError(f"Required product database not found: {path}")
+
+    with sqlite3.connect(path) as connection:
+        connection.row_factory = sqlite3.Row
+        table_exists = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'products'"
+        ).fetchone()
+        if table_exists is None:
+            raise RuntimeError(f"Required table not found in {path}: products")
+
+        rows = connection.execute(
+            """
+            SELECT
+                product_id,
+                subcategory,
+                product_name,
+                brand,
+                brand_tier,
+                price,
+                price_percentile,
+                star_rating,
+                review_count,
+                skin_type,
+                preference_style,
+                sentiment_score,
+                keywords
+            FROM products
+            ORDER BY product_id
+            """
+        ).fetchall()
+
+    mapped_products: list[Product] = []
+    for row in rows:
+        keywords = [
+            keyword.strip()
+            for keyword in str(row["keywords"] or "").split(",")
+            if keyword.strip()
+        ]
+        subcategory = str(row["subcategory"])
+        product_name = str(row["product_name"])
+        brand = str(row["brand"])
+        product_id = f"P{int(row['product_id']):04d}"
+        mapped_products.append(
+            Product.model_validate(
+                {
+                    "product_id": product_id,
+                    "category": subcategory,
+                    "subcategory": subcategory,
+                    "item_type": subcategory,
+                    "name": product_name,
+                    "price": int(row["price"]),
+                    "brand": brand,
+                    "style_type": row["preference_style"],
+                    "star_rating": float(row["star_rating"]),
+                    "rating": float(row["star_rating"]),
+                    "review_count": int(row["review_count"] or 0),
+                    "review_text": None,
+                    "sentiment_score": float(row["sentiment_score"] or 0.0),
+                    "skin_type": str(row["skin_type"] or ""),
+                    "stock_status": True,
+                    "description": " ".join(
+                        part
+                        for part in [
+                            product_name,
+                            brand,
+                            subcategory,
+                            str(row["brand_tier"] or ""),
+                            str(row["skin_type"] or ""),
+                            " ".join(keywords),
+                        ]
+                        if part
+                    ),
+                    "category_en": "beauty",
+                    "category_ko": subcategory,
+                    "subcategory_en": subcategory,
+                    "subcategory_ko": subcategory,
+                    "title_en": product_name,
+                    "title_ko": product_name,
+                    "keywords_ko": keywords,
+                    "synonyms_ko": [
+                        item
+                        for item in [
+                            subcategory,
+                            brand,
+                            str(row["skin_type"] or ""),
+                            str(row["brand_tier"] or ""),
+                        ]
+                        if item
+                    ],
+                }
+            )
+        )
+
+    if not mapped_products:
+        raise RuntimeError(f"No products found in {path}.products")
+
+    return mapped_products
+
+
+def query_products_from_cara_db(
+    subcategory: str,
+    query_text: str,
+    budget: float | None = None,
+    skin_type: str | None = None,
+    preferred_style: str | None = None,
+    path: Path = CARA_DB_PATH,
+) -> list[Product]:
+    """Run the rule-based search SQL directly against cara.db.products."""
+    with sqlite3.connect(path) as connection:
+        connection.row_factory = sqlite3.Row
+        rows = connection.execute(
+            """
+            SELECT
+                product_id,
+                subcategory,
+                product_name,
+                brand,
+                brand_tier,
+                price,
+                price_percentile,
+                star_rating,
+                review_count,
+                skin_type,
+                preference_style,
+                sentiment_score,
+                keywords
+                , embedding
+            FROM products
+            WHERE subcategory = ?
+              AND (? IS NULL OR price <= ?)
+              AND (? IS NULL OR skin_type IN (?, 'all'))
+            ORDER BY star_rating DESC
+            LIMIT 50
+            """,
+            (subcategory, budget, budget, skin_type, skin_type),
+        ).fetchall()
+
+    reranked_rows: list[dict[str, Any]] = []
+    try:
+        reranked_rows = rag_rerank_rows(
+            query_text=query_text or subcategory,
+            rows=list(rows),
+            user_budget=budget,
+            preferred_style=preferred_style,
+        )
+    except Exception:
+        reranked_rows = []
+
+    if not reranked_rows:
+        reranked_rows = lexical_rag_rerank_rows(
+            query_text=query_text or subcategory,
+            rows=list(rows),
+            user_budget=budget,
+            preferred_style=preferred_style,
+        )
+
+    ordered_rows: list[Any] = reranked_rows or list(rows)
+
+    mapped_products: list[Product] = []
+    for row in ordered_rows:
+        keywords = [
+            keyword.strip()
+            for keyword in str(row["keywords"] or "").split(",")
+            if keyword.strip()
+        ]
+        row_subcategory = str(row["subcategory"])
+        product_name = str(row["product_name"])
+        brand = str(row["brand"])
+        mapped_products.append(
+            Product.model_validate(
+                {
+                    "product_id": f"P{int(row['product_id']):04d}",
+                    "category": row_subcategory,
+                    "subcategory": row_subcategory,
+                    "item_type": row_subcategory,
+                    "name": product_name,
+                    "price": int(row["price"]),
+                    "brand": brand,
+                    "style_type": row["preference_style"],
+                    "star_rating": float(row["star_rating"]),
+                    "rating": float(row["star_rating"]),
+                    "review_count": int(row["review_count"] or 0),
+                    "review_text": None,
+                    "sentiment_score": float(row["sentiment_score"] or 0.0),
+                    "skin_type": str(row["skin_type"] or ""),
+                    "similarity_score": row.get("S") if isinstance(row, dict) else None,
+                    "RAG_score": row.get("RAG_score") if isinstance(row, dict) else None,
+                    "stock_status": True,
+                    "description": " ".join(
+                        part
+                        for part in [
+                            product_name,
+                            brand,
+                            row_subcategory,
+                            str(row["brand_tier"] or ""),
+                            str(row["skin_type"] or ""),
+                            " ".join(keywords),
+                        ]
+                        if part
+                    ),
+                    "category_en": "beauty",
+                    "category_ko": row_subcategory,
+                    "subcategory_en": row_subcategory,
+                    "subcategory_ko": row_subcategory,
+                    "title_en": product_name,
+                    "title_ko": product_name,
+                    "keywords_ko": keywords,
+                    "synonyms_ko": [
+                        item
+                        for item in [
+                            row_subcategory,
+                            brand,
+                            str(row["skin_type"] or ""),
+                            str(row["brand_tier"] or ""),
+                        ]
+                        if item
+                    ],
+                }
+            )
+        )
+
+    return mapped_products
+
+
 def load_database() -> None:
     """Load products and consumers into process memory for fast tool access."""
     global products, consumers
 
-    products = [Product.model_validate(item) for item in load_json(PRODUCTS_PATH)]
+    ensure_embedding_column(CARA_DB_PATH)
+    products = load_products_from_cara_db()
     consumer_records = [
         ConsumerProfile.model_validate(item) for item in load_json(CONSUMERS_PATH)
     ]
@@ -514,7 +778,7 @@ app = FastAPI(
     title="CARA Tool Use Module",
     description=(
         "RESTful API tools for CARA(Context-Aware Recommendation Agent), "
-        "backed by products.json and consumers.json."
+        "backed by cara.db and consumers.json."
     ),
     version="0.1.0",
     lifespan=lifespan,
@@ -530,7 +794,16 @@ app.add_middleware(
 app.mount("/assets", StaticFiles(directory=BASE_DIR / "assets"), name="assets")
 
 
-@app.get("/", response_model=dict[str, str])
+@app.get("/", response_class=FileResponse)
+def serve_root() -> FileResponse:
+    """Serve the main CARA application."""
+    return FileResponse(
+        BASE_DIR / "CARA.html",
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@app.get("/health", response_model=dict[str, str])
 def health_check() -> dict[str, str]:
     """Return a lightweight health check for server and agent connectivity."""
     return {"status": "ok", "service": "CARA Tool Use Module"}
@@ -538,7 +811,10 @@ def health_check() -> dict[str, str]:
 
 @app.get("/CARA.html", response_class=FileResponse)
 def serve_cara_html() -> FileResponse:
-    return FileResponse(BASE_DIR / "CARA.html")
+    return FileResponse(
+        BASE_DIR / "CARA.html",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/admin.html", response_class=FileResponse)
@@ -548,7 +824,10 @@ def serve_admin_html() -> FileResponse:
 
 @app.get("/app", response_class=FileResponse)
 def serve_app() -> FileResponse:
-    return FileResponse(BASE_DIR / "CARA.html")
+    return FileResponse(
+        BASE_DIR / "CARA.html",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get(
@@ -652,6 +931,10 @@ def search_products(
         default=None,
         description="Optional product category filter.",
     ),
+    skin_type: str | None = Query(
+        default=None,
+        description="Optional skin type filter: dry, oily, combo, or all.",
+    ),
 ) -> ProductSearchResponse:
     """
     Search the product catalog with keyword and optional structured filters.
@@ -660,6 +943,66 @@ def search_products(
     simple case-insensitive string matching against product name and optional
     description, then applies max_price, style_type, and category filters.
     """
+    parsed_search = parse_search(query)
+    requested_subcategory = (category.strip() if category else None) or parsed_search.subcategory
+    requested_skin_type = skin_type or parsed_search.skin_type
+    effective_max_price = max_price if max_price is not None else parsed_search.budget
+
+    if query.strip() and requested_subcategory is None:
+        return ProductSearchResponse(
+            count=0,
+            products=[],
+            clarification_needed=True,
+            message=CLARIFICATION_PROMPT,
+            subcategory=None,
+            budget=int(effective_max_price) if effective_max_price is not None else None,
+            skin_type=requested_skin_type,
+        )
+
+    if requested_subcategory is not None:
+        sql_products = query_products_from_cara_db(
+            subcategory=requested_subcategory,
+            query_text=query,
+            budget=effective_max_price,
+            skin_type=requested_skin_type,
+            preferred_style=style_value(style_type) if style_type is not None else None,
+        )
+        return ProductSearchResponse(
+            count=len(sql_products),
+            products=sql_products,
+            subcategory=requested_subcategory,
+            budget=int(effective_max_price) if effective_max_price is not None else None,
+            skin_type=requested_skin_type,
+        )
+
+    rule_filtered_products: list[Product] = []
+    for product in products:
+        if requested_subcategory is not None and product.subcategory != requested_subcategory:
+            continue
+        if effective_max_price is not None and product.price > effective_max_price:
+            continue
+        if min_price is not None and product.price < min_price:
+            continue
+        if style_type is not None and product.style_type != style_type:
+            continue
+        if requested_skin_type is not None:
+            product_skin_type = (product.skin_type or "").lower()
+            if product_skin_type not in {requested_skin_type.lower(), "all"}:
+                continue
+        rule_filtered_products.append(product)
+
+    if requested_subcategory is not None:
+        rule_filtered_products.sort(key=lambda item: item.effective_rating, reverse=True)
+        rule_filtered_products = rule_filtered_products[:20]
+
+    return ProductSearchResponse(
+        count=len(rule_filtered_products),
+        products=rule_filtered_products,
+        subcategory=requested_subcategory,
+        budget=int(effective_max_price) if effective_max_price is not None else None,
+        skin_type=requested_skin_type,
+    )
+
     normalized_query = query.strip().lower()
     normalized_category = category.strip().lower() if category is not None else None
     effective_max_price = max_price
@@ -861,6 +1204,26 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
         request.message,
         existing_preferred_style=plan_context.get("preferred_style"),
     )
+    if request.message.strip() and not is_simple_confirmation(request.message) and not parsed_utterance["query"]:
+        db.add(ChatMessage(
+            session_id=request.session_id,
+            role="user",
+            content=request.message,
+        ))
+        db.add(ChatMessage(
+            session_id=request.session_id,
+            role="assistant",
+            content=CLARIFICATION_PROMPT,
+        ))
+        db.commit()
+        return ChatResponse(
+            reply=CLARIFICATION_PROMPT,
+            plan_context=plan_context,
+            turn_complete=False,
+            self_report_score=None,
+            b_text=0.0,
+            agent_trace=[{"agent": "Rule-Based Search", "status": "clarification_needed"}],
+        )
     if not plan_context:
         planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
         plan_context = planner.create_plan(
@@ -880,6 +1243,8 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             plan_context["budget_ceiling"] = explicit_budget
             plan_context.setdefault("trace", {})["budget_source"] = "explicit_chat_budget"
         plan_context["query"] = parsed_utterance["query"] or plan_context.get("query", "")
+        plan_context["skin_type"] = parsed_utterance["skin_type"]
+        plan_context["search_text"] = parsed_utterance["search_text"]
         plan_context["utilitarian_terms"] = parsed_utterance["utilitarian_terms"]
         plan_context["hedonic_terms"] = parsed_utterance["hedonic_terms"]
         plan_context["style_confidence"] = parsed_utterance["style_confidence"]
@@ -900,6 +1265,8 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             cleaned_query = parsed_utterance["query"]
             if cleaned_query:
                 plan_context["query"] = cleaned_query
+            plan_context["skin_type"] = parsed_utterance["skin_type"]
+            plan_context["search_text"] = parsed_utterance["search_text"]
             plan_context["utilitarian_terms"] = parsed_utterance["utilitarian_terms"]
             plan_context["hedonic_terms"] = parsed_utterance["hedonic_terms"]
             plan_context["style_confidence"] = parsed_utterance["style_confidence"]
@@ -958,7 +1325,7 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
     return ChatResponse(
         reply=result["reply"],
         plan_context=updated_context,
-        turn_complete=bool(result["turn_complete"]),
+        turn_complete=bool(result["turn_complete"] or is_simple_confirmation(request.message)),
         self_report_score=result["self_report_score"],
         b_text=float(result["b_text"]),
         agent_trace=agent_trace,
