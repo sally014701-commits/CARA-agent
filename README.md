@@ -1,321 +1,225 @@
 # CARA-agent
 
-CARA 추천 시스템 백엔드 벤치마크를 위한 합성 데이터셋 저장소입니다.
+CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, 대화 의도, 예산, 심리적 쇼핑 성향을 함께 반영해 상품을 추천하는 FastAPI 기반 멀티 에이전트 데모입니다.
 
-이 저장소는 Python 3.11 환경에서 별도 DB 서버 없이 JSON 파일을 내장 DB처럼 로드해서 사용할 수 있도록 구성되어 있습니다.
+현재 버전은 다음 흐름을 제공합니다.
 
-## Files
+- `CARA.html`: 사용자가 상품을 찾고 CARA와 대화하며 추천을 받는 쇼핑 화면
+- `admin.html`: 세션, 에이전트 실행 로그, BrainFry 통계, 벤치마크 평가를 확인하는 관리자 화면
+- `main.py`: 정적 화면, 상품 검색 도구, 추천 API, 관리자 API를 제공하는 FastAPI 서버
+- `planner_agent.py`: 사용자 의도, BrainFry 상태, 예산, 선호 스타일을 정리하는 Planner Agent
+- `conversation_agent.py`: 2턴 확인 대화와 텍스트 기반 인지 과부하 감지를 담당하는 Conversation Agent
+- `executor_agent.py`: 상품 후보 검색 및 RAG 스타일 점수 기반 재정렬을 담당하는 Executor Agent
+- `critic_agent.py`: 예산, 평점, 다양성, 추천 개수 규칙을 적용해 최종 결과를 검수하는 Critic Agent
 
-| File | Description |
+## 주요 기능
+
+- 상품 카탈로그 20,000개와 소비자 프로필 200개를 로컬 JSON 데이터로 로드
+- 한국어/영어 검색어, 동의어, 가격 조건, 스타일 조건을 반영한 상품 검색
+- 사용자 행동 지표 기반 BrainFry score 계산
+- BrainFry score에 따른 추천 개수 자동 조절
+- `utilitarian`, `hedonic`, `maximizer`, `value_seeker`, `loss_averse`, `impulsive` 성향 기반 추천 점수 보정
+- 세션별 채팅 기록, 에이전트 실행 트레이스, 이벤트 로그를 SQLite에 저장
+- 관리자 화면에서 세션 타임라인, BrainFry 분포, 페르소나 평가 확인
+- CARA 추천과 인기순 baseline을 비교하는 벤치마크 실행 스크립트 포함
+
+## 프로젝트 구조
+
+| 파일 | 설명 |
 | --- | --- |
-| `generate_synthetic_dataset.py` | 상품/소비자 mock data를 생성하는 Python 스크립트 |
-| `generate_product_images.py` | 일관된 흰 배경 상품 PNG 카탈로그 에셋 생성기 |
-| `main.py` | 에이전트들이 호출하는 FastAPI Tool Use Module |
-| `CARA.html` | CARA 라이브 추천 흐름을 호출하는 이커머스 프론트엔드 |
-| `planner_agent.py` | Executor Agent에 전달할 추천 계획을 생성하는 Planner Agent |
-| `executor_agent.py` | 후보 상품 검색과 RAG 기반 재정렬을 수행하는 Executor Agent |
-| `critic_agent.py` | 최종 추천 후보를 검증하고 자가 수정하는 Critic Agent |
-| `products.json` | 상품 카탈로그 데이터 200개 |
-| `consumers.json` | 소비자 프로필 및 세션 행동 데이터 50명 |
+| `main.py` | FastAPI 서버 진입점. 앱 화면, 상품 도구 API, 추천 API, 관리자 API를 제공 |
+| `CARA.html` | 사용자용 CARA 추천 인터페이스 |
+| `admin.html` | 관리자/실험 확인용 대시보드 |
+| `planner_agent.py` | 사용자 컨텍스트를 추천 계획으로 변환 |
+| `conversation_agent.py` | 2턴 대화, 텍스트 BrainFry 감지, API 키 로딩 |
+| `executor_agent.py` | 상품 검색, fallback 후보 병합, RAG 점수 계산 |
+| `critic_agent.py` | 최종 추천 검수 및 개수/예산/품질 조정 |
+| `database.py` | SQLite 테이블과 DB 세션 설정 |
+| `persona_evaluator.py` | 6개 쇼핑 페르소나 기준 추천 품질 평가 |
+| `benchmark_runner.py` | 20개 시나리오로 CARA와 baseline 비교 |
+| `generate_synthetic_dataset.py` | 상품/소비자 synthetic dataset 생성 |
+| `generate_product_images.py` | 상품 이미지 PNG 생성 |
+| `products.json` | 상품 카탈로그 20,000개 |
+| `consumers.json` | 소비자 프로필 200명 |
+| `benchmark_results.json` | 최근 벤치마크 결과 |
+| `assets/products/` | 상품 이미지 파일 |
 
-## Dataset Overview
+## 설치
 
-### products.json
-
-총 200개의 상품 데이터를 포함합니다.
-
-상품은 5개 카테고리와 각 카테고리의 5개 세부 품목으로 구성되며, 세부 품목마다 8개씩 균등하게 생성됩니다.
-
-| Category | Item Types |
-| --- | --- |
-| `electronics` | `smartphones`, `laptops`, `earbuds`, `tablets`, `smartwatches` |
-| `fashion` | `sneakers`, `jackets`, `jeans`, `dresses`, `bags` |
-| `home living` | `desk lamps`, `air purifiers`, `coffee makers`, `pillows`, `storage boxes` |
-| `beauty` | `moisturizers`, `sunscreens`, `serums`, `lip balms`, `shampoos` |
-| `sports equipment` | `yoga mats`, `dumbbells`, `running shoes`, `water bottles`, `resistance bands` |
-
-#### Product Schema
-
-```json
-{
-  "product_id": "P0172",
-  "category": "sports equipment",
-  "item_type": "dumbbells",
-  "name": "Dumbbells 0172",
-  "price": 1483000,
-  "style_type": "design",
-  "rating": 4.4,
-  "review_count": 175
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `product_id` | string | `P0001` 형식의 상품 고유 ID |
-| `category` | string | 상위 상품 카테고리 |
-| `item_type` | string | 카테고리 내 세부 품목 |
-| `name` | string | mock 상품명 |
-| `price` | integer | 5,000원부터 1,500,000원 사이의 가격, 1,000원 단위 |
-| `style_type` | string | `practical` 또는 `design` |
-| `rating` | float | 3.5부터 5.0 사이의 평점, 소수점 첫째 자리 |
-| `review_count` | integer | 10부터 5,000 사이의 리뷰 수 |
-
-#### Product Generation Rules
-
-- `price`는 균등 분포에서 샘플링한 뒤 1,000원 단위로 반올림합니다.
-- `style_type`은 `practical`, `design` 중 50% 확률로 할당합니다.
-- `rating`은 `[3.5, 5.0]` 구간에서 균등 샘플링합니다.
-- `review_count`는 `numpy.random.pareto` 기반 long-tail 분포로 생성합니다.
-- 대부분의 상품은 10~200개의 리뷰를 갖고, 극소수 상품만 5,000에 가까운 리뷰 수를 갖도록 조정합니다.
-
-### consumers.json
-
-총 50명의 소비자 프로필과 동적 세션 행동 데이터를 포함합니다.
-
-#### Consumer Schema
-
-```json
-{
-  "consumer_id": "C0001",
-  "preference_style": "design",
-  "budget_level": "high",
-  "purchase_history": ["P0161", "P0051", "P0002"],
-  "session_behavior": {
-    "page_visits": 27,
-    "dwell_times": [43.73, 78.92, 65.2],
-    "dwell_time_variance": 1665.72,
-    "scroll_depths": [0.9, 0.99, 0.784],
-    "average_scroll_depth": 0.801,
-    "ctr": 0.3,
-    "brainfry_score": 0.62
-  },
-  "ctr": 0.3,
-  "brainfry_score": 0.62
-}
-```
-
-| Field | Type | Description |
-| --- | --- | --- |
-| `consumer_id` | string | `C0001` 형식의 소비자 고유 ID |
-| `preference_style` | string | `practical` 또는 `design` |
-| `budget_level` | string | `low`, `mid`, `high` |
-| `purchase_history` | array[string] | 구매 이력으로 선택된 상품 ID 목록 |
-| `session_behavior` | object | 임시 세션 행동 기록 |
-| `ctr` | float | 소비자 단위 클릭률 |
-| `brainfry_score` | float | 소비자 단위 인지 과부하 점수 |
-
-#### Consumer Generation Rules
-
-- `preference_style`은 `practical`, `design` 중 50% 확률로 할당합니다.
-- `budget_level`은 `low`, `mid`, `high` 중 동일 확률로 할당합니다.
-- `purchase_history`는 전체 상품 200개 중 3~20개 상품 ID를 무작위로 선택합니다.
-- 구매 이력은 소비자의 `preference_style`과 상품의 `style_type`이 일치하는 상품이 더 높은 확률로 포함되도록 편향되어 있습니다.
-
-## Session Behavior
-
-소비자별로 벤치마크 테스트용 동적 세션 행동을 생성합니다.
-
-| Preference Style | Page Visits | Dwell Time | Scroll Depth |
-| --- | --- | --- | --- |
-| `design` | 20~30 | 30~180초 | 0.6~1.0 |
-| `practical` | 5~15 | 15~90초 | 0.3~0.8 |
-
-`design` 선호 소비자는 탐색적 성향을 반영해 더 많은 페이지를 방문하고, 더 오래 머무르며, 더 깊게 스크롤합니다.
-
-`practical` 선호 소비자는 효율적 탐색 성향을 반영해 상대적으로 적은 페이지를 방문합니다.
-
-## CTR and BrainFry
-
-CTR은 `[0.0, 1.0]` 범위의 실수입니다.
-
-페이지 방문 수와 체류 시간 분산이 클수록 클릭률이 낮아지도록 역상관 구조로 생성합니다. 이는 많은 페이지를 수동적으로 훑지만 실제 클릭은 줄어드는 정보 과부하 상태를 mock으로 재현하기 위한 설계입니다.
-
-BrainFry score는 아래 공식으로 계산합니다.
-
-```text
-B = 0.4 * (n / 30) + 0.3 * (sigma_squared / 10000) + 0.3 * (1 - CTR)
-```
-
-| Symbol | Meaning |
-| --- | --- |
-| `B` | BrainFry score |
-| `n` | page visits |
-| `sigma_squared` | dwell time variance |
-| `CTR` | click-through rate |
-
-## How to Regenerate Dataset
+Python 3.11 이상을 권장합니다.
 
 ```bash
-python generate_synthetic_dataset.py
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-실행하면 같은 디렉터리에 아래 파일이 다시 생성됩니다.
-
-- `products.json`
-- `consumers.json`
-
-현재 스크립트는 `RANDOM_SEED = 42`를 사용하므로 동일한 환경에서는 재현 가능한 데이터셋을 생성합니다.
-
-## Product Image Pipeline
-
-상품 이미지는 `generate_product_images.py`로 생성합니다.
+현재 코드에서는 FastAPI 서버와 SQLite ORM을 사용하므로, 환경에 `sqlalchemy`가 없다면 추가로 설치하세요.
 
 ```bash
-python generate_product_images.py
+pip install sqlalchemy
 ```
 
-출력 위치는 `assets/products/{product_id}.png`입니다.
+## 환경 변수
 
-이미지 생성 규칙:
+`.env.example`을 참고해 `.env` 파일을 만듭니다.
 
-- 순백색 배경
-- 중앙 정렬된 단일 상품
-- 제품 아래의 아주 부드러운 그림자만 허용
-- 동일 item type은 같은 기본 형태와 비율 유지
-- SKU 변형은 색상, 소재감, 작은 포인트만 변경
-- 텍스트, UI 프레임, 배경 카드, 장식 오브젝트, 컬러 배경 미사용
+```env
+ANTHROPIC_API_KEY=your_anthropic_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
 
-## Tool Use Module
+- `ANTHROPIC_API_KEY`: Conversation Agent와 Persona Evaluator에서 Claude 호출에 사용
+- `OPENAI_API_KEY`: 검색어 정제와 텍스트 BrainFry 감지에 사용
 
-FastAPI 서버를 실행합니다.
+키가 없어도 일부 rule-based fallback은 동작하지만, 대화 품질 평가와 LLM 기반 감지는 제한됩니다.
+
+## 실행
+
+서버를 실행합니다.
 
 ```bash
 python main.py
 ```
 
-주요 엔드포인트는 다음과 같습니다.
+브라우저에서 아래 주소를 엽니다.
 
-| Endpoint | Purpose |
-| --- | --- |
-| `GET /consumers/{consumer_id}/history` | 소비자 구매 이력, 세션 행동, 선호 벡터 조회 |
-| `GET /products/search` | 키워드 및 필터 기반 상품 후보군 검색 |
-| `GET /products/trending` | 리뷰 수 기준 인기 상품 Top 20 조회 |
-| `POST /api/plan` | 프론트엔드의 Ask CARA 클릭 시 Planner Agent 실행 |
-| `POST /api/recommend` | 2턴 확인 이후 최종 추천 3~5개 생성 |
+- 사용자 화면: `http://127.0.0.1:8000/app`
+- 직접 파일 경로: `http://127.0.0.1:8000/CARA.html`
+- 관리자 화면: `http://127.0.0.1:8000/admin.html`
+- API 상태 확인: `http://127.0.0.1:8000/`
 
-`/consumers/{consumer_id}/history` 응답의 `preference_vector`에는 Planner Agent가 사용하는 `top_style`, `average_historical_spend`, `maximum_historical_spend`, `brainfry_score`가 포함됩니다.
+서버는 기본적으로 `0.0.0.0:8000`에서 실행됩니다.
 
-프론트엔드는 `CARA.html`을 로컬 정적 서버로 열어 사용할 수 있습니다.
+## 추천 플로우
 
-```bash
-python -m http.server 8080 --bind 127.0.0.1
-```
+1. 사용자가 상품명, 예산, 선호 표현을 입력합니다.
+2. Planner Agent가 소비자 프로필, 세션 행동, 명시 조건을 바탕으로 계획을 만듭니다.
+3. Conversation Agent가 필요한 경우 짧은 확인 대화를 진행하고, 텍스트 BrainFry 신호를 반영합니다.
+4. Executor Agent가 상품 후보를 검색하고 RAG 점수로 재정렬합니다.
+5. Critic Agent가 예산 초과, 낮은 평점, 스타일 다양성, 최소 추천 개수를 검수합니다.
+6. 프론트엔드는 최종 추천 상품과 표시 힌트를 받아 화면에 렌더링합니다.
 
-그다음 브라우저에서 `http://127.0.0.1:8080/CARA.html`을 열면 됩니다. FastAPI 서버는 별도 터미널에서 `python main.py`로 실행되어 있어야 합니다.
+## 주요 API
 
-## Planner Agent
+| Method | Endpoint | 설명 |
+| --- | --- | --- |
+| `GET` | `/` | 서버 상태 확인 |
+| `GET` | `/CARA.html` | 사용자 화면 제공 |
+| `GET` | `/admin.html` | 관리자 화면 제공 |
+| `GET` | `/app` | 사용자 화면 alias |
+| `GET` | `/consumers/{consumer_id}/history` | 소비자 구매 이력, 세션 행동, preference vector 조회 |
+| `GET` | `/products/search` | 키워드, 가격, 스타일, 카테고리 기반 상품 검색 |
+| `GET` | `/products/trending` | 리뷰 수 기준 인기 상품 조회 |
+| `GET` | `/products/price-distributions` | 카테고리별 가격 분포 조회 |
+| `POST` | `/api/plan` | Planner Agent 실행 |
+| `POST` | `/api/chat` | Conversation Agent 대화 턴 실행 |
+| `POST` | `/api/recommend` | Planner, Executor, Critic 기반 최종 추천 생성 |
+| `GET` | `/admin/sessions` | 최근 세션 목록 조회 |
+| `GET` | `/admin/sessions/{session_id}` | 세션별 에이전트 타임라인과 채팅 기록 조회 |
+| `GET` | `/admin/stats/brainfry` | BrainFry 분포 통계 조회 |
+| `POST` | `/admin/benchmark/evaluate` | 단일 추천 요청에 대한 페르소나 평가 실행 |
+| `GET` | `/admin/sessions/{session_id}/stream` | 세션 트레이스 SSE 스트림 |
 
-Planner Agent는 FastAPI Tool Use Module의 `get_consumer_history` 도구를 호출한 뒤, 다음 순서로 Executor Agent에 전달할 추천 계획을 생성합니다.
+## 데이터 스키마 요약
 
-1. 소비자 프로필 및 구매 이력 조회
-2. 현재 세션 기반 BrainFry score 계산
-3. 이전 세션 BrainFry score와 비교해 더 큰 값 선택
-4. 예산 상한선 추론
-5. 스타일 선호도 추론
+### Product
 
-실행 예시는 다음과 같습니다.
+`products.json`의 상품은 다음 핵심 필드를 포함합니다.
 
-```bash
-python planner_agent.py
-```
+- `product_id`: 상품 ID
+- `category`, `subcategory`: 상품 카테고리
+- `category_en`, `category_ko`, `subcategory_en`, `subcategory_ko`: 다국어 카테고리 메타데이터
+- `name`, `title_en`, `title_ko`: 상품명
+- `price`: 가격
+- `brand`: 브랜드/가격대 라벨
+- `style_type`: `utilitarian` 또는 `hedonic`
+- `star_rating` 또는 `rating`: 평점
+- `review_count`: 리뷰 수
+- `review_text`, `sentiment_score`: 리뷰/감성 점수
+- `keywords_ko`, `synonyms_ko`: 한국어 검색 보조 키워드
+- `stock_status`: 재고 여부
+- `description`: 상품 설명
 
-반환되는 plan 딕셔너리 예시는 다음과 같습니다.
+### Consumer
 
-```json
-{
-  "consumer_id": "C0001",
-  "query": "dumbbells",
-  "budget_ceiling": 1414000,
-  "preferred_style": "design",
-  "top_category": "electronics",
-  "avg_spend": 752666.67,
-  "brainfry_level": "MID",
-  "brainfry_score": 0.62
-}
-```
+`consumers.json`의 소비자 프로필은 다음 핵심 필드를 포함합니다.
 
-## Executor Agent
+- `consumer_id`: 소비자 ID
+- `psychographic_type`: 쇼핑 성향
+- `preference_style`: `utilitarian` 또는 `hedonic`
+- `budget_level`: 예산 수준
+- `purchase_history`: 구매한 상품 ID 목록
+- `session_behavior`: 페이지 방문 수, 체류 시간 분산, 스크롤 깊이, CTR, BrainFry score 등
 
-Executor Agent는 Planner Agent가 반환한 plan 딕셔너리를 입력으로 받아 상품 후보군을 생성하고, RAG score를 계산해 Top-5 상품을 반환합니다.
+## BrainFry score
 
-실행 예시는 다음과 같습니다.
+BrainFry는 사용자의 인지 과부하 상태를 나타내는 0.0~1.0 사이 점수입니다. 현재 코드는 행동 지표와 대화 텍스트, 자기보고 점수를 함께 사용합니다.
 
-```bash
-python executor_agent.py
-```
+- 페이지 방문 수가 많을수록 증가
+- 체류 시간 분산이 클수록 증가
+- CTR이 낮을수록 증가
+- 재검색/수정이 많을수록 증가
+- 대화에서 피로, 혼란, 결정 회피 신호가 감지되면 증가
 
-처리 단계는 다음과 같습니다.
-
-1. `search_products` 도구를 호출해 `query`, `budget_ceiling`, `preferred_style` 기반 후보군 생성
-2. 후보군이 3개 미만이면 `get_trending_products` 도구로 fallback 후보군 확보
-3. 각 상품에 RAG score 계산
-4. 점수 내림차순 정렬 후 Top-5 반환
-
-RAG score 공식은 다음과 같습니다.
+최종 추천 개수는 아래 방식으로 줄어듭니다.
 
 ```text
-RAG_score = 10*S + 20*delta_cat + 15*delta_style
-            + 10*exp(-abs(delta_price) / avg_price) + 3*rating
+n_rec = max(1, round(7 * (1 - brainfry_score)))
 ```
 
-반환 예시는 다음과 같습니다.
+즉, 인지 과부하가 높을수록 더 적고 단순한 추천을 제공합니다.
 
-```json
-{
-  "consumer_id": "C0001",
-  "query": "dumbbells",
-  "fallback_used": false,
-  "candidate_count": 4,
-  "top_5": [
-    {
-      "product_id": "P0170",
-      "name": "Dumbbells 0170",
-      "price": 811000,
-      "style_type": "design",
-      "rating": 4.1,
-      "RAG_score": 46.5542
-    }
-  ]
-}
-```
+## 추천 점수와 검수
 
-## Critic Agent
+Executor Agent는 상품 텍스트 매칭, 카테고리 일치, 스타일 일치, 가격 근접도, 평점, 감성 점수, 페르소나별 가중치를 종합해 후보를 정렬합니다.
 
-Critic Agent는 Planner의 plan 딕셔너리와 Executor의 후보군 결과를 입력으로 받아 결정론적 규칙 기반 Reflexion을 수행합니다.
+Critic Agent는 최종 반환 전에 아래 규칙을 적용합니다.
 
-실행 예시는 다음과 같습니다.
+- 예산을 초과한 상품 제거
+- 모든 상품 스타일이 동일하면 반대 스타일 후보를 일부 보강
+- 낮은 평점 상품 제거
+- 후보가 너무 적으면 예산을 단계적으로 완화해 복구
+- `impulsive` 성향이면서 BrainFry가 높으면 단일 추천 중심으로 축소
+
+## 벤치마크 실행
+
+서버를 먼저 실행한 뒤 별도 터미널에서 실행합니다.
 
 ```bash
-python critic_agent.py
+python benchmark_runner.py
 ```
 
-검사 및 수정 규칙은 다음과 같습니다.
+벤치마크는 20개 시나리오를 대상으로 CARA와 인기순 baseline을 비교하고 `benchmark_results.json`을 갱신합니다.
 
-1. `Budget Compliance`: `budget_ceiling`을 초과한 상품 제거
-2. `Style Diversity`: 모든 상품이 동일 스타일이면 예비 풀에서 반대 스타일 상품 1개 주입
-3. `Rating Quality`: 평점 3.8 미만 상품 제거
-4. `Minimum Count Guarantee`: 후보가 3개 미만이면 예산을 20% 완화하고 후보 복구
+확인 지표:
 
-위 규칙은 최대 2회 반복됩니다. 2회 이후에도 후보가 부족하면, 최소 3개 보장을 위해 평점 기준을 만족하는 예비 후보를 결정론적으로 백필하고 로그에 기록합니다.
+- 평균 만족도
+- Hit@N
+- 예산 준수율
+- 선호 스타일 정렬도
+- BrainFry 감소 추정치
+- 페르소나별 만족도와 결정 용이성
 
-반환 예시는 다음과 같습니다.
+## 데이터와 이미지 재생성
 
-```json
-{
-  "consumer_id": "C0001",
-  "final_recommendations": [
-    {
-      "product_id": "P0004",
-      "name": "Smartphones 0004",
-      "price": 442000,
-      "style_type": "design",
-      "rating": 4.6,
-      "RAG_score": 55.4182
-    }
-  ],
-  "mean_rating_score": 4.4667,
-  "critique_issues": [],
-  "correction_iterations": 2,
-  "final_budget_ceiling": 144000
-}
+상품/소비자 데이터를 다시 생성합니다.
+
+```bash
+python generate_synthetic_dataset.py
 ```
+
+상품 이미지를 다시 생성합니다.
+
+```bash
+python generate_product_images.py
+```
+
+이미지는 `assets/products/{product_id}.png` 경로에 저장됩니다.
+
+## 개발 참고
+
+- 서버 실행 시 `products.json`, `consumers.json`을 메모리에 로드합니다.
+- 세션 로그는 `cara_sessions.db` SQLite 파일에 저장됩니다.
+- `cara.db`, `cara_sessions.db`, `.env`는 로컬 실행 산출물로 취급하는 것이 좋습니다.
+- 에이전트 단독 예시는 각 파일의 `main()`에서 실행할 수 있지만, 대부분 FastAPI 서버가 켜져 있어야 정상 동작합니다.
