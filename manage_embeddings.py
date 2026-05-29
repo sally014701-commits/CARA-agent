@@ -23,7 +23,7 @@ def main() -> None:
     embed_parser.add_argument("--max-batches", type=int)
 
     similar_parser = subparsers.add_parser("similar")
-    similar_parser.add_argument("--product-name", default="그린티 씨드 세럼")
+    similar_parser.add_argument("--product-name", default="그린티 씨드 스킨")
     similar_parser.add_argument("--subcategory", default="스킨")
     similar_parser.add_argument("--limit", type=int, default=5)
 

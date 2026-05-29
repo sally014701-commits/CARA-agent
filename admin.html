@@ -1,281 +1,321 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CARA 개발자 대시보드</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CARA Benchmark</title>
+<style>
+:root{
+  --ink:#0d253d;
+  --muted:#64748b;
+  --line:#e3e8ee;
+  --soft:#f6f9fc;
+  --primary:#533afd;
+  --primary-dark:#2e2b8c;
+  --good:#15803d;
+  --canvas:#fff;
+  --shadow:0 8px 24px rgba(0,55,112,.08),0 2px 6px rgba(0,55,112,.04);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--soft);
+  color:var(--ink);
+  font-family:Inter,"SF Pro Display",system-ui,-apple-system,sans-serif;
+}
+button,input,select{font:inherit}
+.topbar{
+  position:sticky;
+  top:0;
+  z-index:10;
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:blur(16px);
+}
+.nav{
+  max-width:1180px;
+  margin:0 auto;
+  min-height:66px;
+  padding:0 24px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.back{color:var(--muted);text-decoration:none;font-size:14px}
+h1{margin:0;font-size:20px;font-weight:650}
+.badge{
+  border:1px solid #bbf7d0;
+  border-radius:999px;
+  background:#f0fdf4;
+  color:var(--good);
+  padding:7px 10px;
+  font-size:12px;
+  font-weight:650;
+}
+.page{max-width:1180px;margin:0 auto;padding:28px 24px 48px}
+.metric-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--canvas);
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+.metric strong{display:block;font-size:24px}
+.metric span{display:block;margin-top:4px;color:var(--muted);font-size:12px}
+.panel{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--canvas);
+  box-shadow:var(--shadow);
+  padding:18px;
+}
+.panel + .panel{margin-top:18px}
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:14px;
+  margin-bottom:16px;
+}
+.panel-title{margin:0;font-size:18px;font-weight:650}
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:12px;
+}
+label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:650}
+input,select{
+  width:100%;
+  border:1px solid #a8c3de;
+  border-radius:6px;
+  background:#fff;
+  color:var(--ink);
+  padding:10px;
+  outline:none;
+}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(83,58,253,.12)}
+.actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+.button{
+  border:1px solid transparent;
+  border-radius:999px;
+  background:var(--primary);
+  color:#fff;
+  padding:10px 16px;
+  cursor:pointer;
+  font-weight:650;
+}
+.button:hover{background:var(--primary-dark)}
+.button:disabled{opacity:.6;cursor:not-allowed}
+.button.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
+.result-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px}
+.rec-list{display:grid;gap:10px}
+.rec{
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:#fff;
+  padding:12px;
+}
+.rec strong{display:block;font-size:14px}
+.rec span{display:block;margin-top:5px;color:var(--muted);font-size:12px}
+table{width:100%;border-collapse:collapse;border:1px solid var(--line);background:#fff}
+th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:13px;vertical-align:top}
+th{background:#f8fafc;color:var(--muted);font-size:12px}
+.score{text-align:center;white-space:nowrap;font-weight:650}
+.summary{
+  margin-top:12px;
+  border:1px solid #bfdbfe;
+  border-radius:8px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  padding:12px;
+  font-weight:650;
+}
+.empty{
+  border:1px dashed var(--line);
+  border-radius:8px;
+  background:#fff;
+  color:var(--muted);
+  padding:18px;
+  text-align:center;
+  font-size:14px;
+}
+@media (max-width:900px){
+  .result-grid{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .form-grid,.metric-strip{grid-template-columns:1fr}
+}
+</style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900">
-  <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <a href="/app" class="text-slate-500 hover:text-slate-800 text-sm">&larr; 메인으로</a>
-      <span class="text-slate-300">|</span>
-      <h1 class="text-lg font-bold">CARA 개발자 대시보드</h1>
+<body>
+<header class="topbar">
+  <div class="nav">
+    <div class="brand">
+      <a href="/app" class="back">&larr; 메인으로</a>
+      <h1>CARA Benchmark</h1>
     </div>
-    <div class="flex items-center gap-2">
-      <span id="live-indicator" class="inline-flex items-center gap-1 text-xs text-green-600 font-medium">
-        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block"></span>실시간
-      </span>
+    <span class="badge">벤치마크 확인 전용</span>
+  </div>
+</header>
+
+<main class="page">
+  <section class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">벤치마크 실행</h3>
+      <button class="button ghost" id="presetBtn">화장품 예시 입력</button>
     </div>
-  </header>
+    <div class="form-grid">
+      <label>소비자 ID
+        <input id="benchConsumer" value="C0001" />
+      </label>
+      <label>검색어
+        <input id="benchQuery" value="스킨" />
+      </label>
+      <label>예산
+        <input id="benchBudget" type="number" value="30000" />
+      </label>
+      <label>스타일
+        <select id="benchStyle">
+          <option value="utilitarian">utilitarian</option>
+          <option value="hedonic">hedonic</option>
+        </select>
+      </label>
+      <label>페르소나
+        <select id="benchPersona">
+          <option value="utilitarian">utilitarian</option>
+          <option value="maximizer">maximizer</option>
+          <option value="value_seeker">value_seeker</option>
+          <option value="loss_averse">loss_averse</option>
+          <option value="impulsive">impulsive</option>
+          <option value="hedonic">hedonic</option>
+        </select>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="button" id="runBtn">벤치마크 실행</button>
+      <span id="statusText" style="color:var(--muted);font-size:13px">대기 중</span>
+    </div>
+  </section>
 
-  <main class="max-w-6xl mx-auto px-4 py-6">
-
-    <!-- 세션 목록 -->
-    <section class="bg-white border border-slate-200 rounded-lg p-4 mb-6">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold">세션 목록</h2>
-        <button onclick="loadSessions()" class="bg-slate-800 text-white text-sm px-3 py-2 rounded-lg">새로고침</button>
+  <section class="panel">
+    <div class="panel-head">
+      <h3 class="panel-title">결과</h3>
+      <span id="presentationHint" style="color:var(--muted);font-size:13px"></span>
+    </div>
+    <div class="metric-strip" style="margin-bottom:16px">
+      <div class="metric"><strong id="meanSatisfaction">-</strong><span>평균 만족도</span></div>
+      <div class="metric"><strong id="meanEase">-</strong><span>평균 결정 용이성</span></div>
+    </div>
+    <div class="result-grid">
+      <div>
+        <h4 style="margin:0 0 10px">추천 결과</h4>
+        <div class="rec-list" id="recommendations"><div class="empty">아직 실행된 벤치마크가 없습니다.</div></div>
       </div>
-      <div class="overflow-x-auto border-t border-slate-200 pt-3">
-        <table class="w-full text-left">
-          <thead>
-            <tr class="bg-slate-100">
-              <th class="px-3 py-2 text-xs font-semibold">세션 ID</th>
-              <th class="px-3 py-2 text-xs font-semibold">시작 시간</th>
-              <th class="px-3 py-2 text-xs font-semibold text-center">에이전트 호출 수</th>
-              <th class="px-3 py-2 text-xs font-semibold">상세</th>
-            </tr>
-          </thead>
-          <tbody id="sessions-tbody"></tbody>
-        </table>
+      <div>
+        <h4 style="margin:0 0 10px">페르소나 평가</h4>
+        <div id="evaluation"><div class="empty">실행 후 평가 점수가 표시됩니다.</div></div>
       </div>
-    </section>
+    </div>
+  </section>
+</main>
 
-    <!-- 에이전트 타임라인 -->
-    <section class="bg-white border border-slate-200 rounded-lg p-4 mb-6">
-      <div class="border-b border-slate-200 pb-3 mb-4">
-        <h2 class="text-lg font-semibold">에이전트 타임라인 &nbsp;<span id="selected-session" class="text-sm font-normal text-slate-500">선택된 세션 없음</span></h2>
-      </div>
+<script>
+function $(id){ return document.getElementById(id); }
+function escapeHtml(value){
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
+function money(value){ return '₩' + Math.round(Number(value || 0)).toLocaleString('ko-KR'); }
 
-      <div class="overflow-x-auto pb-3">
-        <div class="flex items-center gap-2 min-w-max">
-          <div id="card-user-intent-agent" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>User Intent Agent</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-brainfry-detector" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>BrainFry Detector</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-psychology-agent" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>Psychology Agent</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-conversation-agent" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>Conversation Agent</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-product-search-agent" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>Product Search Agent</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-decision-simplifier" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>Decision Simplifier</div>
-          </div>
-          <span class="text-slate-300">&rarr;</span>
-          <div id="card-critic-agent" class="border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 bg-gray-100 text-gray-500 border-gray-200">
-            <div class="agent-icon text-lg">&#9744;</div><div>Critic Agent</div>
-          </div>
-        </div>
-      </div>
+function usePreset(){
+  $('benchConsumer').value = 'C0001';
+  $('benchQuery').value = '스킨';
+  $('benchBudget').value = '30000';
+  $('benchStyle').value = 'utilitarian';
+  $('benchPersona').value = 'maximizer';
+}
 
-      <div class="grid md:grid-cols-2 gap-4 mt-4">
-        <div>
-          <h3 class="text-sm font-semibold mb-2">선택 에이전트 JSON</h3>
-          <pre id="json-panel" class="min-h-40 max-h-80 overflow-auto bg-slate-900 text-slate-100 text-xs rounded-lg p-3">{}</pre>
-        </div>
-        <div>
-          <h3 class="text-sm font-semibold mb-2">대화 기록</h3>
-          <div id="chat-history" class="min-h-40 max-h-80 overflow-y-auto bg-slate-50 rounded-lg border p-3"></div>
-        </div>
-      </div>
-    </section>
+async function runBenchmark(){
+  const btn = $('runBtn');
+  btn.disabled = true;
+  btn.textContent = '실행 중...';
+  $('statusText').textContent = 'Planner, Executor, Critic, Persona Evaluator 실행 중';
 
-    <!-- 벤치마크 실행 -->
-    <section class="bg-white border border-slate-200 rounded-lg p-4">
-      <div class="border-b border-slate-200 pb-3 mb-4">
-        <h2 class="text-lg font-semibold">벤치마크 실행</h2>
-      </div>
+  const payload = {
+    consumer_id:$('benchConsumer').value.trim() || 'C0001',
+    query:$('benchQuery').value.trim() || '스킨',
+    budget_ceiling:Number($('benchBudget').value || 30000),
+    preferred_style:$('benchStyle').value,
+    psychographic_type:$('benchPersona').value
+  };
 
-      <div class="grid md:grid-cols-5 gap-3 mb-4">
-        <label class="text-xs font-medium">소비자 ID
-          <input id="bench-consumer" value="C0001" class="mt-1 w-full border rounded-lg px-2 py-2 text-sm" />
-        </label>
-        <label class="text-xs font-medium">검색어
-          <input id="bench-query" value="laptop" class="mt-1 w-full border rounded-lg px-2 py-2 text-sm" />
-        </label>
-        <label class="text-xs font-medium">예산 (원)
-          <input id="bench-budget" type="number" value="200000" class="mt-1 w-full border rounded-lg px-2 py-2 text-sm" />
-        </label>
-        <label class="text-xs font-medium">스타일
-          <select id="bench-style" class="mt-1 w-full border rounded-lg px-2 py-2 text-sm">
-            <option value="utilitarian">utilitarian</option>
-            <option value="hedonic">hedonic</option>
-          </select>
-        </label>
-        <label class="text-xs font-medium">페르소나
-          <select id="bench-persona" class="mt-1 w-full border rounded-lg px-2 py-2 text-sm">
-            <option value="utilitarian">utilitarian</option>
-            <option value="maximizer">maximizer</option>
-            <option value="value_seeker">value_seeker</option>
-            <option value="loss_averse">loss_averse</option>
-            <option value="impulsive">impulsive</option>
-            <option value="hedonic">hedonic</option>
-          </select>
-        </label>
-      </div>
+  try{
+    const response = await fetch('/admin/benchmark/evaluate', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json' },
+      body:JSON.stringify(payload)
+    });
+    if(!response.ok) throw new Error('benchmark failed');
+    const data = await response.json();
+    renderBenchmark(data);
+    $('statusText').textContent = '완료';
+  } catch(error){
+    console.error(error);
+    $('statusText').textContent = '실패: 서버 로그를 확인하세요';
+  } finally{
+    btn.disabled = false;
+    btn.textContent = '벤치마크 실행';
+  }
+}
 
-      <button id="bench-btn" onclick="runBenchmark()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-60">벤치마크 실행</button>
+function renderBenchmark(data){
+  $('meanSatisfaction').textContent = `${Number(data.mean_satisfaction || 0).toFixed(2)} / 5`;
+  $('meanEase').textContent = `${Number(data.mean_decision_ease || 0).toFixed(2)} / 5`;
+  $('presentationHint').textContent = data.presentation_hint || '';
 
-      <div class="grid md:grid-cols-3 gap-4 mt-4">
-        <div>
-          <h3 class="text-sm font-semibold mb-2">추천 결과</h3>
-          <div id="bench-recs"></div>
-        </div>
-        <div class="md:col-span-2">
-          <h3 class="text-sm font-semibold mb-2">페르소나 평가</h3>
-          <div id="bench-eval"></div>
-        </div>
-      </div>
-    </section>
-  </main>
+  $('recommendations').innerHTML = (data.recommendations || []).map(product => `
+    <article class="rec">
+      <strong>${escapeHtml(product.name)}</strong>
+      <span>${escapeHtml(product.category || product.subcategory || '-')} · ${money(product.price)} · Rating ${Number(product.rating || product.star_rating || 0).toFixed(1)}</span>
+      <span>RAG ${product.RAG_score !== undefined && product.RAG_score !== null ? Number(product.RAG_score).toFixed(2) : '-'}</span>
+    </article>`).join('') || '<div class="empty">추천 결과가 없습니다.</div>';
 
-  <script>
-    let currentEventSource = null;
+  const rows = Object.entries(data.persona_evaluation || {}).map(([persona, scores]) => `
+    <tr>
+      <td><strong>${escapeHtml(persona)}</strong></td>
+      <td class="score">${escapeHtml(scores.persona_satisfaction_score)} / 5</td>
+      <td class="score">${escapeHtml(scores.decision_ease_score)} / 5</td>
+      <td>${escapeHtml(scores.reasoning)}</td>
+    </tr>`).join('');
 
-    function escapeHtml(value) {
-      return String(value ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+  $('evaluation').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>페르소나</th>
+          <th>만족도</th>
+          <th>결정 용이성</th>
+          <th>AI 평가</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="summary">전체 평균 만족도 ${Number(data.mean_satisfaction || 0).toFixed(2)} / 5 · 결정 용이성 ${Number(data.mean_decision_ease || 0).toFixed(2)} / 5</div>`;
+}
 
-    async function loadSessions() {
-      const resp = await fetch('/admin/sessions');
-      const sessions = await resp.json();
-      const tbody = document.getElementById('sessions-tbody');
-      tbody.innerHTML = '';
-      sessions.forEach(s => {
-        tbody.innerHTML +=
-          '<tr class="border-b hover:bg-slate-50">' +
-          '<td class="px-3 py-2 text-xs font-mono">' + escapeHtml(s.session_id).slice(0, 8) + '...</td>' +
-          '<td class="px-3 py-2 text-xs">' + new Date(s.started_at).toLocaleString('ko-KR') + '</td>' +
-          '<td class="px-3 py-2 text-xs text-center">' + s.agent_calls + '</td>' +
-          '<td class="px-3 py-2"><button onclick="loadSession(\'' + escapeHtml(s.session_id) + '\')" class="text-xs bg-blue-500 text-white px-2 py-1 rounded">상세 보기</button></td>' +
-          '</tr>';
-      });
-    }
-
-    async function loadSession(sessionId) {
-      document.getElementById('selected-session').textContent = sessionId.slice(0, 8) + '...';
-
-      if (currentEventSource) currentEventSource.close();
-
-      const resp = await fetch('/admin/sessions/' + sessionId);
-      const data = await resp.json();
-
-      const agentNames = ['User Intent Agent', 'BrainFry Detector', 'Psychology Agent',
-                          'Conversation Agent', 'Product Search Agent', 'Decision Simplifier', 'Critic Agent'];
-      agentNames.forEach(name => setAgentCard(name, 'waiting', null));
-      data.agent_timeline.forEach(t => setAgentCard(t.agent, t.status, t.output));
-
-      currentEventSource = new EventSource('/admin/sessions/' + sessionId + '/stream');
-      currentEventSource.onmessage = (e) => {
-        const trace = JSON.parse(e.data);
-        setAgentCard(trace.agent, trace.status, trace.output);
-      };
-
-      const chatDiv = document.getElementById('chat-history');
-      chatDiv.innerHTML = data.chat_history.map(m =>
-        '<div class="mb-1 text-xs ' + (m.role === 'user' ? 'text-right' : 'text-left') + '">' +
-        '<span class="inline-block px-2 py-1 rounded ' +
-        (m.role === 'user' ? 'bg-blue-100' : 'bg-gray-100') + '">' +
-        escapeHtml(m.content) + '</span></div>'
-      ).join('');
-    }
-
-    function setAgentCard(agentName, status, outputData) {
-      const id = 'card-' + agentName.replace(/\s+/g, '-').toLowerCase();
-      const el = document.getElementById(id);
-      if (!el) return;
-      const styleMap = {
-        waiting: 'bg-gray-100 text-gray-500 border-gray-200',
-        running: 'bg-blue-100 text-blue-700 border-blue-300 animate-pulse',
-        done:    'bg-green-100 text-green-700 border-green-300',
-        error:   'bg-red-100 text-red-700 border-red-300',
-      };
-      const iconMap = { waiting: '&#9744;', running: '&#9654;', done: '&#10003;', error: '&#10007;' };
-      el.className = 'border rounded-lg p-2 text-center text-xs font-medium w-28 cursor-pointer flex-shrink-0 ' + (styleMap[status] || styleMap.waiting);
-      el.querySelector('.agent-icon').innerHTML = iconMap[status] || iconMap.waiting;
-      el.onclick = () => {
-        document.getElementById('json-panel').textContent = JSON.stringify(outputData || {}, null, 2);
-      };
-    }
-
-    async function runBenchmark() {
-      const btn = document.getElementById('bench-btn');
-      btn.textContent = '실행 중...';
-      btn.disabled = true;
-
-      const payload = {
-        consumer_id:        document.getElementById('bench-consumer').value,
-        query:              document.getElementById('bench-query').value,
-        budget_ceiling:     parseInt(document.getElementById('bench-budget').value),
-        preferred_style:    document.getElementById('bench-style').value,
-        psychographic_type: document.getElementById('bench-persona').value,
-      };
-
-      try {
-        const resp = await fetch('/admin/benchmark/evaluate', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(payload),
-        });
-        const data = await resp.json();
-
-        const recsDiv = document.getElementById('bench-recs');
-        recsDiv.innerHTML = data.recommendations.map(p =>
-          '<div class="bg-white border rounded p-2 text-xs mb-1">' +
-          '<b>' + escapeHtml(p.name) + '</b><br>' +
-          '&#8361;' + (p.price || 0).toLocaleString('ko-KR') + ' &nbsp; &#9733; ' + (p.rating || p.star_rating || 0) + '<br>' +
-          '<span class="text-blue-500">RAG ' + (p.RAG_score || 0) + ' &middot; ' + escapeHtml(data.presentation_hint || '') + '</span>' +
-          '</div>'
-        ).join('');
-
-        const evalDiv = document.getElementById('bench-eval');
-        const personas = data.persona_evaluation;
-        const rows = Object.entries(personas).map(([type, scores]) =>
-          '<tr>' +
-          '<td class="px-3 py-2 text-xs font-medium">' + escapeHtml(type) + '</td>' +
-          '<td class="px-3 py-2 text-xs text-center">' + scores.persona_satisfaction_score + ' / 5</td>' +
-          '<td class="px-3 py-2 text-xs text-center">' + scores.decision_ease_score + ' / 5</td>' +
-          '<td class="px-3 py-2 text-xs">' + escapeHtml(scores.reasoning) + '</td>' +
-          '</tr>'
-        ).join('');
-        evalDiv.innerHTML =
-          '<table class="w-full border-collapse border text-xs">' +
-          '<thead><tr class="bg-gray-100">' +
-          '<th class="px-3 py-2 text-left">페르소나</th>' +
-          '<th class="px-3 py-2">만족도</th>' +
-          '<th class="px-3 py-2">결정 용이성</th>' +
-          '<th class="px-3 py-2 text-left">AI 평가</th>' +
-          '</tr></thead>' +
-          '<tbody>' + rows + '</tbody></table>' +
-          '<div class="mt-3 p-3 bg-blue-50 rounded text-sm font-semibold">' +
-          '전체 평균 만족도: ' + data.mean_satisfaction + ' / 5.0 &nbsp;|&nbsp; 전체 평균 결정 용이성: ' + data.mean_decision_ease + ' / 5.0' +
-          '</div>';
-      } finally {
-        btn.textContent = '벤치마크 실행';
-        btn.disabled = false;
-      }
-    }
-
-    setInterval(loadSessions, 5000);
-    loadSessions();
-  </script>
+$('presetBtn').onclick = usePreset;
+$('runBtn').onclick = runBenchmark;
+</script>
 </body>
 </html>

@@ -67,6 +67,20 @@ def _normalize_preference_style_line(reply: str, preferred_style: str) -> str:
     return reply
 
 
+def _style_value(plan_context: dict) -> str:
+    style = str(plan_context.get("preferred_style") or "utilitarian").strip().lower()
+    return "hedonic" if style == "hedonic" else "utilitarian"
+
+
+def _normalize_preference_style_line(reply: str, preferred_style: str) -> str:
+    replacement = f"- 선호 스타일: {preferred_style}"
+    if re.search(r"(?m)^-\s*선호 스타일\s*:\s*.*$", reply):
+        return re.sub(r"(?m)^-\s*선호 스타일\s*:\s*.*$", replacement, reply)
+    if re.search(r"(?m)^-\s*선호 스타일\s*[:：]\s*.*$", reply):
+        return re.sub(r"(?m)^-\s*선호 스타일\s*[:：]\s*.*$", replacement, reply)
+    return reply
+
+
 class BrainFryTextDetector:
     def __init__(self):
         self.client = _anthropic.Anthropic(api_key=ANTHROPIC_API_KEY) if ANTHROPIC_API_KEY else None
@@ -201,8 +215,6 @@ class ConversationAgent:
             or "추천해 드릴게요" in reply
             or "추천해 드리겠습니다" in reply
         )
-
-        import re
 
         last_msg = last_user_content.lower()
         numbers = re.findall(r"\d[\d,]*", last_msg.replace(",", ""))

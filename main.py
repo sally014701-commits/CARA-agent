@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator, Literal
 
 import uvicorn
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -796,6 +796,11 @@ def build_category_price_distributions(products: list) -> dict:
     return {cat: sorted(prices) for cat, prices in dist.items()}
 
 
+def current_tool_base_url(http_request: Request) -> str:
+    """Use the active FastAPI host/port for internal tool-use calls."""
+    return str(http_request.base_url).rstrip("/")
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """Initialize the in-memory JSON database when the FastAPI server starts."""
@@ -850,7 +855,10 @@ def serve_cara_html() -> FileResponse:
 
 @app.get("/admin.html", response_class=FileResponse)
 def serve_admin_html() -> FileResponse:
-    return FileResponse(BASE_DIR / "admin.html")
+    return FileResponse(
+        BASE_DIR / "admin.html",
+        headers={"Cache-Control": "no-store"},
+    )
 
 
 @app.get("/app", response_class=FileResponse)
@@ -1170,7 +1178,11 @@ def get_price_distributions():
 
 
 @app.post("/api/plan", response_model=PlanResponse)
-def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get_db)):
+def create_recommendation_plan(
+    request: PlanRequest,
+    http_request: Request,
+    db: DBSession = Depends(get_db),
+):
     """
     Orchestrate the Planner Agent for the storefront confirmation dialog.
 
@@ -1179,7 +1191,8 @@ def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get
     """
     consumer_id = normalize_consumer_id(request.consumer_id)
     explicit_budget = extract_budget_ceiling(request.query)
-    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    tool_base_url = current_tool_base_url(http_request)
+    planner = PlannerAgent(ToolUseClient(tool_base_url))
     plan = planner.create_plan(
         consumer_id=consumer_id,
         session_input=SessionInput(
@@ -1229,9 +1242,9 @@ def record_passive_tracking_tick(request: PassiveTrackingRequest, db: DBSession 
     """
     Record a periodic BrainFry snapshot from passive browsing signals.
 
-    The storefront calls this every 30 seconds while the page is open. The score
-    uses the same BrainFry computation as the Planner so dashboard stats and
-    recommendation planning stay aligned.
+    The storefront can call this every 30 seconds while the page is open. The
+    score uses the same BrainFry computation as the Planner so dashboard stats
+    and recommendation planning stay aligned.
     """
     consumer_id = normalize_consumer_id(request.consumer_id)
     session_input = SessionInput(
@@ -1269,9 +1282,14 @@ def record_passive_tracking_tick(request: PassiveTrackingRequest, db: DBSession 
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> ChatResponse:
+def run_chat_turn(
+    request: ChatRequest,
+    http_request: Request,
+    db: DBSession = Depends(get_db),
+) -> ChatResponse:
     consumer_id = normalize_consumer_id(request.consumer_id)
     plan_context = dict(request.plan_context or {})
+    has_plan_context = bool(plan_context)
     session_input = SessionInput(
         page_visits=request.session_data.n,
         dwell_time_variance=request.session_data.dwell_variance,
@@ -1359,8 +1377,9 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             n_rec=n_rec,
             agent_trace=[{"agent": "Rule-Based Search", "status": "clarification_needed"}],
         )
-    if not plan_context:
-        planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    if not has_plan_context:
+        tool_base_url = current_tool_base_url(http_request)
+        planner = PlannerAgent(ToolUseClient(tool_base_url))
         plan_context = planner.create_plan(
             consumer_id=consumer_id,
             session_input=session_input,
@@ -1494,6 +1513,7 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
 @app.post("/api/recommend", response_model=list[FinalRecommendation])
 def create_final_recommendations(
     request: RecommendRequest,
+    http_request: Request,
     db: DBSession = Depends(get_db),
 ) -> list[FinalRecommendation]:
     """
@@ -1506,7 +1526,8 @@ def create_final_recommendations(
     consumer_id = normalize_consumer_id(request.consumer_id)
     explicit_budget = extract_budget_ceiling(request.query)
     budget_ceiling = explicit_budget if explicit_budget is not None else request.budget_ceiling
-    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    tool_base_url = current_tool_base_url(http_request)
+    planner = PlannerAgent(ToolUseClient(tool_base_url))
     plan = planner.create_plan(
         consumer_id=consumer_id,
         session_input=SessionInput(page_visits=0, dwell_time_variance=0.0, ctr=1.0),
@@ -1529,7 +1550,7 @@ def create_final_recommendations(
         prices = category_price_distributions[top_cat]
         plan["category_avg_price"] = sum(prices) / len(prices)
 
-    executor = ExecutorAgent(ProductToolClient("http://127.0.0.1:8000"))
+    executor = ExecutorAgent(ProductToolClient(tool_base_url))
     critic = CriticAgent()
 
     # AgentTrace 기록
@@ -1636,11 +1657,16 @@ def brainfry_stats(db: DBSession = Depends(get_db)):
 
 
 @app.post("/admin/benchmark/evaluate")
-def run_benchmark_evaluation(request: RecommendRequest, db: DBSession = Depends(get_db)):
+def run_benchmark_evaluation(
+    request: RecommendRequest,
+    http_request: Request,
+    db: DBSession = Depends(get_db),
+):
     from persona_evaluator import PersonaEvaluator
 
     consumer_id = normalize_consumer_id(request.consumer_id)
-    planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
+    tool_base_url = current_tool_base_url(http_request)
+    planner = PlannerAgent(ToolUseClient(tool_base_url))
     plan = planner.create_plan(
         consumer_id=consumer_id,
         session_input=SessionInput(page_visits=0, dwell_time_variance=0.0, ctr=1.0),
@@ -1657,7 +1683,7 @@ def run_benchmark_evaluation(request: RecommendRequest, db: DBSession = Depends(
         prices = category_price_distributions[top_cat]
         plan["category_avg_price"] = sum(prices) / len(prices)
 
-    executor = ExecutorAgent(ProductToolClient("http://127.0.0.1:8000"))
+    executor = ExecutorAgent(ProductToolClient(tool_base_url))
     critic = CriticAgent()
     executor_result = executor.execute_plan(plan)
     final_result = critic.critique(plan=plan, executor_result=executor_result)
