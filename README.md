@@ -6,7 +6,7 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 
 ### 프론트엔드
 - `CARA.html`: 사용자가 상품을 검색하고 CARA와 대화하며 추천을 받는 쇼핑 인터페이스
-- `admin.html`: 세션 분석, 에이전트 실행 로그, BrainFry 통계, 성능 평가를 확인하는 관리자 대시보드
+- `admin.html`: CARA 추천 결과와 페르소나 평가 점수를 확인하는 벤치마크 전용 페이지
 
 ### 백엔드 서버
 - `main.py`: 정적 콘텐츠 제공, RESTful API(검색/추천/관리자), SQLite 통합을 담당하는 FastAPI 서버
@@ -27,13 +27,14 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 
 - **벡터 기반 임베딩 검색**: Voyage AI를 활용한 의미론적 상품 검색으로 텍스트 매칭 이상의 유사도 파악
 - **한국어 검색 최적화**: 동의어 확장, 카테고리 매핑, 스킨타입 자동 분류로 자연스러운 검색 경험 제공
-- **실제 화장품 카탈로그**: `cara.db`에 200개 상품 메타데이터 및 임베딩 벡터 저장
+- **실제 화장품 카탈로그**: `cara.db`에 500개 상품 메타데이터 및 임베딩 벡터 저장
 - **사용자 프로필**: `consumers.json`에 200개 소비자 프로필(심리 성향, 구매 이력, 행동 지표) 로드
 - **인지 과부하 추적(BrainFry)**: 행동 지표(방문 수, 체류 시간 분산, CTR) + 텍스트 신호로 사용자 상태 감지
 - **상황 맞춤 추천 개수**: BrainFry score에 따라 추천 개수 자동 조절 (1~7개)
 - **페르소나 기반 보정**: `utilitarian`, `hedonic`, `maximizer`, `value_seeker`, `loss_averse`, `impulsive` 성향별 점수 가중치 적용
 - **통합 세션 추적**: SQLite에 채팅 기록, 에이전트 실행 트레이스, 이벤트 로그 저장
-- **관리자 대시보드**: 세션 타임라인, BrainFry 분포, 페르소나별 성능 평가 조회
+- **메인 내 라이브 에이전트 대시보드**: 시연 화면 좌측에서 세션 목록, 에이전트 타임라인, BrainFry/행동 지표를 실시간 표시
+- **벤치마크 확인 페이지**: CARA 추천 결과와 페르소나별 만족도/결정 용이성 평가 조회
 - **벤치마크 비교**: CARA 추천과 인기순 baseline을 20개 시나리오로 자동 비교
 
 ## 프로젝트 구조
@@ -44,7 +45,7 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 | `main.py` | FastAPI 진입점. 정적 콘텐츠, RESTful API, DB 연동 관리 |
 | **사용자 인터페이스** | |
 | `CARA.html` | 사용자용 쇼핑 및 추천 인터페이스 |
-| `admin.html` | 관리자/연구자용 분석 대시보드 |
+| `admin.html` | 벤치마크 확인 전용 페이지 |
 | **추천 에이전트** | |
 | `planner_agent.py` | 사용자 컨텍스트 → 추천 계획 변환 |
 | `conversation_agent.py` | 2턴 대화 + 텍스트 기반 인지 과부하 감지 |
@@ -63,6 +64,8 @@ CARA(Context-Aware Recommendation Agent)는 사용자의 현재 탐색 행동, �
 | **데이터 생성** | |
 | `generate_synthetic_dataset.py` | 상품/소비자 synthetic 데이터 생성 |
 | `generate_product_images.py` | 상품 이미지 PNG 생성 |
+| `generate_category_labeled_images.py` | 카테고리별 템플릿 이미지에 상품별 영어 키워드 라벨을 입혀 `P0001`~`P0500` 생성 |
+| `generate_skin_labeled_images.py` | 스킨 카테고리 전용 템플릿 라벨 이미지 생성 |
 | **데이터 파일** | |
 | `cara.db` | SQLite DB (상품 카탈로그, 임베딩 벡터) |
 | `consumers.json` | 200명 소비자 프로필 |
@@ -110,6 +113,7 @@ pip install -r requirements.txt
 - `anthropic`: Claude API 클라이언트
 - `openai`: GPT API 클라이언트
 - `voyageai`: 임베딩 생성 API
+- `pillow`: 상품 이미지 라벨링 및 캔버스 정규화
 - `python-dotenv`: 환경 변수 로딩
 
 #### 4. 환경 변수 설정
@@ -160,7 +164,7 @@ python main.py
 ### 2. 웹 인터페이스 접속
 
 - **사용자 화면 (추천 인터페이스)**: http://localhost:8000/
-- **관리자 대시보드**: http://localhost:8000/admin.html
+- **벤치마크 확인 페이지**: http://localhost:8000/admin.html
 - **헬스 체크**: http://localhost:8000/health
 
 ### 3. 임베딩 생성 (선택사항)
@@ -178,7 +182,7 @@ python manage_embeddings.py embed-products --batch-size 20 --sleep 0.5
 python manage_embeddings.py count
 
 # 특정 상품의 유사 상품 조회
-python manage_embeddings.py similar --product-name "그린티 씨드 세럼" --limit 5
+python manage_embeddings.py similar --product-name "그린티 씨드 스킨" --limit 5
 ```
 
 **주의**: `embed-products` 명령은 Voyage API를 호출하므로 `VOYAGE_API_KEY` 환경 변수가 필요합니다.
@@ -226,7 +230,7 @@ python manage_embeddings.py similar --product-name "그린티 씨드 세럼" --l
 | --- | --- | --- |
 | `GET` | `/` | CARA.html 입장 (사용자 인터페이스) |
 | `GET` | `/health` | 서버 상태 확인 |
-| `GET` | `/admin.html` | 관리자 대시보드 |
+| `GET` | `/admin.html` | 벤치마크 확인 페이지 |
 
 ### 상품 검색 API
 | 메서드 | 엔드포인트 | 설명 |
@@ -396,7 +400,7 @@ python benchmark_runner.py
 POST /admin/benchmark/evaluate
 {
   "consumer_id": 1,
-  "query": "보습 크림",
+  "query": "보습 로션",
   "budget_min": 30000,
   "budget_max": 80000
 }

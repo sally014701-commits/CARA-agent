@@ -35,7 +35,7 @@
   --pill:9999px;
   --shadow-1:0 1px 3px rgba(var(--shadow-blue),.08);
   --shadow-2:0 8px 24px rgba(var(--shadow-blue),.08),0 2px 6px rgba(var(--shadow-blue),.04);
-  --max:1200px;
+  --max:1480px;
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -94,12 +94,12 @@ button{cursor:pointer}
 .search-wrap{position:relative}
 .search-input{
   width:100%;
-  height:42px;
+  height:44px;
   border:1px solid var(--hairline-input);
-  border-radius:var(--radius-sm);
+  border-radius:var(--radius-md);
   background:var(--canvas);
   color:var(--ink);
-  padding:0 110px 0 14px;
+  padding:0 114px 0 16px;
   outline:none;
   transition:border-color .18s,box-shadow .18s;
 }
@@ -109,10 +109,17 @@ button{cursor:pointer}
 }
 .search-button{
   position:absolute;
-  right:4px;
-  top:4px;
+  right:6px;
+  top:50%;
+  transform:translateY(-50%);
+  min-height:34px;
   height:34px;
+  padding:0 22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
+.search-button:hover{transform:translateY(-50%)}
 .nav-actions{display:flex;align-items:center;gap:10px}
 .button{
   min-height:38px;
@@ -157,8 +164,8 @@ button{cursor:pointer}
   grid-template-columns:minmax(0,1fr) 420px;
   gap:36px;
   align-items:end;
-  min-height:300px;
-  padding:36px 0 56px;
+  min-height:180px;
+  padding:20px 0 26px;
 }
 .eyebrow{
   display:inline-flex;
@@ -175,7 +182,7 @@ button{cursor:pointer}
 .hero-title{
   max-width:720px;
   margin:18px 0 16px;
-  font-size:56px;
+  font-size:42px;
   line-height:1.03;
   letter-spacing:-1.4px;
   font-weight:300;
@@ -192,6 +199,9 @@ button{cursor:pointer}
   display:grid;
   grid-template-columns:repeat(3,1fr);
   gap:1px;
+  align-self:center;
+  justify-self:start;
+  width:min(100%,390px);
   overflow:hidden;
   border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
@@ -199,8 +209,8 @@ button{cursor:pointer}
   box-shadow:var(--shadow-2);
 }
 .metric{
-  min-height:116px;
-  padding:22px;
+  min-height:92px;
+  padding:18px;
   background:var(--canvas);
 }
 .metric-value{
@@ -214,11 +224,21 @@ button{cursor:pointer}
 .metric-label{margin-top:8px;color:var(--ink-mute);font-size:13px}
 .workspace{
   display:grid;
-  grid-template-columns:280px minmax(0,1fr);
+  grid-template-columns:340px minmax(0,1fr);
   gap:24px;
   align-items:start;
 }
-.sidebar{display:flex;flex-direction:column;gap:16px;position:sticky;top:92px}
+.sidebar{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  position:sticky;
+  top:84px;
+  max-height:calc(100vh - 96px);
+  overflow-y:auto;
+  padding-right:4px;
+  padding-bottom:12px;
+}
 .panel,.trace,.confirm,.drawer-panel{
   border:1px solid var(--hairline);
   border-radius:var(--radius-lg);
@@ -226,6 +246,7 @@ button{cursor:pointer}
   box-shadow:var(--shadow-2);
 }
 .panel{padding:24px}
+.sidebar .panel{padding:18px}
 .panel-title{
   margin:0 0 18px;
   color:var(--ink-mute);
@@ -302,25 +323,78 @@ button{cursor:pointer}
 .trace.visible,.confirm.visible{display:block}
 .chat-panel{
   display:none;
-  margin-bottom:18px;
+  position:fixed;
+  right:24px;
+  bottom:92px;
+  z-index:45;
+  width:min(420px,calc(100vw - 32px));
+  height:min(600px,calc(100vh - 126px));
+  max-height:calc(100vh - 126px);
+  height:min(600px,calc(100dvh - 126px));
+  max-height:calc(100dvh - 126px);
   border:1px solid var(--hairline);
-  border-radius:var(--radius-lg);
+  border-radius:28px;
   background:var(--canvas);
-  box-shadow:var(--shadow-2);
+  box-shadow:0 28px 80px rgba(13,37,61,.2),0 10px 24px rgba(83,58,253,.12);
   overflow:hidden;
 }
-.chat-panel.visible{display:block}
+.chat-panel.visible{display:flex;flex-direction:column}
 .chat-head{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:16px;
-  padding:18px 20px;
+  gap:12px;
+  padding:14px 18px 12px;
   border-bottom:1px solid var(--hairline);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);
+}
+.chat-head-main{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+}
+.chat-avatar{
+  width:34px;
+  height:34px;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  background:linear-gradient(135deg,var(--primary),#8b5cf6);
+  color:#fff;
+  font-size:19px;
+  box-shadow:0 8px 18px rgba(83,58,253,.24);
+}
+.chat-title{
+  margin:0;
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.2;
+  font-weight:700;
+}
+.chat-subtitle{
+  margin:3px 0 0;
+  color:var(--ink-mute);
+  font-size:11px;
+  line-height:1.35;
+}
+.chat-head-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
+}
+.chat-close{
+  border-color:transparent;
+  background:var(--canvas-soft);
+  color:var(--ink-secondary);
+  font-size:20px;
+  line-height:1;
 }
 .brainfry-meter{
-  width:220px;
-  max-width:42vw;
+  width:108px;
+  max-width:24vw;
 }
 .brainfry-label{
   margin-bottom:6px;
@@ -340,33 +414,24 @@ button{cursor:pointer}
   background:#22c55e;
   transition:width .18s,background .18s;
 }
-.brainfry-debug{
-  margin:10px 20px 0;
-  padding:10px 12px;
-  border:1px solid var(--hairline);
-  border-radius:8px;
-  color:var(--ink-mute);
-  font-size:12px;
-  line-height:1.55;
-  font-feature-settings:"tnum";
-  background:#fff;
-}
-.brainfry-debug strong{color:var(--ink)}
 .chat-messages{
-  height:300px;
+  flex:1;
+  min-height:0;
+  height:auto;
   overflow:auto;
-  padding:18px 20px;
-  background:linear-gradient(180deg,#fff 0,#f8fafc 100%);
+  padding:16px 18px 12px;
+  background:linear-gradient(180deg,#f8fafc 0,#f3f6fb 100%);
 }
 .chat-row{display:flex;margin-bottom:10px}
 .chat-row.user{justify-content:flex-end}
 .chat-row.assistant{justify-content:flex-start}
 .chat-bubble{
-  max-width:min(540px,86%);
-  padding:10px 12px;
-  border-radius:var(--radius-lg);
+  max-width:86%;
+  padding:11px 13px;
+  border-radius:18px;
   font-size:14px;
   line-height:1.45;
+  box-shadow:0 1px 2px rgba(var(--shadow-blue),.04);
 }
 .chat-bubble.agent-bubble{
   max-width:100%;
@@ -420,10 +485,10 @@ button{cursor:pointer}
   font-size:13px;
 }
 .selected-products-panel{
-  border-top:2px solid var(--hairline);
+  border-top:1px solid var(--hairline);
   background:#f8fafc;
-  padding:14px 20px;
-  max-height:260px;
+  padding:12px 16px;
+  max-height:190px;
   overflow-y:auto;
 }
 .sp-head{
@@ -473,13 +538,30 @@ button{cursor:pointer}
   font-size:11px;
   color:var(--ink-mute);
 }
-.chat-row.user .chat-bubble{background:var(--primary);color:#fff}
-.chat-row.assistant .chat-bubble{background:#eef2f7;color:var(--ink)}
+.chat-row.user .chat-bubble{background:var(--primary);color:#fff;border-bottom-right-radius:6px}
+.chat-row.assistant .chat-bubble{background:#fff;color:var(--ink);border:1px solid rgba(227,232,238,.88);border-bottom-left-radius:6px}
 .chat-input-row{
   display:flex;
-  gap:10px;
-  padding:16px 20px;
+  gap:8px;
+  padding:12px 16px 14px;
   border-top:1px solid var(--hairline);
+  background:#fff;
+}
+.chat-input-row .input{
+  border-color:transparent;
+  border-radius:22px;
+  background:#f2f4f7;
+  min-height:46px;
+  padding:10px 14px;
+}
+.chat-input-row .button{
+  width:46px;
+  min-width:46px;
+  min-height:46px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  font-size:22px;
 }
 .trace-steps{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .trace-chip{
@@ -499,6 +581,106 @@ button{cursor:pointer}
   font-feature-settings:"tnum";
 }
 .trace-metrics strong{color:var(--ink)}
+.live-stack{display:grid;gap:10px}
+.live-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.live-title{margin:0;font-size:13px;font-weight:600;color:var(--ink)}
+.live-kicker{margin:4px 0 0;color:var(--ink-mute);font-size:11px;line-height:1.4}
+.live-dot{
+  width:8px;
+  height:8px;
+  border-radius:999px;
+  background:#22c55e;
+  box-shadow:0 0 0 4px rgba(34,197,94,.14);
+}
+.session-list{display:grid;gap:6px}
+.session-row{
+  width:100%;
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-sm);
+  background:#fff;
+  color:var(--ink-secondary);
+  padding:8px 10px;
+  text-align:left;
+}
+.session-row.active{border-color:var(--primary);box-shadow:0 0 0 3px rgba(83,58,253,.1)}
+.session-row strong{display:block;color:var(--ink);font-size:12px;font-weight:600}
+.session-row span{display:block;margin-top:2px;color:var(--ink-mute);font-size:10px}
+.agent-timeline{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:18px 20px;
+}
+.live-agent{
+  position:relative;
+  display:grid;
+  grid-template-columns:1fr;
+  justify-items:center;
+  gap:5px;
+  border:1px solid var(--hairline);
+  border-radius:var(--radius-sm);
+  background:#fff;
+  padding:8px 6px;
+  min-height:78px;
+  text-align:center;
+}
+.live-agent:not(:nth-child(3n))::after{
+  content:"→";
+  position:absolute;
+  right:-16px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#aeb8c6;
+  font-size:16px;
+  font-weight:600;
+}
+.live-agent-icon{
+  width:22px;
+  height:22px;
+  border-radius:999px;
+  display:grid;
+  place-items:center;
+  background:var(--canvas-soft);
+  color:var(--ink-mute);
+  font-size:12px;
+  font-weight:600;
+}
+.live-agent-name{
+  color:var(--ink);
+  font-size:10px;
+  font-weight:600;
+  line-height:1.15;
+}
+.live-agent-output{
+  display:none;
+  margin-top:2px;
+  color:var(--ink-mute);
+  font-size:11px;
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.live-agent-status{
+  border-radius:999px;
+  padding:3px 6px;
+  background:var(--canvas-soft);
+  color:var(--ink-mute);
+  font-size:9px;
+  text-transform:uppercase;
+}
+.live-agent.running{border-color:#93c5fd;background:#eff6ff}
+.live-agent.running .live-agent-icon{background:#dbeafe;color:#1d4ed8}
+.live-agent.running .live-agent-status{background:#dbeafe;color:#1d4ed8}
+.live-agent.done{border-color:#86efac;background:#f0fdf4}
+.live-agent.done .live-agent-icon{background:#dcfce7;color:#15803d}
+.live-agent.done .live-agent-status{background:#dcfce7;color:#15803d}
+.live-agent.error{border-color:#fca5a5;background:#fff1f2}
+.live-agent.error .live-agent-icon{background:#fee2e2;color:#b91c1c}
+.live-agent.error .live-agent-status{background:#fee2e2;color:#b91c1c}
+.live-summary{display:grid;gap:6px;color:var(--ink-secondary);font-size:11px;line-height:1.35}
+.live-summary-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--hairline);padding-bottom:5px}
+.live-summary-row:last-child{border-bottom:0;padding-bottom:0}
+.live-summary strong{font-weight:600;color:var(--ink)}
 .confirm-title{
   margin:0 0 8px;
   font-size:20px;
@@ -535,8 +717,8 @@ button{cursor:pointer}
 }
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:16px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
 }
 .grid.curated{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
 .product-card{
@@ -554,31 +736,31 @@ button{cursor:pointer}
 }
 .product-media{
   width:100%;
-  aspect-ratio:1;
+  aspect-ratio:4/3;
   display:block;
   object-fit:contain;
   background:#fff;
 }
-.product-body{padding:18px}
+.product-body{padding:12px}
 .product-kicker{
-  margin-bottom:8px;
+  margin-bottom:5px;
   color:var(--ink-mute);
   font-size:10px;
   text-transform:uppercase;
   letter-spacing:.1px;
 }
 .product-name{
-  margin:0 0 10px;
-  min-height:44px;
+  margin:0 0 8px;
+  min-height:34px;
   color:var(--ink);
-  font-size:18px;
+  font-size:14px;
   line-height:1.25;
   letter-spacing:0;
   font-weight:300;
 }
 .product-price{
   color:var(--ink);
-  font-size:20px;
+  font-size:15px;
   letter-spacing:-.2px;
   font-feature-settings:"tnum";
 }
@@ -586,10 +768,10 @@ button{cursor:pointer}
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
-  margin-top:14px;
+  gap:6px;
+  margin-top:8px;
 }
-.rating{color:var(--ink-mute);font-size:13px;font-feature-settings:"tnum"}
+.rating{color:var(--ink-mute);font-size:11px;font-feature-settings:"tnum"}
 .style-tag{
   border-radius:var(--pill);
   padding:4px 8px;
@@ -668,7 +850,25 @@ button{cursor:pointer}
   background:var(--primary);
   color:#fff;
   box-shadow:0 18px 34px rgba(83,58,253,.28);
-  font-size:22px;
+  display:grid;
+  place-items:center;
+  font-size:27px;
+  line-height:1;
+  transition:transform .16s,background .16s,box-shadow .16s;
+}
+.floating svg{
+  width:31px;
+  height:31px;
+  fill:none;
+  stroke:#fff;
+  stroke-width:3.2;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+}
+.floating:hover{transform:translateY(-2px)}
+.floating.chat-open{
+  background:var(--brand-dark);
+  font-size:30px;
 }
 .loader{
   position:fixed;
@@ -733,6 +933,18 @@ button{cursor:pointer}
   .metric-panel{grid-template-columns:1fr}
   .grid{grid-template-columns:1fr}
   .results-header{align-items:start;flex-direction:column}
+  .chat-panel{
+    left:12px;
+    right:12px;
+    bottom:84px;
+    width:auto;
+    height:min(560px,calc(100vh - 108px));
+    max-height:calc(100vh - 108px);
+    height:min(560px,calc(100dvh - 108px));
+    max-height:calc(100dvh - 108px);
+    border-radius:24px;
+  }
+  .brainfry-meter{display:none}
 }
 </style>
 </head>
@@ -748,7 +960,7 @@ button{cursor:pointer}
       </div>
       <div class="nav-actions">
         <div class="badge" id="bfBadge">BrainFry: MID</div>
-        <a href="/admin.html" class="button ghost" style="text-decoration:none">Developer Dashboard</a>
+        <a href="/admin.html" class="button ghost" style="text-decoration:none">Benchmark</a>
       </div>
     </div>
   </header>
@@ -770,53 +982,51 @@ button{cursor:pointer}
     <section class="workspace">
       <aside class="sidebar">
         <div class="panel">
-          <h2 class="panel-title">Consumer profile</h2>
-          <div class="field">
-            <label class="label" for="consumerSel">Select user</label>
-            <select class="select" id="consumerSel">
-              <option value="user123">Demo customer</option>
-            </select>
-          </div>
-        </div>
-        <div class="panel">
-          <h2 class="panel-title">Search settings</h2>
-          <div class="field">
-            <label class="label" for="budgetInput">Max budget</label>
-            <input class="input" id="budgetInput" type="number" min="1" step="1000" placeholder="e.g. 300000" />
-          </div>
-          <div class="field">
-            <span class="label">Style preference</span>
-            <div class="segmented">
-              <button class="segment active" id="styleutilitarian">utilitarian</button>
-              <button class="segment" id="stylehedonic">hedonic</button>
+          <div class="live-head">
+            <div>
+              <h2 class="panel-title">Live agent dashboard</h2>
+              <p class="live-kicker">시연 중 CARA 내부 의사결정 흐름</p>
             </div>
+            <span class="live-dot" aria-label="live"></span>
           </div>
-        </div>
-        <div class="panel">
-          <h2 class="panel-title">Passive tracking</h2>
-          <div class="tracking" id="sessionInfo">Live tracking will appear here.</div>
+          <div class="live-stack" style="margin-top:14px">
+            <div>
+              <h3 class="live-title">현재 세션</h3>
+              <div class="session-list" id="liveSessions" style="margin-top:8px"></div>
+            </div>
+            <div>
+              <h3 class="live-title">에이전트 타임라인</h3>
+              <div class="agent-timeline" id="liveAgentTimeline" style="margin-top:8px"></div>
+            </div>
+            <div>
+              <h3 class="live-title">시연 요약</h3>
+              <div class="live-summary" id="liveSummary" style="margin-top:8px"></div>
+            </div>
+            <button class="button ghost" id="simulateButton" style="width:100%">Simulate browsing</button>
+          </div>
         </div>
       </aside>
 
       <section class="content">
         <div class="chat-panel" id="chatPanel">
           <div class="chat-head">
-            <div>
-              <h2 class="confirm-title" style="margin:0">CARA Chat</h2>
-              <p class="confirm-text" style="margin:4px 0 0">Keep browsing products while CARA helps refine your needs.</p>
+            <div class="chat-head-main">
+              <div class="chat-avatar" aria-hidden="true">👩‍💼</div>
+              <div>
+                <h2 class="chat-title">CARA Assistant</h2>
+                <p class="chat-subtitle">조건을 말하면 선택지를 줄여드릴게요.</p>
+              </div>
             </div>
-            <div class="brainfry-meter">
-              <div class="brainfry-label" id="brainfryLabel">BrainFry: LOW</div>
-              <div class="brainfry-track"><div class="brainfry-bar" id="brainfryBar"></div></div>
+            <div class="chat-head-actions">
+              <div class="brainfry-meter">
+                <div class="brainfry-label" id="brainfryLabel">BrainFry: LOW</div>
+                <div class="brainfry-track"><div class="brainfry-bar" id="brainfryBar"></div></div>
+              </div>
+              <button class="button icon chat-close" id="chatClose" title="Close chat" aria-label="Close chat">×</button>
             </div>
-          </div>
-          <div class="brainfry-debug" id="brainfryDebug">
-            B_behavioral: <strong>0.00</strong><br>
-            B_final: <strong>0.00</strong> (LOW)<br>
-            추천 예정 N: <strong>7개</strong>
           </div>
           <div class="chat-messages" id="chatMessages">
-            <div class="chat-row assistant"><div class="chat-bubble">Tell me what you are looking for, and I will help narrow it down.</div></div>
+            <div class="chat-row assistant"><div class="chat-bubble">안녕하세요, CARA예요. 원하는 피부 고민, 예산, 선호 타입을 편하게 말해주시면 비교할 상품을 줄여드릴게요.</div></div>
           </div>
           <div class="selected-products-panel" id="selectedProductsPanel" hidden>
             <div class="sp-head">
@@ -826,8 +1036,8 @@ button{cursor:pointer}
             <div class="sp-grid" id="selectedProductsGrid"></div>
           </div>
           <div class="chat-input-row">
-            <input class="input" id="chatInput" type="text" placeholder="Example: utilitarian earphones under 200000 KRW" />
-            <button class="button primary" id="chatSend">Send</button>
+            <input class="input" id="chatInput" type="text" placeholder="예: 건성 피부에 맞는 3만원 이하 스킨 추천해줘" />
+            <button class="button primary" id="chatSend" title="Send" aria-label="Send">↑</button>
           </div>
         </div>
 
@@ -904,15 +1114,28 @@ button{cursor:pointer}
   </div>
 </aside>
 
-<button class="floating" id="askFloating" title="Ask CARA">Chat</button>
+<button class="floating" id="askFloating" title="Ask CARA" aria-label="Open CARA chat">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M12 27v-5c0-7 5.4-12.5 12-12.5S36 15 36 22v5" />
+    <path d="M12 24h-2.4A3.6 3.6 0 0 0 6 27.6v4.8A3.6 3.6 0 0 0 9.6 36H12V24Z" />
+    <path d="M36 24h2.4a3.6 3.6 0 0 1 3.6 3.6v4.8a3.6 3.6 0 0 1-3.6 3.6H36V24Z" />
+    <path d="M19 21v2" />
+    <path d="M29 21v2" />
+    <path d="M19 31c1.3 1.4 3 2.1 5 2.1s3.7-.7 5-2.1" />
+    <path d="M33 36c-1.3 3.1-4.4 5-8.5 5H23" />
+    <path d="M22 41h4" />
+  </svg>
+</button>
 <div class="loader" id="loader"><div class="loader-card"><div class="spinner"></div><div id="loaderText">Loading...</div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 const CARA_API_BASE = window.CARA_API_BASE || 'http://127.0.0.1:8000';
-const CARA_CONSUMER_ID = 'user123';
+const CARA_CONSUMER_ID = 'C0001';
+const TRACK_KEY = 'cara_passive_session';
 const TRACK_WINDOW_MS = 180000;
 const MEASUREMENT_DELAY_MS = 30000;
+const PASSIVE_TICK_MS = 30000;
 const CHAT_SESSION_ID = crypto.randomUUID();
 const SESSION_STARTED_AT = Date.now();
 const state = {
@@ -928,17 +1151,38 @@ const state = {
   chatPlanContext: {},
   queryReformEvents: []
 };
-const trackingData = { page_events:[], impressions:[], clicks:[] };
 let activePage = { type:'home', id:'home', startedAt:Date.now() };
 let observer = null;
 let observed = new WeakSet();
+let liveEventSource = null;
+let selectedLiveSessionId = CHAT_SESSION_ID;
 let passiveTrackingInFlight = false;
+let behavioralRecalcTimer = null;
 let latestBehavioralScore = 0;
 let latestBehavioralLevel = 'LOW';
 let latestBehavioralN = 7;
-let behavioralRecalcTimer = null;
+const LIVE_AGENTS = [
+  'User Intent Agent',
+  'BrainFry Detector',
+  'Psychology Agent',
+  'Conversation Agent',
+  'Product Search Agent',
+  'Decision Simplifier',
+  'Critic Agent'
+];
 
 const $ = id => document.getElementById(id);
+const CHAT_BUTTON_ICON = `
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M12 27v-5c0-7 5.4-12.5 12-12.5S36 15 36 22v5" />
+    <path d="M12 24h-2.4A3.6 3.6 0 0 0 6 27.6v4.8A3.6 3.6 0 0 0 9.6 36H12V24Z" />
+    <path d="M36 24h2.4a3.6 3.6 0 0 1 3.6 3.6v4.8a3.6 3.6 0 0 1-3.6 3.6H36V24Z" />
+    <path d="M19 21v2" />
+    <path d="M29 21v2" />
+    <path d="M19 31c1.3 1.4 3 2.1 5 2.1s3.7-.7 5-2.1" />
+    <path d="M33 36c-1.3 3.1-4.4 5-8.5 5H23" />
+    <path d="M22 41h4" />
+  </svg>`;
 const money = value => `₩${Math.round(Number(value || 0)).toLocaleString('ko-KR')}`;
 const titleCase = value => String(value || '').replace(/-/g,' ').replace(/\b\w/g, c => c.toUpperCase());
 
@@ -947,14 +1191,32 @@ function hideLoader(){ $('loader').classList.remove('visible'); }
 function toast(text){ const t=$('toast'); t.textContent=text; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 function readTracking(){
-  const cutoff = Date.now() - TRACK_WINDOW_MS;
-  trackingData.page_events = trackingData.page_events.filter(e => Number(e.ended_at_ms || 0) >= cutoff);
-  trackingData.impressions = trackingData.impressions.filter(e => Number(e.timestamp || 0) >= cutoff);
-  trackingData.clicks = trackingData.clicks.filter(e => Number(e.timestamp || 0) >= cutoff);
-  state.queryReformEvents = state.queryReformEvents.filter(t => Number(t || 0) >= cutoff);
-  return trackingData;
+  let data;
+  try{ data = JSON.parse(sessionStorage.getItem(TRACK_KEY)) || {}; }
+  catch(_){ data = {}; }
+  const now = Date.now();
+  const cutoff = now - TRACK_WINDOW_MS;
+  const pageEvents = Array.isArray(data.page_events) ? data.page_events : [];
+  const impressions = Array.isArray(data.impressions) ? data.impressions : [];
+  const clicks = Array.isArray(data.clicks) ? data.clicks : [];
+
+  data.page_events = pageEvents
+    .map(event => {
+      const ended = Number(event.ended_at_ms || Date.parse(event.ended_at || '') || now);
+      const started = Number(event.started_at_ms || (ended - Number(event.dwell_seconds || 0) * 1000));
+      return { ...event, started_at_ms:started, ended_at_ms:ended };
+    })
+    .filter(event => Number(event.ended_at_ms || 0) >= cutoff);
+  data.impressions = impressions
+    .map(item => typeof item === 'string' ? { product_id:item, timestamp:now } : item)
+    .filter(item => Number(item.timestamp || now) >= cutoff);
+  data.clicks = clicks
+    .map(item => ({ ...item, timestamp:Number(item.timestamp || Date.parse(item.clicked_at || '') || now) }))
+    .filter(item => Number(item.timestamp || 0) >= cutoff);
+  state.queryReformEvents = state.queryReformEvents.filter(timestamp => Number(timestamp || 0) >= cutoff);
+  return data;
 }
-function writeTracking(){ renderTracking(); }
+function writeTracking(data){ sessionStorage.setItem(TRACK_KEY, JSON.stringify(data)); renderTracking(); }
 function measurementReady(){
   return Date.now() - SESSION_STARTED_AT >= MEASUREMENT_DELAY_MS;
 }
@@ -975,7 +1237,7 @@ function closeTrackedPage(){
     dwell_seconds:+dwell.toFixed(2),
     ended_at:new Date(endedAt).toISOString()
   });
-  writeTracking();
+  writeTracking(data);
 }
 function startTrackedPage(type,id){
   closeTrackedPage();
@@ -999,7 +1261,7 @@ function sessionData(){
   const cutoff = now - TRACK_WINDOW_MS;
   const dwell = data.page_events
     .map(e => Math.max(0, (Math.min(Number(e.ended_at_ms || now), now) - Math.max(Number(e.started_at_ms || e.ended_at_ms || now), cutoff)) / 1000))
-    .filter(v => v > 0);
+    .filter(value => value > 0);
   if(activePage.type === 'pdp' || activePage.type === 'category'){
     dwell.push(Math.max(.1,(now - Math.max(activePage.startedAt, cutoff)) / 1000));
   }
@@ -1014,6 +1276,10 @@ function sessionData(){
     self_report_score:Number(state.chatPlanContext.self_report_score || 0),
     text_brainfry_score:Number(state.chatPlanContext.text_brainfry_score || 0)
   };
+}
+function brainfryLevel(score){
+  const safeScore = Math.max(0, Math.min(Number(score || 0), 1));
+  return safeScore <= .35 ? 'LOW' : safeScore <= .65 ? 'MID' : 'HIGH';
 }
 function computeBehavioralScore(s){
   const nNorm = Math.min(Number(s.n || 0) / 10, 1);
@@ -1042,36 +1308,35 @@ function applyBehavioralScore(score, level){
     brainfry_level:latestBehavioralLevel,
     n_rec:latestBehavioralN
   };
+  updateBrainfryGauge(latestBehavioralScore, latestBehavioralLevel);
   $('bfBadge').textContent = `BrainFry: ${latestBehavioralLevel}`;
   $('bfBadge').classList.add('visible');
+  setLiveAgent('BrainFry Detector', 'done', {
+    brainfry_score:latestBehavioralScore.toFixed(2),
+    brainfry_level:latestBehavioralLevel,
+    recommendation_count:latestBehavioralN
+  });
 }
 function renderTracking(){
   const data = readTracking();
   const s = sessionData();
   const dwell = Math.max(.1,(Date.now() - activePage.startedAt) / 1000);
-  const impressions = data.impressions.length;
-  const clicks = data.clicks.length;
-  const scoreLine = measurementReady()
-    ? `B_final=<strong>${latestBehavioralScore.toFixed(2)}</strong> (${latestBehavioralLevel}) / 추천 예정 <strong>${latestBehavioralN}개</strong>`
-    : `⟳ BrainFry 측정 중...`;
-  $('sessionInfo').innerHTML = `
-    <strong>n=${s.n}</strong><br>
-    variance=${s.dwell_variance.toFixed(2)} / CTR=${s.ctr}<br>
-    impressions=${impressions} / clicks=${clicks} / dwell=${dwell.toFixed(1)}s<br>
-    ${scoreLine}`;
+  renderLiveSummary(null, dwell);
 }
 function recordImpression(id){
   if(!id) return;
   const data = readTracking();
-  data.impressions.push({ product_id:id, timestamp:Date.now() });
-  writeTracking();
+  if(!data.impressions.some(item => item.product_id === id)){
+    data.impressions.push({ product_id:id, timestamp:Date.now() });
+    writeTracking(data);
+  }
 }
 function recordClick(id){
   if(!id) return;
   const data = readTracking();
   const timestamp = Date.now();
   data.clicks.push({ product_id:id, timestamp, clicked_at:new Date(timestamp).toISOString() });
-  writeTracking();
+  writeTracking(data);
   scheduleBehavioralRecalc('click', 0);
 }
 function observeCards(){
@@ -1090,6 +1355,107 @@ function observeCards(){
   });
 }
 
+function shortSessionId(sessionId){
+  return String(sessionId || '').slice(0, 8) || 'current';
+}
+function summarizeAgentOutput(output){
+  if(!output) return '대기 중';
+  if(typeof output === 'string') return output;
+  if(output.query || output.search_text){
+    return `query: ${output.search_text || output.query}`;
+  }
+  if(output.brainfry_level || output.brainfry_score !== undefined){
+    return `BrainFry ${output.brainfry_level || ''} ${output.brainfry_score ?? ''}`;
+  }
+  if(output.recommendation_count || output.candidate_count){
+    return `${output.recommendation_count || output.candidate_count}개 후보/추천`;
+  }
+  const keys = Object.keys(output).slice(0, 2);
+  return keys.length ? keys.map(key => `${key}: ${output[key]}`).join(' · ') : '완료';
+}
+function renderLiveSummary(detail, dwellOverride){
+  const data = readTracking();
+  const s = sessionData();
+  const dwell = dwellOverride ?? Math.max(.1,(Date.now() - activePage.startedAt) / 1000);
+  const traces = detail?.agent_timeline || [];
+  const done = traces.filter(trace => trace.status === 'done').length;
+  const lastAgent = traces.at(-1)?.agent || '대기 중';
+  const brainfryText = measurementReady()
+    ? `${latestBehavioralScore.toFixed(2)} · ${latestBehavioralLevel} · N=${latestBehavioralN}`
+    : '측정 대기';
+  $('liveSummary').innerHTML = `
+    <div class="live-summary-row"><span>현재 세션</span><strong>${shortSessionId(selectedLiveSessionId)}</strong></div>
+    <div class="live-summary-row"><span>탐색 신호</span><strong>n=${s.n} · CTR ${s.ctr}</strong></div>
+    <div class="live-summary-row"><span>BrainFry</span><strong>${brainfryText}</strong></div>
+    <div class="live-summary-row"><span>진행 상황</span><strong>${done}/${LIVE_AGENTS.length} · ${escapeHtml(lastAgent)}</strong></div>`;
+}
+function setLiveAgent(agentName, status='waiting', output=null){
+  const id = `live-agent-${agentName.replace(/\s+/g, '-').toLowerCase()}`;
+  const el = $(id);
+  if(!el) return;
+  const icon = status === 'done' ? '✓' : status === 'running' ? '▶' : status === 'error' ? '!' : '○';
+  el.className = `live-agent ${status || 'waiting'}`;
+  el.querySelector('.live-agent-icon').textContent = icon;
+  el.querySelector('.live-agent-status').textContent = status || 'waiting';
+  el.querySelector('.live-agent-output').textContent = summarizeAgentOutput(output);
+}
+function renderLiveAgentShell(){
+  $('liveAgentTimeline').innerHTML = LIVE_AGENTS.map(agent => `
+    <div class="live-agent" id="live-agent-${agent.replace(/\s+/g, '-').toLowerCase()}">
+      <div class="live-agent-icon">○</div>
+      <div>
+        <div class="live-agent-name">${agent}</div>
+        <div class="live-agent-output">대기 중</div>
+      </div>
+      <div class="live-agent-status">waiting</div>
+    </div>`).join('');
+}
+function applyLiveDetail(detail){
+  LIVE_AGENTS.forEach(agent => setLiveAgent(agent, 'waiting', null));
+  (detail?.agent_timeline || []).forEach(trace => setLiveAgent(trace.agent, trace.status, trace.output));
+  renderLiveSummary(detail);
+}
+async function loadLiveSession(sessionId, stream=true){
+  selectedLiveSessionId = sessionId || CHAT_SESSION_ID;
+  document.querySelectorAll('.session-row').forEach(row => row.classList.toggle('active', row.dataset.sessionId === selectedLiveSessionId));
+  if(liveEventSource){
+    liveEventSource.close();
+    liveEventSource = null;
+  }
+  try{
+    const detail = await apiGet(`/admin/sessions/${encodeURIComponent(selectedLiveSessionId)}`);
+    applyLiveDetail(detail);
+    if(stream){
+      liveEventSource = new EventSource(`${CARA_API_BASE}/admin/sessions/${encodeURIComponent(selectedLiveSessionId)}/stream`);
+      liveEventSource.onmessage = event => {
+        const trace = JSON.parse(event.data);
+        setLiveAgent(trace.agent, trace.status, trace.output);
+        renderLiveSummary({ agent_timeline:[...(detail.agent_timeline || []), trace] });
+      };
+    }
+  } catch(error){
+    applyLiveDetail({ agent_timeline:[] });
+  }
+}
+async function loadLiveSessions(){
+  try{
+    const sessions = await apiGet('/admin/sessions');
+    const known = sessions.some(session => session.session_id === CHAT_SESSION_ID);
+    const rows = known ? sessions : [{ session_id:CHAT_SESSION_ID, started_at:new Date().toISOString(), agent_calls:0 }, ...sessions];
+    $('liveSessions').innerHTML = rows.slice(0, 2).map(session => `
+      <button class="session-row ${session.session_id === selectedLiveSessionId ? 'active' : ''}" data-session-id="${escapeHtml(session.session_id)}">
+        <strong>${shortSessionId(session.session_id)}${session.session_id === CHAT_SESSION_ID ? ' · current' : ''}</strong>
+        <span>${Number(session.agent_calls || 0)} calls · ${new Date(session.started_at).toLocaleTimeString('ko-KR')}</span>
+      </button>`).join('');
+    $('liveSessions').querySelectorAll('.session-row').forEach(row => {
+      row.onclick = () => loadLiveSession(row.dataset.sessionId);
+    });
+    if(!selectedLiveSessionId) selectedLiveSessionId = rows[0]?.session_id || CHAT_SESSION_ID;
+  } catch(error){
+    $('liveSessions').innerHTML = '<div class="tracking">세션 API 연결 대기 중</div>';
+  }
+}
+
 async function apiGet(path){
   const res = await fetch(`${CARA_API_BASE}${path}`);
   if(!res.ok) throw new Error(`${path} ${res.status}`);
@@ -1104,11 +1470,7 @@ async function apiPost(path,payload){
   if(!res.ok) throw new Error(`${path} ${res.status}`);
   return res.json();
 }
-
-async function recordPassiveTrackingTick(){
-  return recalculateBehavioral('manual');
-}
-function scheduleBehavioralRecalc(reason, delay = 250){
+function scheduleBehavioralRecalc(reason, delay=250){
   if(!measurementReady()){
     renderTracking();
     return;
@@ -1116,7 +1478,7 @@ function scheduleBehavioralRecalc(reason, delay = 250){
   clearTimeout(behavioralRecalcTimer);
   behavioralRecalcTimer = setTimeout(() => recalculateBehavioral(reason), delay);
 }
-async function recalculateBehavioral(reason = 'event'){
+async function recalculateBehavioral(reason='event'){
   if(!measurementReady()){
     renderTracking();
     return;
@@ -1125,7 +1487,6 @@ async function recalculateBehavioral(reason = 'event'){
   const localScore = computeBehavioralScore(s);
   applyBehavioralScore(localScore);
   renderTracking();
-  renderBrainfryDebug(state.chatPlanContext);
   if(passiveTrackingInFlight) return;
   passiveTrackingInFlight = true;
   try{
@@ -1135,13 +1496,12 @@ async function recalculateBehavioral(reason = 'event'){
       session_data:s
     });
     if(tick.brainfry_score !== undefined){
-      const behavioral = Number(tick.b_behavioral ?? tick.brainfry_score ?? 0);
-      applyBehavioralScore(behavioral, tick.brainfry_level);
+      applyBehavioralScore(Number(tick.b_behavioral ?? tick.brainfry_score ?? 0), tick.brainfry_level);
       renderTracking();
-      renderBrainfryDebug(state.chatPlanContext);
+      loadLiveSessions();
     }
   } catch(error){
-    console.warn('Passive tracking tick failed', error);
+    console.warn('Passive tracking tick failed', reason, error);
   } finally{
     passiveTrackingInFlight = false;
   }
@@ -1151,7 +1511,7 @@ function productImage(id){
   const match = String(id || '').match(/^P0*(\d+)$/);
   if(match){
     const num = Number(match[1]);
-    const assetId = `P${String(((num - 1) % 200) + 1).padStart(4,'0')}`;
+    const assetId = `P${String(num).padStart(4,'0')}`;
     return `assets/products/${assetId}.png`;
   }
   return `assets/products/${encodeURIComponent(id)}.png`;
@@ -1180,7 +1540,7 @@ async function loadCatalog(){
   try{
     const payload = await apiGet('/products/search?query=');
     state.products = (payload.products || []).map(normalizeProduct);
-    state.filtered = [...state.products];
+    state.filtered = interleaveByCategory(state.products);
     renderCategories();
     renderStats();
     renderGrid(state.filtered);
@@ -1204,6 +1564,31 @@ function renderCategories(){
     btn.onclick = () => filterCategory(cat);
     $('categoryRow').appendChild(btn);
   });
+}
+function interleaveByCategory(products){
+  const buckets = new Map();
+  products.forEach(product => {
+    const category = product.category || 'catalog';
+    if(!buckets.has(category)) buckets.set(category, []);
+    buckets.get(category).push(product);
+  });
+
+  const categories = [...buckets.keys()];
+  const mixed = [];
+  let offset = 0;
+  while(mixed.length < products.length){
+    let added = false;
+    categories.forEach((category, categoryIndex) => {
+      const bucket = buckets.get(category);
+      if(!bucket || !bucket.length) return;
+      const pickIndex = (offset + categoryIndex) % bucket.length;
+      mixed.push(bucket.splice(pickIndex, 1)[0]);
+      added = true;
+    });
+    offset += 1;
+    if(!added) break;
+  }
+  return mixed;
 }
 function filterCategory(cat){
   state.category = cat;
@@ -1241,7 +1626,8 @@ function applySearch(){
       ? Number(p.price || 0) >= budgetConstraint.amount
       : Number(p.price || 0) <= budgetConstraint.amount)
     : pool;
-  state.filtered = q ? budgetPool.filter(p => [p.name,p.category,p.item_type].join(' ').toLowerCase().includes(q)) : budgetPool;
+  const filtered = q ? budgetPool.filter(p => [p.name,p.category,p.item_type].join(' ').toLowerCase().includes(q)) : budgetPool;
+  state.filtered = state.category === 'all' ? interleaveByCategory(filtered) : filtered;
   $('resultsTitle').textContent = q ? `Search results` : 'Catalog';
   $('resultsCount').textContent = `${state.filtered.length} products`;
   renderGrid(state.filtered);
@@ -1296,12 +1682,13 @@ function closeDrawer(){
   $('drawerOverlay').classList.remove('open');
   $('drawer').classList.remove('open');
   renderTracking();
+  scheduleBehavioralRecalc('drawer_close', 0);
 }
 
 function setStyle(style){
   state.style = style;
-  $('styleutilitarian').classList.toggle('active', style === 'utilitarian');
-  $('stylehedonic').classList.toggle('active', style === 'hedonic');
+  if($('styleutilitarian')) $('styleutilitarian').classList.toggle('active', style === 'utilitarian');
+  if($('stylehedonic')) $('stylehedonic').classList.toggle('active', style === 'hedonic');
 }
 function setAdjStyle(style){
   state.adjStyle = style;
@@ -1310,30 +1697,28 @@ function setAdjStyle(style){
 }
 function openChatPanel(){
   $('chatPanel').classList.add('visible');
+  $('askFloating').classList.add('chat-open');
+  $('askFloating').textContent = '×';
+  $('askFloating').setAttribute('aria-label', 'Close CARA chat');
   const q = $('navSearch').value.trim();
   if(q && !$('chatInput').value.trim()) $('chatInput').value = q;
-  $('chatPanel').scrollIntoView({ behavior:'smooth', block:'start' });
-  setTimeout(() => $('chatInput').focus(), 260);
+  setTimeout(() => $('chatInput').focus(), 120);
+}
+function closeChatPanel(){
+  $('chatPanel').classList.remove('visible');
+  $('askFloating').classList.remove('chat-open');
+  $('askFloating').innerHTML = CHAT_BUTTON_ICON;
+  $('askFloating').setAttribute('aria-label', 'Open CARA chat');
+}
+function toggleChatPanel(){
+  if($('chatPanel').classList.contains('visible')) closeChatPanel();
+  else openChatPanel();
 }
 function updateBrainfryGauge(score, level){
   const safeScore = Math.max(0, Math.min(Number(score || 0), 1));
   $('brainfryBar').style.width = `${Math.round(safeScore * 100)}%`;
   $('brainfryBar').style.background = safeScore <= .35 ? '#22c55e' : safeScore <= .65 ? '#eab308' : '#ef4444';
   $('brainfryLabel').textContent = `BrainFry: ${level || (safeScore <= .35 ? 'LOW' : safeScore <= .65 ? 'MID' : 'HIGH')}`;
-}
-function brainfryLevel(score){
-  const safeScore = Math.max(0, Math.min(Number(score || 0), 1));
-  return safeScore <= .35 ? 'LOW' : safeScore <= .65 ? 'MID' : 'HIGH';
-}
-function renderBrainfryDebug(context = {}){
-  const behavioral = Number(context.b_behavioral ?? context.trace?.b_behavioral ?? context.brainfry_score ?? 0);
-  const finalScore = behavioral;
-  const level = String(context.brainfry_level || brainfryLevel(finalScore)).toUpperCase();
-  const n = Number(context.n_rec ?? Math.max(1, Math.round(7 * (1 - Math.max(0, Math.min(finalScore, 1))))));
-  $('brainfryDebug').innerHTML = `
-    B_behavioral: <strong>${behavioral.toFixed(2)}</strong><br>
-    B_final: <strong>${finalScore.toFixed(2)}</strong> (${level})<br>
-    추천 예정 N: <strong>${n}개</strong>`;
 }
 function appendChat(role, content){
   const row = document.createElement('div');
@@ -1384,7 +1769,8 @@ function appendAgentSearch(plan, searchPayload){
   return candidates;
 }
 function runDecisionSimplifier(plan, candidates){
-  const score = Number(plan.brainfry_score ?? state.chatPlanContext.brainfry_score ?? 0.5);
+  setLiveAgent('Decision Simplifier', 'running', plan);
+  const score = Number(plan.b_final ?? plan.brainfry_score ?? state.chatPlanContext.b_final ?? state.chatPlanContext.brainfry_score ?? 0.5);
   const level = String(plan.brainfry_level || state.chatPlanContext.brainfry_level || (score <= .35 ? 'LOW' : score <= .65 ? 'MID' : 'HIGH')).toUpperCase();
   const n = Math.max(1, Math.round(7 * (1 - Math.min(Math.max(score, 0), 1))));
 
@@ -1403,6 +1789,12 @@ function runDecisionSimplifier(plan, candidates){
   $('resultsCount').textContent = `${picks.length} focused picks`;
   renderGrid(picks);
   updateBrainfryGauge(score, level);
+  setLiveAgent('Decision Simplifier', 'done', { brainfry_score:score.toFixed(2), recommendation_count:picks.length });
+  setLiveAgent('Critic Agent', 'done', {
+    recommendation_count:picks.length,
+    mean_rating:(picks.reduce((sum,p)=>sum+p.rating,0) / Math.max(picks.length,1)).toFixed(2)
+  });
+  loadLiveSession(CHAT_SESSION_ID);
 }
 function escapeHtml(value){
   return String(value ?? '')
@@ -1412,13 +1804,6 @@ function escapeHtml(value){
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
 }
-function normalizePreferenceStyleReply(reply, style){
-  const preferred = style === 'hedonic' ? 'hedonic' : 'utilitarian';
-  return String(reply || '').replace(
-    /^-\s*선호\s*스타일\s*[:：]\s*.*$/m,
-    `- 선호 스타일: ${preferred}`
-  );
-}
 async function sendChatMessage(){
   const message = $('chatInput').value.trim();
   if(!message) return;
@@ -1426,6 +1811,10 @@ async function sendChatMessage(){
   recordQueryReformulation();
   scheduleBehavioralRecalc('chat_query', 0);
   appendChat('user', message);
+  selectedLiveSessionId = CHAT_SESSION_ID;
+  setLiveAgent('User Intent Agent', 'running', { query:message });
+  setLiveAgent('BrainFry Detector', 'running', sessionData());
+  setLiveAgent('Psychology Agent', 'running', { preferred_style:state.style });
   showLoader('CARA is thinking');
   try{
     const payload = {
@@ -1438,23 +1827,30 @@ async function sendChatMessage(){
     };
     const data = await apiPost('/api/chat', payload);
     state.chatHistory.push({ role:'user', content:message });
+    state.chatHistory.push({ role:'assistant', content:data.reply });
     state.chatPlanContext = {
       ...(data.plan_context || {}),
-      b_behavioral:Number(data.b_behavioral ?? data.plan_context?.b_behavioral ?? 0),
-      b_final:Number(data.b_behavioral ?? data.plan_context?.b_behavioral ?? 0),
-      n_rec:Number(data.n_rec ?? data.plan_context?.n_rec ?? 7)
+      b_behavioral:Number(data.b_behavioral ?? data.plan_context?.b_behavioral ?? latestBehavioralScore),
+      b_final:Number(data.b_final ?? data.plan_context?.b_final ?? data.plan_context?.brainfry_score ?? latestBehavioralScore),
+      n_rec:Number(data.n_rec ?? data.plan_context?.n_rec ?? latestBehavioralN)
     };
-    data.reply = normalizePreferenceStyleReply(data.reply, state.chatPlanContext.preferred_style);
-    state.chatHistory.push({ role:'assistant', content:data.reply });
     state.livePlan = state.chatPlanContext;
     appendChat('assistant', data.reply || 'I could not load a reply.');
-    updateBrainfryGauge(state.chatPlanContext.b_final, state.chatPlanContext.brainfry_level);
-    renderBrainfryDebug(state.chatPlanContext);
-    $('bfBadge').textContent = `BrainFry: ${String(state.chatPlanContext.brainfry_level || brainfryLevel(state.chatPlanContext.b_behavioral)).toUpperCase()}`;
-    $('bfBadge').classList.add('visible');
+    if(state.chatPlanContext.b_final !== undefined || state.chatPlanContext.brainfry_score !== undefined){
+      const score = Number(state.chatPlanContext.b_final ?? state.chatPlanContext.brainfry_score ?? 0);
+      updateBrainfryGauge(score, state.chatPlanContext.brainfry_level);
+      $('bfBadge').textContent = `BrainFry: ${String(state.chatPlanContext.brainfry_level || 'LOW').toUpperCase()}`;
+      $('bfBadge').classList.add('visible');
+      latestBehavioralScore = Number(state.chatPlanContext.b_behavioral ?? score);
+      latestBehavioralLevel = String(state.chatPlanContext.brainfry_level || brainfryLevel(score)).toUpperCase();
+      latestBehavioralN = Number(state.chatPlanContext.n_rec ?? Math.max(1, Math.round(7 * (1 - score))));
+      renderTracking();
+    }
     if(data.turn_complete){
       await requestRecommendations(state.chatPlanContext);
     }
+    loadLiveSessions();
+    loadLiveSession(CHAT_SESSION_ID);
   } catch(error){
     console.error(error);
     appendChat('assistant', 'Please check the server connection.');
@@ -1472,8 +1868,6 @@ async function startRecommendation(){
       session_data:sessionData()
     });
     state.livePlan = plan;
-    state.chatPlanContext = { ...state.chatPlanContext, b_behavioral:Number(plan.brainfry_score || 0) };
-    renderBrainfryDebug(state.chatPlanContext);
     $('bfBadge').textContent = `BrainFry: ${String(plan.brainfry_level || 'MID').toUpperCase()}`;
     $('bfBadge').classList.add('visible');
     showConfirmation(plan);
@@ -1510,6 +1904,8 @@ async function applyAdjust(){
 }
 async function requestRecommendations(plan){
   console.log("confirmation detected");
+  selectedLiveSessionId = CHAT_SESSION_ID;
+  setLiveAgent('Product Search Agent', 'running', plan);
   showLoader('Product Search Agent running');
   try{
     const params = new URLSearchParams();
@@ -1523,6 +1919,10 @@ async function requestRecommendations(plan){
       return;
     }
     const candidates = appendAgentSearch(plan, searchPayload);
+    setLiveAgent('Product Search Agent', 'done', {
+      query: searchPayload.subcategory || plan.query,
+      candidate_count: candidates.length
+    });
     console.log("Product Search Agent candidates:", candidates.length);
     state.recommendMode = true;
     $('resultsTitle').textContent = 'RAG-ranked candidates';
@@ -1559,7 +1959,8 @@ function simulateBrowsing(){
       ended_at:new Date(endedAt).toISOString()
     });
   }
-  writeTracking();
+  writeTracking(data);
+  scheduleBehavioralRecalc('simulate', 0);
 }
 function addToCart(){
   state.cartCount += 1;
@@ -1568,14 +1969,19 @@ function addToCart(){
 
 function bind(){
   $('searchButton').onclick = () => { recordQueryReformulation(); applySearch(); };
-  $('navSearch').addEventListener('keydown', e => { if(e.key === 'Enter'){ recordQueryReformulation(); applySearch(); } });
+  $('navSearch').addEventListener('keydown', e => {
+    if(e.key === 'Enter'){
+      recordQueryReformulation();
+      applySearch();
+    }
+  });
   $('navSearch').addEventListener('input', () => scheduleBehavioralRecalc('search_input', 300));
   window.addEventListener('scroll', () => scheduleBehavioralRecalc('scroll', 300), { passive:true });
-  $('askFloating').onclick = openChatPanel;
+  $('askFloating').onclick = toggleChatPanel;
+  $('chatClose').onclick = closeChatPanel;
   $('chatSend').onclick = sendChatMessage;
   $('chatInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendChatMessage(); });
-  $('styleutilitarian').onclick = () => setStyle('utilitarian');
-  $('stylehedonic').onclick = () => setStyle('hedonic');
+  $('simulateButton').onclick = simulateBrowsing;
   $('confirmYes').onclick = () => { $('confirmBox').classList.remove('visible'); requestRecommendations(state.livePlan); };
   $('confirmNo').onclick = showAdjust;
   $('adjutilitarian').onclick = () => setAdjStyle('utilitarian');
@@ -1589,12 +1995,16 @@ function bind(){
 window.addEventListener('beforeunload', closeTrackedPage);
 document.addEventListener('DOMContentLoaded', () => {
   bind();
+  renderLiveAgentShell();
   renderTracking();
   setInterval(renderTracking,1000);
   setTimeout(() => recalculateBehavioral('measurement_ready'), MEASUREMENT_DELAY_MS);
+  setInterval(() => recalculateBehavioral('periodic_tick'), PASSIVE_TICK_MS);
+  loadLiveSessions();
+  loadLiveSession(CHAT_SESSION_ID);
+  setInterval(loadLiveSessions,5000);
   loadCatalog();
 });
 </script>
 </body>
 </html>
-
