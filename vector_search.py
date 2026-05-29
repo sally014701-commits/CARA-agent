@@ -185,7 +185,6 @@ def compute_rag_score(
     style_value = row.get("preference_style") if isinstance(row, dict) else row["preference_style"]
     price_value = float(row.get("price", 0) if isinstance(row, dict) else row["price"] or 0)
     rating_value = float(row.get("star_rating", 0) if isinstance(row, dict) else row["star_rating"] or 0)
-    sentiment_value = float(row.get("sentiment_score", 0) if isinstance(row, dict) else row["sentiment_score"] or 0)
     style_match = 1 if preferred_style and style_value == preferred_style else 0
     budget = float(user_budget or avg_price or 1.0)
     price_score = math.exp(-abs(price_value - budget) / max(avg_price, 1.0))
@@ -194,7 +193,6 @@ def compute_rag_score(
         + 15 * style_match
         + 10 * price_score
         + 3 * rating_value
-        + 5 * sentiment_value
     )
 
 

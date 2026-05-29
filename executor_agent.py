@@ -136,17 +136,11 @@ class ExecutorAgent:
         budget_ceiling = self._optional_float(plan.get("budget_ceiling"))
         preferred_style = plan.get("preferred_style")
         top_category = plan.get("top_category")
-        psychographic_type = str(plan.get("psychographic_type") or "utilitarian")
-        utilitarian_terms = list(plan.get("utilitarian_terms") or [])
-        hedonic_terms = list(plan.get("hedonic_terms") or [])
-        avg_price = self._safe_avg_price(
-            plan.get("category_avg_price", plan.get("avg_spend")),
-        )
 
         candidates = self.product_client.search_products(
             query=query,
             max_price=budget_ceiling,
-            style_type=None,
+            style_type=preferred_style,
             category=None,
         )
         fallback_used = False
@@ -159,19 +153,7 @@ class ExecutorAgent:
             candidates = self._merge_candidates(candidates, fallback_candidates)
 
         reranked_products = [
-            self._format_scored_product(
-                product=product,
-                rag_score=self.compute_rag_score(
-                    product=product,
-                    query=query,
-                    preferred_style=preferred_style,
-                    utilitarian_terms=utilitarian_terms,
-                    hedonic_terms=hedonic_terms,
-                    top_category=top_category,
-                    avg_price=avg_price,
-                    psychographic_type=psychographic_type,
-                ),
-            )
+            self._format_scored_product(product=product)
             for product in candidates
         ]
         reranked_products.sort(
@@ -360,16 +342,15 @@ class ExecutorAgent:
     @staticmethod
     def _format_scored_product(
         product: dict[str, Any],
-        rag_score: float,
     ) -> dict[str, Any]:
-        """Return only Critic-facing fields plus the computed RAG score."""
+        """Return only Critic-facing fields plus the search-computed RAG score."""
         return {
             "product_id": product.get("product_id"),
             "name": product.get("name"),
             "price": product.get("price"),
             "style_type": product.get("style_type"),
             "rating": product.get("rating") if product.get("rating") is not None else product.get("star_rating"),
-            "RAG_score": rag_score,
+            "RAG_score": float(product.get("RAG_score") or 0.0),
         }
 
     @staticmethod

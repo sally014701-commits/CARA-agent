@@ -218,12 +218,9 @@ class PlannerAgent:
             preference_vector=preference_vector,
         )
 
-        current_brainfry_score = self.compute_brainfry_score(session_input)
+        current_brainfry_score = self.compute_behavioral_score(session_input)
         previous_brainfry_score = preference_vector.get("brainfry_score")
-        brainfry_score = self.choose_conservative_brainfry_score(
-            current_brainfry_score=current_brainfry_score,
-            previous_brainfry_score=previous_brainfry_score,
-        )
+        brainfry_score = current_brainfry_score
         brainfry_level = self.classify_brainfry_level(brainfry_score)
 
         budget_ceiling, budget_source = self.infer_budget_ceiling(
@@ -251,34 +248,40 @@ class PlannerAgent:
                 "budget_source": budget_source,
                 "style_source": style_source,
                 "current_brainfry_score": round(current_brainfry_score, 4),
+                "b_behavioral": round(current_brainfry_score, 4),
+                "b_text": 0.0,
+                "b_final": round(brainfry_score, 4),
                 "previous_brainfry_score": previous_brainfry_score,
             },
         }
 
     @staticmethod
     def compute_brainfry_score(session_input: SessionInput) -> float:
-        # ?쇰Ц Section IV.A: 5-signal BrainFry 怨듭떇
-        N_norm = min(session_input.page_visits / 50, 1.0)
+        return PlannerAgent.compute_behavioral_score(session_input)
+
+    @staticmethod
+    def compute_behavioral_score(session_input: SessionInput) -> float:
+        """Compute B_behavioral from passive browsing signals only."""
+        N_norm = min(session_input.page_visits / 10, 1.0)
         sigma2_norm = min(session_input.dwell_time_variance / 10_000, 1.0)
         ctr_clipped = min(max(session_input.ctr, 0.0), 1.0)
         SR_inv = 1.0 - min(max(session_input.scroll_depth, 0.0), 1.0)
-        Q_norm = min(session_input.query_reformulations / 10, 1.0)
+        Q_norm = min(session_input.query_reformulations / 5, 1.0)
 
-        B_behavioral = (
+        return round(min(
             0.25 * N_norm
             + 0.25 * sigma2_norm
             + 0.20 * (1 - ctr_clipped)
             + 0.15 * SR_inv
-            + 0.15 * Q_norm
-        )
+            + 0.15 * Q_norm,
+            1.0,
+        ), 4)
 
-        # B_final = 0.7*B_behavioral + 0.2*B_self_report + 0.1*B_text
-        B_final = (
-            0.7 * B_behavioral
-            + 0.2 * min(max(session_input.self_report_score, 0.0), 1.0)
-            + 0.1 * min(max(session_input.text_brainfry_score, 0.0), 1.0)
-        )
-        return round(min(B_final, 1.0), 4)
+    @staticmethod
+    def compute_final_score(b_behavioral: float, b_text: float = 0.0) -> float:
+        """Compute B_final. Text score is intentionally ignored."""
+        behavioral = min(max(float(b_behavioral or 0.0), 0.0), 1.0)
+        return round(behavioral, 4)
 
     @staticmethod
     def classify_psychographic_type(session_input: SessionInput, preference_vector: dict) -> str:

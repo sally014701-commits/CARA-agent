@@ -340,6 +340,18 @@ button{cursor:pointer}
   background:#22c55e;
   transition:width .18s,background .18s;
 }
+.brainfry-debug{
+  margin:10px 20px 0;
+  padding:10px 12px;
+  border:1px solid var(--hairline);
+  border-radius:8px;
+  color:var(--ink-mute);
+  font-size:12px;
+  line-height:1.55;
+  font-feature-settings:"tnum";
+  background:#fff;
+}
+.brainfry-debug strong{color:var(--ink)}
 .chat-messages{
   height:300px;
   overflow:auto;
@@ -783,7 +795,6 @@ button{cursor:pointer}
         <div class="panel">
           <h2 class="panel-title">Passive tracking</h2>
           <div class="tracking" id="sessionInfo">Live tracking will appear here.</div>
-          <button class="button ghost" id="simulateButton" style="margin-top:16px;width:100%">Simulate browsing</button>
         </div>
       </aside>
 
@@ -798,6 +809,11 @@ button{cursor:pointer}
               <div class="brainfry-label" id="brainfryLabel">BrainFry: LOW</div>
               <div class="brainfry-track"><div class="brainfry-bar" id="brainfryBar"></div></div>
             </div>
+          </div>
+          <div class="brainfry-debug" id="brainfryDebug">
+            B_behavioral: <strong>0.00</strong><br>
+            B_final: <strong>0.00</strong> (LOW)<br>
+            추천 예정 N: <strong>7개</strong>
           </div>
           <div class="chat-messages" id="chatMessages">
             <div class="chat-row assistant"><div class="chat-bubble">Tell me what you are looking for, and I will help narrow it down.</div></div>
@@ -895,8 +911,10 @@ button{cursor:pointer}
 <script>
 const CARA_API_BASE = window.CARA_API_BASE || 'http://127.0.0.1:8000';
 const CARA_CONSUMER_ID = 'user123';
-const TRACK_KEY = 'cara_passive_session';
+const TRACK_WINDOW_MS = 180000;
+const MEASUREMENT_DELAY_MS = 30000;
 const CHAT_SESSION_ID = crypto.randomUUID();
+const SESSION_STARTED_AT = Date.now();
 const state = {
   products: [],
   filtered: [],
@@ -908,11 +926,17 @@ const state = {
   cartCount: 0,
   chatHistory: [],
   chatPlanContext: {},
-  queryReformCount: 0
+  queryReformEvents: []
 };
+const trackingData = { page_events:[], impressions:[], clicks:[] };
 let activePage = { type:'home', id:'home', startedAt:Date.now() };
 let observer = null;
 let observed = new WeakSet();
+let passiveTrackingInFlight = false;
+let latestBehavioralScore = 0;
+let latestBehavioralLevel = 'LOW';
+let latestBehavioralN = 7;
+let behavioralRecalcTimer = null;
 
 const $ = id => document.getElementById(id);
 const money = value => `₩${Math.round(Number(value || 0)).toLocaleString('ko-KR')}`;
@@ -923,21 +947,41 @@ function hideLoader(){ $('loader').classList.remove('visible'); }
 function toast(text){ const t=$('toast'); t.textContent=text; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2400); }
 
 function readTracking(){
-  try{return JSON.parse(sessionStorage.getItem(TRACK_KEY)) || { page_events:[], impressions:[], clicks:[] }}
-  catch(_){return { page_events:[], impressions:[], clicks:[] }}
+  const cutoff = Date.now() - TRACK_WINDOW_MS;
+  trackingData.page_events = trackingData.page_events.filter(e => Number(e.ended_at_ms || 0) >= cutoff);
+  trackingData.impressions = trackingData.impressions.filter(e => Number(e.timestamp || 0) >= cutoff);
+  trackingData.clicks = trackingData.clicks.filter(e => Number(e.timestamp || 0) >= cutoff);
+  state.queryReformEvents = state.queryReformEvents.filter(t => Number(t || 0) >= cutoff);
+  return trackingData;
 }
-function writeTracking(data){ sessionStorage.setItem(TRACK_KEY, JSON.stringify(data)); renderTracking(); }
+function writeTracking(){ renderTracking(); }
+function measurementReady(){
+  return Date.now() - SESSION_STARTED_AT >= MEASUREMENT_DELAY_MS;
+}
+function recordQueryReformulation(){
+  state.queryReformEvents.push(Date.now());
+  readTracking();
+}
 function closeTrackedPage(){
   if(activePage.type !== 'pdp' && activePage.type !== 'category') return;
-  const dwell = Math.max(.1,(Date.now() - activePage.startedAt) / 1000);
+  const endedAt = Date.now();
+  const dwell = Math.max(.1,(endedAt - activePage.startedAt) / 1000);
   const data = readTracking();
-  data.page_events.push({ type:activePage.type, id:activePage.id, dwell_seconds:+dwell.toFixed(2), ended_at:new Date().toISOString() });
-  writeTracking(data);
+  data.page_events.push({
+    type:activePage.type,
+    id:activePage.id,
+    started_at_ms:activePage.startedAt,
+    ended_at_ms:endedAt,
+    dwell_seconds:+dwell.toFixed(2),
+    ended_at:new Date(endedAt).toISOString()
+  });
+  writeTracking();
 }
 function startTrackedPage(type,id){
   closeTrackedPage();
   activePage = { type, id:String(id || type), startedAt:Date.now() };
   renderTracking();
+  scheduleBehavioralRecalc('page_move', 0);
 }
 function variance(values){
   if(!values.length) return 0;
@@ -951,36 +995,84 @@ function getScrollDepth(){
 }
 function sessionData(){
   const data = readTracking();
-  const dwell = data.page_events.map(e => Number(e.dwell_seconds || 0));
-  if(activePage.type === 'pdp' || activePage.type === 'category') dwell.push(Math.max(.1,(Date.now() - activePage.startedAt) / 1000));
-  const impressions = new Set(data.impressions).size;
-  const clicks = new Set(data.clicks.map(c => c.product_id)).size;
+  const now = Date.now();
+  const cutoff = now - TRACK_WINDOW_MS;
+  const dwell = data.page_events
+    .map(e => Math.max(0, (Math.min(Number(e.ended_at_ms || now), now) - Math.max(Number(e.started_at_ms || e.ended_at_ms || now), cutoff)) / 1000))
+    .filter(v => v > 0);
+  if(activePage.type === 'pdp' || activePage.type === 'category'){
+    dwell.push(Math.max(.1,(now - Math.max(activePage.startedAt, cutoff)) / 1000));
+  }
+  const impressions = data.impressions.length;
+  const clicks = data.clicks.length;
   return {
     n:data.page_events.length + ((activePage.type === 'pdp' || activePage.type === 'category') ? 1 : 0),
     dwell_variance:+variance(dwell).toFixed(4),
     ctr:impressions ? +(clicks / impressions).toFixed(4) : 0,
     scroll_depth:+getScrollDepth().toFixed(4),
-    query_reformulations:state.queryReformCount,
+    query_reformulations:state.queryReformEvents.length,
     self_report_score:Number(state.chatPlanContext.self_report_score || 0),
     text_brainfry_score:Number(state.chatPlanContext.text_brainfry_score || 0)
   };
+}
+function computeBehavioralScore(s){
+  const nNorm = Math.min(Number(s.n || 0) / 10, 1);
+  const dwellNorm = Math.min(Number(s.dwell_variance || 0) / 10000, 1);
+  const ctr = Math.max(0, Math.min(Number(s.ctr || 0), 1));
+  const srInv = 1 - Math.max(0, Math.min(Number(s.scroll_depth || 0), 1));
+  const qNorm = Math.min(Number(s.query_reformulations || 0) / 5, 1);
+  return Math.min(
+    0.25 * nNorm +
+    0.25 * dwellNorm +
+    0.20 * (1 - ctr) +
+    0.15 * srInv +
+    0.15 * qNorm,
+    1
+  );
+}
+function applyBehavioralScore(score, level){
+  latestBehavioralScore = Math.max(0, Math.min(Number(score || 0), 1));
+  latestBehavioralLevel = String(level || brainfryLevel(latestBehavioralScore)).toUpperCase();
+  latestBehavioralN = Math.max(1, Math.round(7 * (1 - latestBehavioralScore)));
+  state.chatPlanContext = {
+    ...state.chatPlanContext,
+    b_behavioral:latestBehavioralScore,
+    b_final:latestBehavioralScore,
+    brainfry_score:latestBehavioralScore,
+    brainfry_level:latestBehavioralLevel,
+    n_rec:latestBehavioralN
+  };
+  $('bfBadge').textContent = `BrainFry: ${latestBehavioralLevel}`;
+  $('bfBadge').classList.add('visible');
 }
 function renderTracking(){
   const data = readTracking();
   const s = sessionData();
   const dwell = Math.max(.1,(Date.now() - activePage.startedAt) / 1000);
-  $('sessionInfo').innerHTML = `<strong>n=${s.n}</strong><br>variance=${s.dwell_variance.toFixed(2)} 쨌 CTR=${s.ctr}<br>impressions=${new Set(data.impressions).size} 쨌 clicks=${new Set(data.clicks.map(c=>c.product_id)).size} 쨌 dwell=${dwell.toFixed(1)}s`;
+  const impressions = data.impressions.length;
+  const clicks = data.clicks.length;
+  const scoreLine = measurementReady()
+    ? `B_final=<strong>${latestBehavioralScore.toFixed(2)}</strong> (${latestBehavioralLevel}) / 추천 예정 <strong>${latestBehavioralN}개</strong>`
+    : `⟳ BrainFry 측정 중...`;
+  $('sessionInfo').innerHTML = `
+    <strong>n=${s.n}</strong><br>
+    variance=${s.dwell_variance.toFixed(2)} / CTR=${s.ctr}<br>
+    impressions=${impressions} / clicks=${clicks} / dwell=${dwell.toFixed(1)}s<br>
+    ${scoreLine}`;
 }
 function recordImpression(id){
   if(!id) return;
   const data = readTracking();
-  if(!data.impressions.includes(id)){ data.impressions.push(id); writeTracking(data); }
+  data.impressions.push({ product_id:id, timestamp:Date.now() });
+  writeTracking();
 }
 function recordClick(id){
   if(!id) return;
   const data = readTracking();
-  data.clicks.push({ product_id:id, clicked_at:new Date().toISOString() });
-  writeTracking(data);
+  const timestamp = Date.now();
+  data.clicks.push({ product_id:id, timestamp, clicked_at:new Date(timestamp).toISOString() });
+  writeTracking();
+  scheduleBehavioralRecalc('click', 0);
 }
 function observeCards(){
   if(!observer && 'IntersectionObserver' in window){
@@ -1011,6 +1103,48 @@ async function apiPost(path,payload){
   });
   if(!res.ok) throw new Error(`${path} ${res.status}`);
   return res.json();
+}
+
+async function recordPassiveTrackingTick(){
+  return recalculateBehavioral('manual');
+}
+function scheduleBehavioralRecalc(reason, delay = 250){
+  if(!measurementReady()){
+    renderTracking();
+    return;
+  }
+  clearTimeout(behavioralRecalcTimer);
+  behavioralRecalcTimer = setTimeout(() => recalculateBehavioral(reason), delay);
+}
+async function recalculateBehavioral(reason = 'event'){
+  if(!measurementReady()){
+    renderTracking();
+    return;
+  }
+  const s = sessionData();
+  const localScore = computeBehavioralScore(s);
+  applyBehavioralScore(localScore);
+  renderTracking();
+  renderBrainfryDebug(state.chatPlanContext);
+  if(passiveTrackingInFlight) return;
+  passiveTrackingInFlight = true;
+  try{
+    const tick = await apiPost('/api/passive-tracking', {
+      session_id:CHAT_SESSION_ID,
+      consumer_id:CARA_CONSUMER_ID,
+      session_data:s
+    });
+    if(tick.brainfry_score !== undefined){
+      const behavioral = Number(tick.b_behavioral ?? tick.brainfry_score ?? 0);
+      applyBehavioralScore(behavioral, tick.brainfry_level);
+      renderTracking();
+      renderBrainfryDebug(state.chatPlanContext);
+    }
+  } catch(error){
+    console.warn('Passive tracking tick failed', error);
+  } finally{
+    passiveTrackingInFlight = false;
+  }
 }
 
 function productImage(id){
@@ -1111,6 +1245,7 @@ function applySearch(){
   $('resultsTitle').textContent = q ? `Search results` : 'Catalog';
   $('resultsCount').textContent = `${state.filtered.length} products`;
   renderGrid(state.filtered);
+  scheduleBehavioralRecalc('search', 0);
 }
 function renderGrid(products){
   const grid = $('productGrid');
@@ -1185,6 +1320,20 @@ function updateBrainfryGauge(score, level){
   $('brainfryBar').style.width = `${Math.round(safeScore * 100)}%`;
   $('brainfryBar').style.background = safeScore <= .35 ? '#22c55e' : safeScore <= .65 ? '#eab308' : '#ef4444';
   $('brainfryLabel').textContent = `BrainFry: ${level || (safeScore <= .35 ? 'LOW' : safeScore <= .65 ? 'MID' : 'HIGH')}`;
+}
+function brainfryLevel(score){
+  const safeScore = Math.max(0, Math.min(Number(score || 0), 1));
+  return safeScore <= .35 ? 'LOW' : safeScore <= .65 ? 'MID' : 'HIGH';
+}
+function renderBrainfryDebug(context = {}){
+  const behavioral = Number(context.b_behavioral ?? context.trace?.b_behavioral ?? context.brainfry_score ?? 0);
+  const finalScore = behavioral;
+  const level = String(context.brainfry_level || brainfryLevel(finalScore)).toUpperCase();
+  const n = Number(context.n_rec ?? Math.max(1, Math.round(7 * (1 - Math.max(0, Math.min(finalScore, 1))))));
+  $('brainfryDebug').innerHTML = `
+    B_behavioral: <strong>${behavioral.toFixed(2)}</strong><br>
+    B_final: <strong>${finalScore.toFixed(2)}</strong> (${level})<br>
+    추천 예정 N: <strong>${n}개</strong>`;
 }
 function appendChat(role, content){
   const row = document.createElement('div');
@@ -1263,11 +1412,19 @@ function escapeHtml(value){
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
 }
+function normalizePreferenceStyleReply(reply, style){
+  const preferred = style === 'hedonic' ? 'hedonic' : 'utilitarian';
+  return String(reply || '').replace(
+    /^-\s*선호\s*스타일\s*[:：]\s*.*$/m,
+    `- 선호 스타일: ${preferred}`
+  );
+}
 async function sendChatMessage(){
   const message = $('chatInput').value.trim();
   if(!message) return;
   $('chatInput').value = '';
-  state.queryReformCount += 1;
+  recordQueryReformulation();
+  scheduleBehavioralRecalc('chat_query', 0);
   appendChat('user', message);
   showLoader('CARA is thinking');
   try{
@@ -1281,15 +1438,20 @@ async function sendChatMessage(){
     };
     const data = await apiPost('/api/chat', payload);
     state.chatHistory.push({ role:'user', content:message });
+    state.chatPlanContext = {
+      ...(data.plan_context || {}),
+      b_behavioral:Number(data.b_behavioral ?? data.plan_context?.b_behavioral ?? 0),
+      b_final:Number(data.b_behavioral ?? data.plan_context?.b_behavioral ?? 0),
+      n_rec:Number(data.n_rec ?? data.plan_context?.n_rec ?? 7)
+    };
+    data.reply = normalizePreferenceStyleReply(data.reply, state.chatPlanContext.preferred_style);
     state.chatHistory.push({ role:'assistant', content:data.reply });
-    state.chatPlanContext = data.plan_context || {};
     state.livePlan = state.chatPlanContext;
     appendChat('assistant', data.reply || 'I could not load a reply.');
-    if(state.chatPlanContext.brainfry_score !== undefined){
-      updateBrainfryGauge(state.chatPlanContext.brainfry_score, state.chatPlanContext.brainfry_level);
-      $('bfBadge').textContent = `BrainFry: ${String(state.chatPlanContext.brainfry_level || 'LOW').toUpperCase()}`;
-      $('bfBadge').classList.add('visible');
-    }
+    updateBrainfryGauge(state.chatPlanContext.b_final, state.chatPlanContext.brainfry_level);
+    renderBrainfryDebug(state.chatPlanContext);
+    $('bfBadge').textContent = `BrainFry: ${String(state.chatPlanContext.brainfry_level || brainfryLevel(state.chatPlanContext.b_behavioral)).toUpperCase()}`;
+    $('bfBadge').classList.add('visible');
     if(data.turn_complete){
       await requestRecommendations(state.chatPlanContext);
     }
@@ -1310,6 +1472,8 @@ async function startRecommendation(){
       session_data:sessionData()
     });
     state.livePlan = plan;
+    state.chatPlanContext = { ...state.chatPlanContext, b_behavioral:Number(plan.brainfry_score || 0) };
+    renderBrainfryDebug(state.chatPlanContext);
     $('bfBadge').textContent = `BrainFry: ${String(plan.brainfry_level || 'MID').toUpperCase()}`;
     $('bfBadge').classList.add('visible');
     showConfirmation(plan);
@@ -1376,13 +1540,26 @@ function renderTrace(plan,products){
   $('traceMetrics').innerHTML = `
     <span>Budget <strong>${money(plan.budget_ceiling)}</strong></span>
     <span>Style <strong>${plan.preferred_style}</strong></span>
-    <span>BrainFry <strong>${plan.brainfry_level || 'N/A'}</strong></span>
+    <span>B_behavioral <strong>${Number(plan.b_behavioral ?? plan.trace?.b_behavioral ?? 0).toFixed(2)}</strong></span>
+    <span>B_final <strong>${Number(plan.b_final ?? plan.brainfry_score ?? 0).toFixed(2)} (${plan.brainfry_level || 'N/A'})</strong></span>
     <span>Mean rating <strong>${mean.toFixed(2)}</strong></span>`;
 }
 function simulateBrowsing(){
   const data = readTracking();
-  for(let i=0;i<8;i++) data.page_events.push({ type:i % 2 ? 'pdp' : 'category', id:`sim-${i}`, dwell_seconds:18 + Math.random()*100 });
-  writeTracking(data);
+  const now = Date.now();
+  for(let i=0;i<8;i++){
+    const dwellMs = (18 + Math.random()*100) * 1000;
+    const endedAt = now - i * 8000;
+    data.page_events.push({
+      type:i % 2 ? 'pdp' : 'category',
+      id:`sim-${i}`,
+      started_at_ms:endedAt - dwellMs,
+      ended_at_ms:endedAt,
+      dwell_seconds:+(dwellMs / 1000).toFixed(2),
+      ended_at:new Date(endedAt).toISOString()
+    });
+  }
+  writeTracking();
 }
 function addToCart(){
   state.cartCount += 1;
@@ -1390,14 +1567,15 @@ function addToCart(){
 }
 
 function bind(){
-  $('searchButton').onclick = applySearch;
-  $('navSearch').addEventListener('keydown', e => { if(e.key === 'Enter') applySearch(); });
+  $('searchButton').onclick = () => { recordQueryReformulation(); applySearch(); };
+  $('navSearch').addEventListener('keydown', e => { if(e.key === 'Enter'){ recordQueryReformulation(); applySearch(); } });
+  $('navSearch').addEventListener('input', () => scheduleBehavioralRecalc('search_input', 300));
+  window.addEventListener('scroll', () => scheduleBehavioralRecalc('scroll', 300), { passive:true });
   $('askFloating').onclick = openChatPanel;
   $('chatSend').onclick = sendChatMessage;
   $('chatInput').addEventListener('keydown', e => { if(e.key === 'Enter') sendChatMessage(); });
   $('styleutilitarian').onclick = () => setStyle('utilitarian');
   $('stylehedonic').onclick = () => setStyle('hedonic');
-  $('simulateButton').onclick = simulateBrowsing;
   $('confirmYes').onclick = () => { $('confirmBox').classList.remove('visible'); requestRecommendations(state.livePlan); };
   $('confirmNo').onclick = showAdjust;
   $('adjutilitarian').onclick = () => setAdjStyle('utilitarian');
@@ -1413,6 +1591,7 @@ document.addEventListener('DOMContentLoaded', () => {
   bind();
   renderTracking();
   setInterval(renderTracking,1000);
+  setTimeout(() => recalculateBehavioral('measurement_ready'), MEASUREMENT_DELAY_MS);
   loadCatalog();
 });
 </script>

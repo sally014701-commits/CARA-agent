@@ -38,6 +38,7 @@ from conversation_agent import ConversationAgent
 from database import engine, Base, AgentTrace, ChatMessage, SessionEvent, get_db
 from executor_agent import ExecutorAgent, ProductToolClient
 from planner_agent import PlannerAgent, SessionInput, ToolUseClient, UserIntent
+from preference_style_detector import classify_preference_style
 from search_rules import CLARIFICATION_PROMPT, parse_budget, parse_search
 from vector_search import ensure_embedding_column, lexical_rag_rerank_rows, rag_rerank_rows
 
@@ -379,6 +380,22 @@ class PlanRequest(BaseModel):
     session_data: SessionDataRequest
 
 
+class PassiveTrackingRequest(BaseModel):
+    """Periodic passive tracking snapshot sent by the storefront."""
+
+    session_id: str
+    consumer_id: str = "user123"
+    session_data: SessionDataRequest
+
+
+class PassiveTrackingResponse(BaseModel):
+    """BrainFry score recorded from a passive tracking snapshot."""
+
+    brainfry_level: str
+    brainfry_score: float
+    b_behavioral: float
+
+
 class ChatRequest(BaseModel):
     """Request body for the two-turn CARA conversation."""
 
@@ -398,6 +415,9 @@ class ChatResponse(BaseModel):
     turn_complete: bool
     self_report_score: float | None = None
     b_text: float
+    b_behavioral: float = 0.0
+    b_final: float = 0.0
+    n_rec: int = 7
     agent_trace: list[dict[str, str]]
 
 
@@ -755,6 +775,17 @@ def normalize_consumer_id(consumer_id: str) -> str:
 
 def style_value(style: Any) -> str:
     return style.value if isinstance(style, StyleType) else str(style)
+
+
+def normalize_preference_style_reply(reply: str, preferred_style: Any) -> str:
+    style = style_value(preferred_style).lower()
+    if style not in {"hedonic", "utilitarian"}:
+        style = "utilitarian"
+    replacement = f"- 선호 스타일: {style}"
+    pattern = r"(?m)^-\s*선호\s*스타일\s*[:：]\s*.*$"
+    if re.search(pattern, reply):
+        return re.sub(pattern, replacement, reply)
+    return reply
 
 
 def build_category_price_distributions(products: list) -> dict:
@@ -1193,10 +1224,65 @@ def create_recommendation_plan(request: PlanRequest, db: DBSession = Depends(get
     )
 
 
+@app.post("/api/passive-tracking", response_model=PassiveTrackingResponse)
+def record_passive_tracking_tick(request: PassiveTrackingRequest, db: DBSession = Depends(get_db)):
+    """
+    Record a periodic BrainFry snapshot from passive browsing signals.
+
+    The storefront calls this every 30 seconds while the page is open. The score
+    uses the same BrainFry computation as the Planner so dashboard stats and
+    recommendation planning stay aligned.
+    """
+    consumer_id = normalize_consumer_id(request.consumer_id)
+    session_input = SessionInput(
+        page_visits=request.session_data.n,
+        dwell_time_variance=request.session_data.dwell_variance,
+        ctr=request.session_data.ctr,
+        scroll_depth=request.session_data.scroll_depth,
+        query_reformulations=request.session_data.query_reformulations,
+        self_report_score=request.session_data.self_report_score,
+        text_brainfry_score=request.session_data.text_brainfry_score,
+    )
+    brainfry_score = PlannerAgent.compute_behavioral_score(session_input)
+    brainfry_level = PlannerAgent.classify_brainfry_level(brainfry_score)
+
+    db.add(SessionEvent(
+        session_id=request.session_id,
+        consumer_id=consumer_id,
+        event_type="brainfry_tick",
+        agent_name="BrainFry Detector",
+        payload={
+            "session_data": request.session_data.model_dump(),
+            "interval_seconds": 30,
+            "b_behavioral": brainfry_score,
+            "brainfry_level": brainfry_level,
+        },
+        brainfry_score=brainfry_score,
+    ))
+    db.commit()
+
+    return PassiveTrackingResponse(
+        brainfry_level=brainfry_level,
+        brainfry_score=brainfry_score,
+        b_behavioral=brainfry_score,
+    )
+
+
 @app.post("/api/chat", response_model=ChatResponse)
 def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> ChatResponse:
     consumer_id = normalize_consumer_id(request.consumer_id)
     plan_context = dict(request.plan_context or {})
+    session_input = SessionInput(
+        page_visits=request.session_data.n,
+        dwell_time_variance=request.session_data.dwell_variance,
+        ctr=request.session_data.ctr,
+        scroll_depth=request.session_data.scroll_depth,
+        query_reformulations=request.session_data.query_reformulations,
+        text_brainfry_score=0.0,
+    )
+    b_behavioral = PlannerAgent.compute_behavioral_score(session_input)
+    plan_context["b_behavioral"] = b_behavioral
+    plan_context.setdefault("trace", {})["b_behavioral"] = b_behavioral
 
     agent_trace: list[dict[str, str]] = []
     explicit_budget = extract_budget_ceiling(request.message)
@@ -1204,11 +1290,57 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
         request.message,
         existing_preferred_style=plan_context.get("preferred_style"),
     )
+    style_detection = None
+    if request.message.strip() and not is_simple_confirmation(request.message):
+        style_detection = classify_preference_style(request.message)
+        parsed_utterance["preferred_style"] = style_detection["style"]
+        parsed_utterance["style_confidence"] = (
+            round(style_detection["top_score"], 4)
+            if style_detection["top_score"] >= 0.6
+            else 0.0
+        )
+
     if request.message.strip() and not is_simple_confirmation(request.message) and not parsed_utterance["query"]:
+        b_final = PlannerAgent.compute_final_score(b_behavioral=b_behavioral)
+        brainfry_level = PlannerAgent.classify_brainfry_level(b_final)
+        n_rec = max(1, round(7 * (1 - b_final)))
+        plan_context.update({
+            "b_behavioral": b_behavioral,
+            "b_text": 0.0,
+            "b_final": b_final,
+            "text_brainfry_score": 0.0,
+            "brainfry_score": b_final,
+            "brainfry_level": brainfry_level,
+            "n_rec": n_rec,
+            "preferred_style": parsed_utterance["preferred_style"],
+            "style_confidence": parsed_utterance["style_confidence"],
+        })
+        if style_detection is not None:
+            plan_context["preference_style_detection"] = {
+                "model": style_detection["model"],
+                "source": style_detection["source"],
+                "top_label": style_detection["top_label"],
+                "top_score": round(style_detection["top_score"], 4),
+                "style": style_detection["style"],
+                "matched_terms": style_detection["matched_terms"],
+            }
         db.add(ChatMessage(
             session_id=request.session_id,
             role="user",
             content=request.message,
+        ))
+        db.add(SessionEvent(
+            session_id=request.session_id,
+            consumer_id=consumer_id,
+            event_type="chat_message",
+            agent_name="BrainFry Detector",
+            payload={
+                "message": request.message,
+                "b_behavioral": b_behavioral,
+                "b_final": b_final,
+                "n_rec": n_rec,
+            },
+            brainfry_score=b_final,
         ))
         db.add(ChatMessage(
             session_id=request.session_id,
@@ -1222,23 +1354,20 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             turn_complete=False,
             self_report_score=None,
             b_text=0.0,
+            b_behavioral=b_behavioral,
+            b_final=b_final,
+            n_rec=n_rec,
             agent_trace=[{"agent": "Rule-Based Search", "status": "clarification_needed"}],
         )
     if not plan_context:
         planner = PlannerAgent(ToolUseClient("http://127.0.0.1:8000"))
         plan_context = planner.create_plan(
             consumer_id=consumer_id,
-            session_input=SessionInput(
-                page_visits=request.session_data.n,
-                dwell_time_variance=request.session_data.dwell_variance,
-                ctr=request.session_data.ctr,
-                scroll_depth=request.session_data.scroll_depth,
-                query_reformulations=request.session_data.query_reformulations,
-                self_report_score=request.session_data.self_report_score,
-                text_brainfry_score=request.session_data.text_brainfry_score,
-            ),
+            session_input=session_input,
             user_intent=UserIntent(query=request.message, explicit_budget=explicit_budget),
         )
+        plan_context["b_behavioral"] = b_behavioral
+        plan_context.setdefault("trace", {})["b_behavioral"] = b_behavioral
         if explicit_budget is not None:
             plan_context["budget_ceiling"] = explicit_budget
             plan_context.setdefault("trace", {})["budget_source"] = "explicit_chat_budget"
@@ -1250,6 +1379,15 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
         plan_context["style_confidence"] = parsed_utterance["style_confidence"]
         if parsed_utterance["preferred_style"]:
             plan_context["preferred_style"] = parsed_utterance["preferred_style"]
+        if style_detection is not None:
+            plan_context["preference_style_detection"] = {
+                "model": style_detection["model"],
+                "source": style_detection["source"],
+                "top_label": style_detection["top_label"],
+                "top_score": round(style_detection["top_score"], 4),
+                "style": style_detection["style"],
+                "matched_terms": style_detection["matched_terms"],
+            }
         for agent_name in ["User Intent Agent", "BrainFry Detector", "Psychology Agent"]:
             db.add(AgentTrace(
                 session_id=request.session_id,
@@ -1272,6 +1410,15 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
             plan_context["style_confidence"] = parsed_utterance["style_confidence"]
             if parsed_utterance["preferred_style"]:
                 plan_context["preferred_style"] = parsed_utterance["preferred_style"]
+            if style_detection is not None:
+                plan_context["preference_style_detection"] = {
+                    "model": style_detection["model"],
+                    "source": style_detection["source"],
+                    "top_label": style_detection["top_label"],
+                    "top_score": round(style_detection["top_score"], 4),
+                    "style": style_detection["style"],
+                    "matched_terms": style_detection["matched_terms"],
+                }
             if explicit_budget is not None:
                 plan_context["budget_ceiling"] = explicit_budget
                 plan_context["budget_source"] = "explicit_chat_budget"
@@ -1280,14 +1427,6 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
         session_id=request.session_id,
         role="user",
         content=request.message,
-    ))
-    db.add(SessionEvent(
-        session_id=request.session_id,
-        consumer_id=consumer_id,
-        event_type="chat_message",
-        agent_name="Conversation Agent",
-        payload={"message": request.message},
-        brainfry_score=plan_context.get("brainfry_score"),
     ))
     db.add(AgentTrace(
         session_id=request.session_id,
@@ -1302,11 +1441,28 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
     messages = list(request.history or []) + [{"role": "user", "content": request.message}]
     result = conversation.run_turn(messages=messages, plan_context=plan_context)
     updated_context = result["updated_context"]
+    assistant_reply = normalize_preference_style_reply(
+        str(result["reply"]),
+        updated_context.get("preferred_style", "utilitarian"),
+    )
 
     db.add(ChatMessage(
         session_id=request.session_id,
         role="assistant",
-        content=result["reply"],
+        content=assistant_reply,
+    ))
+    db.add(SessionEvent(
+        session_id=request.session_id,
+        consumer_id=consumer_id,
+        event_type="chat_message",
+        agent_name="Conversation Agent",
+        payload={
+            "message": request.message,
+            "b_behavioral": result.get("b_behavioral", updated_context.get("b_behavioral")),
+            "b_final": result.get("b_final", updated_context.get("b_final")),
+            "n_rec": result.get("n_rec", updated_context.get("n_rec")),
+        },
+        brainfry_score=updated_context.get("brainfry_score"),
     ))
     trace = db.query(AgentTrace).filter(
         AgentTrace.session_id == request.session_id,
@@ -1323,11 +1479,14 @@ def run_chat_turn(request: ChatRequest, db: DBSession = Depends(get_db)) -> Chat
     print(f'/api/chat plan_context.query = "{updated_context.get("query", "")}"')
 
     return ChatResponse(
-        reply=result["reply"],
+        reply=assistant_reply,
         plan_context=updated_context,
         turn_complete=bool(result["turn_complete"] or is_simple_confirmation(request.message)),
         self_report_score=result["self_report_score"],
         b_text=float(result["b_text"]),
+        b_behavioral=float(result.get("b_behavioral", 0.0)),
+        b_final=float(result.get("b_final", updated_context.get("brainfry_score", 0.0))),
+        n_rec=int(result.get("n_rec", updated_context.get("n_rec", 7))),
         agent_trace=agent_trace,
     )
 
