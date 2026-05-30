@@ -52,11 +52,11 @@ flowchart LR
     subgraph API["FastAPI 서버"]
         Tracker["행동 이벤트 수집"]
         BF["BrainFry Detector<br/>최근 3분 탐색 행동 분석"]
-        Intent["User Intent Agent<br/>Conversation Agent<br/>hedonic · utilitarian 분류"]
+        Intent["User Intent Agent<br/>Conversation Agent"]
+        Psychology["Psychology Agent<br/>hedonic · utilitarian 분류"]
         Search["Product Search Agent<br/>조건 필터링 · RAG 재정렬"]
         Simplifier["Decision Simplifier<br/>추천 개수 조절"]
         Critic["Critic Agent<br/>예산 · 평점 · 다양성 점검"]
-        Psychology["Psychology Agent<br/>향후 구현 예정"]
     end
 
     subgraph Data["데이터와 모델"]
@@ -66,31 +66,28 @@ flowchart LR
     end
 
     Browse --> Tracker --> BF
-    Chat --> Intent --> Search
+    Chat --> Intent --> Psychology --> Search
     BF --> Simplifier
     Search --> Simplifier --> Critic --> Result
     Catalog --> Search
     Voyage --> Search
     BF --> Dashboard
     Intent --> Dashboard
+    Psychology --> Dashboard
     Search --> Dashboard
     Simplifier --> Dashboard
     Critic --> Dashboard
     Profiles -. 벤치마크 평가 .-> API
-    Psychology -. 향후 연결 .-> Intent
-
-    classDef planned stroke-dasharray: 5 5,fill:#f8f8f8,color:#666;
-    class Psychology planned;
 ```
 
-핵심 추천 흐름은 `탐색 행동 수집 → BrainFry 계산 → 대화 조건 확인 → 상품 검색 및 RAG 재정렬 → 추천 개수 조절 → 품질 점검` 순서입니다. `consumer_profiles_200_final.csv`와 `ground_truth_final.csv`는 운영 중 실시간 추천이 아니라 벤치마크 평가에 사용됩니다.
+핵심 추천 흐름은 `탐색 행동 수집 → BrainFry 계산 → 대화 조건 확인 → hedonic · utilitarian 선호 판별 → 상품 검색 및 RAG 재정렬 → 추천 개수 조절 → 품질 점검` 순서입니다. `consumer_profiles_200_final.csv`와 `ground_truth_final.csv`는 운영 중 실시간 추천이 아니라 벤치마크 평가에 사용됩니다.
 
 ## 사용자 경험 흐름
 
 1. 사용자가 여러 카테고리와 상품 상세 페이지를 탐색합니다.
 2. CARA가 최근 탐색 행동을 바탕으로 BrainFry 점수를 계산합니다.
 3. 사용자가 채팅창에 원하는 상품과 조건을 입력합니다.
-4. CARA가 검색 의도, 예산, 피부 타입 등을 확인합니다.
+4. CARA가 검색 의도, 예산, 피부 타입 등을 확인하고 `hedonic`과 `utilitarian` 선호를 판별합니다.
 5. 사용자가 추천 진행에 동의하면 상품 후보를 검색하고 RAG 점수를 계산합니다.
 6. 사용자가 `Decision Simplifier` 버튼을 누르면 BrainFry 수준에 맞춰 최종 추천 개수를 줄입니다.
 7. 최종 추천 상품이 화면에 표시됩니다.
@@ -121,13 +118,13 @@ Critic Agent              done
 |---|---|---|
 | `User Intent Agent` | 사용자의 검색 문장과 조건을 수집합니다. | 구현됨 |
 | `BrainFry Detector` | 탐색 행동을 바탕으로 BrainFry 점수를 계산합니다. | 구현됨 |
-| `Psychology Agent` | 심리적 선호를 독립적으로 분석하는 에이전트입니다. | **향후 구현 예정** |
+| `Psychology Agent` | 대화에서 `hedonic`과 `utilitarian` 선호를 판별합니다. | 2개 선호 스타일 분류 구현됨 |
 | `Conversation Agent` | 사용자와 대화하며 추천 조건을 확인합니다. | 구현됨 |
 | `Product Search Agent` | 조건에 맞는 후보 상품을 검색하고 RAG 점수를 계산합니다. | 구현됨 |
 | `Decision Simplifier` | BrainFry 수준에 따라 최종 추천 개수를 줄입니다. | 구현됨 |
 | `Critic Agent` | 추천 결과의 예산, 평점, 다양성을 점검합니다. | 구현됨 |
 
-`Psychology Agent`는 현재 UI 워크플로우를 설명하기 위해 상태바에 포함되어 있습니다. 독립적인 심리 분석 로직은 아직 연결되어 있지 않으며, 추후 구현할 예정입니다.
+`Psychology Agent`는 현재 검색 문장을 바탕으로 `hedonic`과 `utilitarian`을 구분합니다. 장기 사용자 데이터를 활용해 6개 심리 유형을 자동 추론하는 기능은 아직 구현되지 않았으며, 데이터가 충분히 축적된 이후 연결할 예정입니다.
 
 ## BrainFry 계산
 
@@ -225,7 +222,7 @@ S = cosine_similarity(query_vector, product_vector)
 
 CARA는 사용자의 검색 문장을 `hedonic`과 `utilitarian` 중 하나로 분류합니다. 이 값은 상품의 `preference_style`과 비교되며, 스타일이 일치하는 상품은 RAG 점수에서 `+15`를 받습니다.
 
-이 기능은 현재 구현된 대화 기반 `preference_style` 판별 로직입니다. 향후 구현 예정인 독립적인 `Psychology Agent`와는 구분됩니다.
+이 기능은 현재 `Psychology Agent`에 포함된 대화 기반 `preference_style` 판별 로직입니다.
 
 | 분류 | 의미 | 대표 표현 |
 |---|---|---|
@@ -251,6 +248,8 @@ RAG_score += 15 * style_match
 예를 들어 `3000원 이하 디자인 예쁜 비타민C 마스크팩 추천해줘`에는 감성 표현도 있지만 예산 상한 조건이 포함되어 있으므로 현재 규칙에서는 `utilitarian`으로 분류됩니다. `디자인 예쁘고 향기로운 비타민C 마스크팩 추천해줘`처럼 예산 조건 없이 감성 표현을 사용하면 `hedonic` 추천 흐름을 확인할 수 있습니다.
 
 명시적인 스타일 조건이 없으면 Planner는 사용자 프로필의 기존 구매 스타일을 확인하고, 이 정보도 없으면 기본값인 `utilitarian`을 적용합니다.
+
+향후에는 장기 사용자 데이터를 기반으로 `Maximizer`, `ValueSeeker`, `LossAverse`, `Impulsive`, `Hedonic`, `Utilitarian`의 6개 심리 유형을 자동 추론할 예정입니다. 현재 벤치마크 CSV에는 실험용 6개 유형 라벨이 포함되어 있지만, 실제 사용자의 누적 행동으로 유형을 판별하는 로직은 아직 연결되어 있지 않습니다.
 
 ## 데이터 구성
 
@@ -365,12 +364,14 @@ VOYAGE_API_KEY
 | `executor_agent.py` | 상품 검색 실행 |
 | `critic_agent.py` | 최종 추천 검토 |
 | `conversation_agent.py` | 사용자 대화 처리 |
+| `preference_style_detector.py` | `hedonic`과 `utilitarian` 선호 스타일 판별 |
 | `vector_search.py` | 임베딩 검색과 RAG 점수 계산 |
 | `database.py` | 세션 로그 저장 |
 
 ## 현재 프로토타입의 범위
 
-- `Psychology Agent`는 향후 구현 예정입니다.
+- `Psychology Agent`의 `hedonic`과 `utilitarian` 2개 선호 스타일 분류는 구현되어 있습니다.
+- 장기 사용자 데이터 기반 6개 심리 유형 자동 추론은 향후 구현 예정입니다. 벤치마크 CSV에는 실험용 유형 라벨만 포함되어 있습니다.
 - 현재 BrainFry 최종 점수는 행동 로그를 기반으로 계산합니다.
 - 실시간 의미 검색에는 Voyage AI API 키가 필요합니다.
 - SQLite 파일은 Render 재배포 또는 재시작 시 초기 상태로 돌아갈 수 있습니다. 장기 보존이 필요하면 외부 DB 또는 Persistent Disk 구성이 필요합니다.
