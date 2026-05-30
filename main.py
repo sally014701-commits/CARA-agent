@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import asyncio
 import csv
+import os
 import re
 import sqlite3
 from pathlib import Path
@@ -46,7 +47,7 @@ from vector_search import ensure_embedding_column, lexical_rag_rerank_rows, rag_
 
 BASE_DIR = Path(__file__).resolve().parent
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
-CARA_DB_PATH = BASE_DIR / "cara.db"
+CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
 
 BudgetLevel = Literal["low", "mid", "high"]
 

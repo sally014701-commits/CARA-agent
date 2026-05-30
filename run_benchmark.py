@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import sqlite3
 from collections import defaultdict
 from pathlib import Path
@@ -13,7 +14,7 @@ from urllib.request import Request, urlopen
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_CONSUMERS = Path.home() / "Downloads" / "consumer_profiles_200_final.csv"
 DEFAULT_GROUND_TRUTH = Path.home() / "Downloads" / "ground_truth_final.csv"
-DEFAULT_DB = BASE_DIR / "cara.db"
+DEFAULT_DB = Path(os.getenv("DB_PATH", "./cara.db"))
 
 TYPE_ORDER = ["Maximizer", "ValueSeeker", "LossAverse", "Impulsive", "Hedonic", "Utilitarian"]
 

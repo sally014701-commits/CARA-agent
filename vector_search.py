@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 
 BASE_DIR = Path(__file__).resolve().parent
-CARA_DB_PATH = BASE_DIR / "cara.db"
+CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
 VOYAGE_EMBEDDINGS_URL = "https://api.voyageai.com/v1/embeddings"
 VOYAGE_MODEL = "voyage-large-2"
 EMBEDDING_DIMENSIONS = 1536

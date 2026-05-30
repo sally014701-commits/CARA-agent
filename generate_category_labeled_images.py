@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import re
 import sqlite3
 import unicodedata
@@ -9,7 +10,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
-CARA_DB_PATH = Path("cara.db")
+CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
 TEMPLATE_DIR = Path("assets/templates/category-images")
 PREVIEW_DIR = Path("assets/products/category_labeled_preview")
 PRODUCTS_DIR = Path("assets/products")

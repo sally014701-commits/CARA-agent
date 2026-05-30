@@ -1,9 +1,12 @@
+import os
+
 from sqlalchemy import create_engine, Column, String, Float, Integer, JSON, DateTime, Boolean
 from sqlalchemy.orm import DeclarativeBase, Session
 from datetime import datetime, timezone
 
-DATABASE_URL = "sqlite:///./cara_sessions.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cara_sessions.db")
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
 
 class Base(DeclarativeBase):
     pass

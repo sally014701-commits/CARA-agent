@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import os
 import re
 import sqlite3
 import time
@@ -15,7 +16,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_CONSUMERS = Path.home() / "Downloads" / "consumer_profiles_200_final.csv"
 DEFAULT_CARA_RESULTS = BASE_DIR / "cara_results.csv"
-DEFAULT_DB = BASE_DIR / "cara.db"
+DEFAULT_DB = Path(os.getenv("DB_PATH", "./cara.db"))
 DEFAULT_OUTPUT = BASE_DIR / "persona_scores.csv"
 MODEL = "claude-sonnet-4-6"
 

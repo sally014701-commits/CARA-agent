@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sqlite3
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 
-CARA_DB_PATH = Path("cara.db")
+CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
 DEFAULT_OUTPUT_DIR = Path("assets/products/skin_labeled_preview")
 PRODUCTS_DIR = Path("assets/products")
 LABEL_COLOR = (14, 36, 58, 255)

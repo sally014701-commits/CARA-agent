@@ -14,6 +14,7 @@ Output:
 
 from __future__ import annotations
 
+import os
 import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
@@ -25,7 +26,7 @@ from PIL import Image, ImageDraw, ImageFilter
 CANVAS_SIZE = 1024
 PRODUCT_BOX = (188, 164, 836, 760)
 OUTPUT_DIR = Path("assets/products")
-CARA_DB_PATH = Path("cara.db")
+CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
 
 Color = tuple[int, int, int, int]
 DrawFn = Callable[[ImageDraw.ImageDraw, "Palette"], None]
