@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 BASE_DIR = Path(__file__).resolve().parent
-DEFAULT_CONSUMERS = Path.home() / "Downloads" / "consumer_profiles_200_final.csv"
+DEFAULT_CONSUMERS = BASE_DIR / "consumer_profiles_200_final.csv"
 DEFAULT_DB = Path(os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db")))
 RANDOM_SEED = 20260530
 

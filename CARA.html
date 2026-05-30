@@ -975,7 +975,7 @@ button{cursor:pointer}
       <div class="metric-panel">
         <div class="metric"><div class="metric-value" id="heroProducts">200</div><div class="metric-label">Products</div></div>
         <div class="metric"><div class="metric-value" id="heroCategories">5</div><div class="metric-label">Categories</div></div>
-        <div class="metric"><div class="metric-value">3-5</div><div class="metric-label">CARA picks</div></div>
+        <div class="metric"><div class="metric-value">1-7</div><div class="metric-label">CARA picks</div></div>
       </div>
     </section>
 
@@ -1162,6 +1162,9 @@ let behavioralRecalcTimer = null;
 let latestBehavioralScore = 0;
 let latestBehavioralLevel = 'LOW';
 let latestBehavioralN = 7;
+const persistentLiveAgents = {
+  'Psychology Agent': { status:'done', output:{ status:'always active' } }
+};
 const LIVE_AGENTS = [
   'User Intent Agent',
   'BrainFry Detector',
@@ -1312,7 +1315,7 @@ function applyBehavioralScore(score, level){
   updateBrainfryGauge(latestBehavioralScore, latestBehavioralLevel);
   $('bfBadge').textContent = `BrainFry: ${latestBehavioralLevel}`;
   $('bfBadge').classList.add('visible');
-  setLiveAgent('BrainFry Detector', 'done', {
+  activateLiveAgent('BrainFry Detector', 'done', {
     brainfry_score:latestBehavioralScore.toFixed(2),
     brainfry_level:latestBehavioralLevel,
     recommendation_count:latestBehavioralN
@@ -1400,6 +1403,16 @@ function setLiveAgent(agentName, status='waiting', output=null){
   el.querySelector('.live-agent-status').textContent = status || 'waiting';
   el.querySelector('.live-agent-output').textContent = summarizeAgentOutput(output);
 }
+function activateLiveAgent(agentName, status='done', output=null){
+  if(agentName === 'BrainFry Detector' && !measurementReady()) return;
+  persistentLiveAgents[agentName] = { status, output };
+  setLiveAgent(agentName, status, output);
+}
+function restorePersistentLiveAgents(){
+  Object.entries(persistentLiveAgents).forEach(([agentName, state]) => {
+    setLiveAgent(agentName, state.status, state.output);
+  });
+}
 function renderLiveAgentShell(){
   $('liveAgentTimeline').innerHTML = LIVE_AGENTS.map(agent => `
     <div class="live-agent" id="live-agent-${agent.replace(/\s+/g, '-').toLowerCase()}">
@@ -1413,7 +1426,8 @@ function renderLiveAgentShell(){
 }
 function applyLiveDetail(detail){
   LIVE_AGENTS.forEach(agent => setLiveAgent(agent, 'waiting', null));
-  (detail?.agent_timeline || []).forEach(trace => setLiveAgent(trace.agent, trace.status, trace.output));
+  (detail?.agent_timeline || []).forEach(trace => activateLiveAgent(trace.agent, trace.status, trace.output));
+  restorePersistentLiveAgents();
   renderLiveSummary(detail);
 }
 async function loadLiveSession(sessionId, stream=true){
@@ -1430,7 +1444,7 @@ async function loadLiveSession(sessionId, stream=true){
       liveEventSource = new EventSource(`${CARA_API_BASE}/admin/sessions/${encodeURIComponent(selectedLiveSessionId)}/stream`);
       liveEventSource.onmessage = event => {
         const trace = JSON.parse(event.data);
-        setLiveAgent(trace.agent, trace.status, trace.output);
+        activateLiveAgent(trace.agent, trace.status, trace.output);
         renderLiveSummary({ agent_timeline:[...(detail.agent_timeline || []), trace] });
       };
     }
@@ -1770,7 +1784,8 @@ function appendAgentSearch(plan, searchPayload){
   return candidates;
 }
 function runDecisionSimplifier(plan, candidates){
-  setLiveAgent('Decision Simplifier', 'running', plan);
+  activateLiveAgent('Decision Simplifier', 'running', plan);
+  activateLiveAgent('Critic Agent', 'running', plan);
   const score = Number(plan.b_final ?? plan.brainfry_score ?? state.chatPlanContext.b_final ?? state.chatPlanContext.brainfry_score ?? 0.5);
   const level = String(plan.brainfry_level || state.chatPlanContext.brainfry_level || (score <= .35 ? 'LOW' : score <= .65 ? 'MID' : 'HIGH')).toUpperCase();
   const n = Math.max(1, Math.round(7 * (1 - Math.min(Math.max(score, 0), 1))));
@@ -1790,8 +1805,8 @@ function runDecisionSimplifier(plan, candidates){
   $('resultsCount').textContent = `${picks.length} focused picks`;
   renderGrid(picks);
   updateBrainfryGauge(score, level);
-  setLiveAgent('Decision Simplifier', 'done', { brainfry_score:score.toFixed(2), recommendation_count:picks.length });
-  setLiveAgent('Critic Agent', 'done', {
+  activateLiveAgent('Decision Simplifier', 'done', { brainfry_score:score.toFixed(2), recommendation_count:picks.length });
+  activateLiveAgent('Critic Agent', 'done', {
     recommendation_count:picks.length,
     mean_rating:(picks.reduce((sum,p)=>sum+p.rating,0) / Math.max(picks.length,1)).toFixed(2)
   });
@@ -1813,9 +1828,9 @@ async function sendChatMessage(){
   scheduleBehavioralRecalc('chat_query', 0);
   appendChat('user', message);
   selectedLiveSessionId = CHAT_SESSION_ID;
-  setLiveAgent('User Intent Agent', 'running', { query:message });
-  setLiveAgent('BrainFry Detector', 'running', sessionData());
-  setLiveAgent('Psychology Agent', 'running', { preferred_style:state.style });
+  activateLiveAgent('User Intent Agent', 'running', { query:message });
+  activateLiveAgent('Conversation Agent', 'running', { query:message });
+  activateLiveAgent('Psychology Agent', 'done', { preferred_style:state.style });
   showLoader('CARA is thinking');
   try{
     const payload = {
@@ -1906,7 +1921,7 @@ async function applyAdjust(){
 async function requestRecommendations(plan){
   console.log("confirmation detected");
   selectedLiveSessionId = CHAT_SESSION_ID;
-  setLiveAgent('Product Search Agent', 'running', plan);
+  activateLiveAgent('Product Search Agent', 'running', plan);
   showLoader('Product Search Agent running');
   try{
     const params = new URLSearchParams();
@@ -1920,7 +1935,7 @@ async function requestRecommendations(plan){
       return;
     }
     const candidates = appendAgentSearch(plan, searchPayload);
-    setLiveAgent('Product Search Agent', 'done', {
+    activateLiveAgent('Product Search Agent', 'done', {
       query: searchPayload.subcategory || plan.query,
       candidate_count: candidates.length
     });
@@ -1997,6 +2012,7 @@ window.addEventListener('beforeunload', closeTrackedPage);
 document.addEventListener('DOMContentLoaded', () => {
   bind();
   renderLiveAgentShell();
+  restorePersistentLiveAgents();
   renderTracking();
   setInterval(renderTracking,1000);
   setTimeout(() => recalculateBehavioral('measurement_ready'), MEASUREMENT_DELAY_MS);

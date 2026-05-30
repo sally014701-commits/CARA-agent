@@ -48,6 +48,8 @@ from vector_search import ensure_embedding_column, lexical_rag_rerank_rows, rag_
 BASE_DIR = Path(__file__).resolve().parent
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
 CARA_DB_PATH = Path(os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db")))
+PROFILES_PATH = Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "consumer_profiles_200_final.csv"))
+GROUND_TRUTH_PATH = Path(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ground_truth_final.csv"))
 
 BudgetLevel = Literal["low", "mid", "high"]
 
@@ -1538,7 +1540,7 @@ def create_final_recommendations(
     Run Planner context completion, Executor search/rerank, and Critic checks.
 
     The frontend calls this endpoint after the user confirms or edits the
-    two-turn dialog. The response is the final 3-5 item visual grid payload.
+    two-turn dialog. The response is the final 1-7 item visual grid payload.
     """
     print(f'/api/recommend request.query = "{request.query}"')
     consumer_id = normalize_consumer_id(request.consumer_id)
@@ -1715,8 +1717,7 @@ def strict_budget_compliance(
 
 @app.get("/admin/benchmark/dashboard")
 def benchmark_dashboard():
-    downloads_dir = Path.home() / "Downloads"
-    consumers = read_benchmark_csv(downloads_dir / "consumer_profiles_200_final.csv")
+    consumers = read_benchmark_csv(PROFILES_PATH)
     cara_rows = read_benchmark_csv(BASE_DIR / "cara_results.csv")
     random_rows = read_benchmark_csv(BASE_DIR / "baseline_random_results.csv")
     popular_rows = read_benchmark_csv(BASE_DIR / "baseline_popular_results.csv")
@@ -1780,7 +1781,7 @@ def benchmark_dashboard():
             "baseline_random_results": bool(random_rows),
             "baseline_popular_results": bool(popular_rows),
             "consumer_profiles": bool(consumers),
-            "ground_truth": (downloads_dir / "ground_truth_final.csv").exists(),
+            "ground_truth": GROUND_TRUTH_PATH.exists(),
             "persona_scores": bool(persona_rows),
         },
     }
@@ -1791,7 +1792,7 @@ def download_benchmark_report(report_name: str):
     reports = {
         "metrics": BASE_DIR / "benchmark_results.csv",
         "persona-satisfaction": BASE_DIR / "persona_scores.csv",
-        "consumer-profiles": Path.home() / "Downloads" / "consumer_profiles_200_final.csv",
+        "consumer-profiles": PROFILES_PATH,
     }
     path = reports.get(report_name)
     if path is None:
