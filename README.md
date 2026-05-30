@@ -52,7 +52,7 @@ flowchart LR
     subgraph API["FastAPI 서버"]
         Tracker["행동 이벤트 수집"]
         BF["BrainFry Detector<br/>최근 3분 탐색 행동 분석"]
-        Intent["User Intent Agent<br/>Conversation Agent"]
+        Intent["User Intent Agent<br/>Conversation Agent<br/>hedonic · utilitarian 분류"]
         Search["Product Search Agent<br/>조건 필터링 · RAG 재정렬"]
         Simplifier["Decision Simplifier<br/>추천 개수 조절"]
         Critic["Critic Agent<br/>예산 · 평점 · 다양성 점검"]
@@ -220,6 +220,37 @@ S = cosine_similarity(query_vector, product_vector)
 현재 실시간 검색 벡터는 Voyage AI의 `voyage-large-2` 모델을 사용합니다. 외부 API 호출에 실패하거나 저장된 상품 임베딩이 없는 경우에는 검색어와 상품 정보의 키워드 일치율을 활용한 fallback 유사도를 적용합니다.
 
 예를 들어 `비타민C 마스크팩`을 검색하면, 해당 상품은 다른 마스크팩보다 높은 의미 유사도를 받습니다. 예산과 스타일 조건을 함께 입력하면 같은 가격대 후보 중 더 적합한 상품이 상단에 배치됩니다.
+
+### hedonic과 utilitarian 선호 분류
+
+CARA는 사용자의 검색 문장을 `hedonic`과 `utilitarian` 중 하나로 분류합니다. 이 값은 상품의 `preference_style`과 비교되며, 스타일이 일치하는 상품은 RAG 점수에서 `+15`를 받습니다.
+
+이 기능은 현재 구현된 대화 기반 `preference_style` 판별 로직입니다. 향후 구현 예정인 독립적인 `Psychology Agent`와는 구분됩니다.
+
+| 분류 | 의미 | 대표 표현 |
+|---|---|---|
+| `utilitarian` | 기능, 효율, 가격, 피부 고민 해결을 중시하는 실용적 선호 | `성분`, `보습`, `진정`, `민감성`, `히알루론산`, `가성비`, `저렴`, `이하` |
+| `hedonic` | 디자인, 향, 분위기, 패키지를 중시하는 경험적 선호 | `예쁜`, `디자인`, `향기`, `무드`, `고급스러운`, `패키지`, `선물` |
+
+실시간 대화에서 적용되는 우선순위는 다음과 같습니다.
+
+1. 예산 상한이나 피부 타입·성분 요구가 있으면 `utilitarian`으로 분류합니다.
+2. 강한 감성 표현이 있고 실용 표현보다 우세하면 `hedonic`으로 분류합니다.
+3. 나머지는 두 유형의 키워드 개수를 비교합니다.
+4. 규칙으로 결정할 수 없으면 `joeddav/xlm-roberta-large-xnli` zero-shot 분류 모델을 사용합니다.
+5. 모델의 신뢰도가 `0.6` 미만이면 보수적으로 `utilitarian`을 적용합니다.
+
+```text
+style_match =
+    1  if user_preferred_style == product.preference_style
+    0  otherwise
+
+RAG_score += 15 * style_match
+```
+
+예를 들어 `3000원 이하 디자인 예쁜 비타민C 마스크팩 추천해줘`에는 감성 표현도 있지만 예산 상한 조건이 포함되어 있으므로 현재 규칙에서는 `utilitarian`으로 분류됩니다. `디자인 예쁘고 향기로운 비타민C 마스크팩 추천해줘`처럼 예산 조건 없이 감성 표현을 사용하면 `hedonic` 추천 흐름을 확인할 수 있습니다.
+
+명시적인 스타일 조건이 없으면 Planner는 사용자 프로필의 기존 구매 스타일을 확인하고, 이 정보도 없으면 기본값인 `utilitarian`을 적용합니다.
 
 ## 데이터 구성
 
