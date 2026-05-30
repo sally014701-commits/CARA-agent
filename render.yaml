@@ -3,7 +3,7 @@ services:
     name: cara-agent
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    startCommand: gunicorn main:app -w 1 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
@@ -11,4 +11,3 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-
