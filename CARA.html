@@ -1136,6 +1136,7 @@ const TRACK_KEY = 'cara_passive_session';
 const TRACK_WINDOW_MS = 180000;
 const MEASUREMENT_DELAY_MS = 30000;
 const PASSIVE_TICK_MS = 30000;
+const ASSET_VERSION = '20260530-liptint-refresh';
 const CHAT_SESSION_ID = crypto.randomUUID();
 const SESSION_STARTED_AT = Date.now();
 const state = {
@@ -1512,9 +1513,9 @@ function productImage(id){
   if(match){
     const num = Number(match[1]);
     const assetId = `P${String(num).padStart(4,'0')}`;
-    return `assets/products/${assetId}.png`;
+    return `assets/products/${assetId}.png?v=${ASSET_VERSION}`;
   }
-  return `assets/products/${encodeURIComponent(id)}.png`;
+  return `assets/products/${encodeURIComponent(id)}.png?v=${ASSET_VERSION}`;
 }
 function normalizeProduct(p){
   const id = p.product_id || p.id || p.name;
@@ -1637,7 +1638,7 @@ function renderGrid(products){
   const grid = $('productGrid');
   grid.className = `grid ${state.recommendMode ? 'curated' : ''}`;
   grid.innerHTML = '';
-  const visibleProducts = state.recommendMode ? products : products.slice(0, 200);
+  const visibleProducts = products;
   $('emptyState').classList.toggle('visible', !visibleProducts.length);
   visibleProducts.forEach((raw,index) => {
     const p = normalizeProduct(raw);

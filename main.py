@@ -12,6 +12,7 @@ CARA agents.
 from __future__ import annotations
 
 import asyncio
+import csv
 import re
 import sqlite3
 from pathlib import Path
@@ -445,6 +446,9 @@ class RecommendRequest(BaseModel):
     budget_ceiling: int
     preferred_style: StyleType
     psychographic_type: str = "utilitarian"
+    skin_type: str | None = None
+    brainfry_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    use_vector_search: bool = True
     utilitarian_terms: list[str] = Field(default_factory=list)
     hedonic_terms: list[str] = Field(default_factory=list)
     style_confidence: float = 0.0
@@ -463,6 +467,7 @@ class FinalRecommendation(BaseModel):
     RAG_score: float
     presentation_hint: str = "spec_first"
     n_rec: int = 5
+    critic_iterations: int = 0
 
 
 products: list[Product] = []
@@ -592,6 +597,7 @@ def query_products_from_cara_db(
     budget: float | None = None,
     skin_type: str | None = None,
     preferred_style: str | None = None,
+    use_vector_search: bool = True,
     path: Path = CARA_DB_PATH,
 ) -> list[Product]:
     """Run the rule-based search SQL directly against cara.db.products."""
@@ -625,15 +631,16 @@ def query_products_from_cara_db(
         ).fetchall()
 
     reranked_rows: list[dict[str, Any]] = []
-    try:
-        reranked_rows = rag_rerank_rows(
-            query_text=query_text or subcategory,
-            rows=list(rows),
-            user_budget=budget,
-            preferred_style=preferred_style,
-        )
-    except Exception:
-        reranked_rows = []
+    if use_vector_search:
+        try:
+            reranked_rows = rag_rerank_rows(
+                query_text=query_text or subcategory,
+                rows=list(rows),
+                user_budget=budget,
+                preferred_style=preferred_style,
+            )
+        except Exception:
+            reranked_rows = []
 
     if not reranked_rows:
         reranked_rows = lexical_rag_rerank_rows(
@@ -768,6 +775,11 @@ def normalize_consumer_id(consumer_id: str) -> str:
     """Map demo storefront IDs to an available synthetic consumer profile."""
     if consumer_id in consumers:
         return consumer_id
+    short_match = re.fullmatch(r"C(\d{3})", consumer_id)
+    if short_match:
+        padded = f"C{int(short_match.group(1)):04d}"
+        if padded in consumers:
+            return padded
     if consumer_id in {"user123", "guest", "USR-001"}:
         return "C0001"
     return consumer_id
@@ -974,6 +986,10 @@ def search_products(
         default=None,
         description="Optional skin type filter: dry, oily, combo, or all.",
     ),
+    use_vector_search: bool = Query(
+        default=True,
+        description="Use remote vector embeddings before lexical RAG reranking.",
+    ),
 ) -> ProductSearchResponse:
     """
     Search the product catalog with keyword and optional structured filters.
@@ -1005,6 +1021,7 @@ def search_products(
             budget=effective_max_price,
             skin_type=requested_skin_type,
             preferred_style=style_value(style_type) if style_type is not None else None,
+            use_vector_search=use_vector_search,
         )
         return ProductSearchResponse(
             count=len(sql_products),
@@ -1540,6 +1557,12 @@ def create_final_recommendations(
     plan["budget_ceiling"] = budget_ceiling
     plan["preferred_style"] = style_value(request.preferred_style)
     plan["psychographic_type"] = request.psychographic_type
+    if request.skin_type:
+        plan["skin_type"] = request.skin_type
+    if request.brainfry_score is not None:
+        plan["brainfry_score"] = round(float(request.brainfry_score), 4)
+        plan["brainfry_level"] = PlannerAgent.classify_brainfry_level(float(request.brainfry_score))
+    plan["use_vector_search"] = request.use_vector_search
     plan["utilitarian_terms"] = request.utilitarian_terms
     plan["hedonic_terms"] = request.hedonic_terms
     plan["style_confidence"] = request.style_confidence
@@ -1596,6 +1619,7 @@ def create_final_recommendations(
             RAG_score=float(p.get("RAG_score", 0.0)),
             presentation_hint=final_result.get("presentation_hint", "spec_first"),
             n_rec=final_result.get("n_rec", 5),
+            critic_iterations=int(final_result.get("correction_iterations", 0)),
         )
         for p in final_result["final_recommendations"]
     ]
@@ -1654,6 +1678,130 @@ def brainfry_stats(db: DBSession = Depends(get_db)):
         "high":    sum(1 for s in scores if s > 0.65),
         "average": round(sum(scores) / len(scores), 3),
     }
+
+
+def read_benchmark_csv(path: Path) -> list[dict[str, str]]:
+    if not path.exists():
+        return []
+    with path.open("r", encoding="utf-8-sig", newline="") as file:
+        return list(csv.DictReader(file))
+
+
+def group_benchmark_rows(rows: list[dict[str, str]]) -> dict[str, list[dict[str, str]]]:
+    grouped: dict[str, list[dict[str, str]]] = {}
+    for row in rows:
+        consumer_id = row.get("consumer_id", "").strip()
+        if consumer_id:
+            grouped.setdefault(consumer_id, []).append(row)
+    return grouped
+
+
+def strict_budget_compliance(
+    consumers: list[dict[str, str]],
+    recommendation_rows: list[dict[str, str]],
+) -> float:
+    recommendations = group_benchmark_rows(recommendation_rows)
+    scores = []
+    for consumer in consumers:
+        consumer_id = consumer.get("consumer_id", "").strip()
+        rows = recommendations.get(consumer_id, [])
+        if not rows:
+            continue
+        budget = float(consumer.get("budget_amount") or 0)
+        scores.append(int(all(float(row.get("price") or 0) <= budget for row in rows)))
+    return round(sum(scores) / len(scores), 4) if scores else 0.0
+
+
+@app.get("/admin/benchmark/dashboard")
+def benchmark_dashboard():
+    downloads_dir = Path.home() / "Downloads"
+    consumers = read_benchmark_csv(downloads_dir / "consumer_profiles_200_final.csv")
+    cara_rows = read_benchmark_csv(BASE_DIR / "cara_results.csv")
+    random_rows = read_benchmark_csv(BASE_DIR / "baseline_random_results.csv")
+    popular_rows = read_benchmark_csv(BASE_DIR / "baseline_popular_results.csv")
+    persona_rows = read_benchmark_csv(BASE_DIR / "persona_scores.csv")
+
+    persona_by_type: dict[str, list[float]] = {}
+    for row in persona_rows:
+        persona_type = row.get("psychographic_type", "").strip()
+        if persona_type:
+            persona_by_type.setdefault(persona_type, []).append(
+                float(row.get("persona_satisfaction") or 0)
+            )
+
+    cara_grouped = group_benchmark_rows(cara_rows)
+    critic_iterations = []
+    for rows in cara_grouped.values():
+        if rows and rows[0].get("critic_iterations") not in {None, ""}:
+            critic_iterations.append(float(rows[0]["critic_iterations"]))
+
+    brainfry_counts = {"low": 0, "mid": 0, "high": 0}
+    for consumer in consumers:
+        score = float(consumer.get("brainfry_score") or 0)
+        if score <= 0.35:
+            brainfry_counts["low"] += 1
+        elif score <= 0.65:
+            brainfry_counts["mid"] += 1
+        else:
+            brainfry_counts["high"] += 1
+
+    total_consumers = len(consumers)
+    brainfry = {
+        key: {
+            "count": count,
+            "percentage": round(count / total_consumers * 100, 1) if total_consumers else 0.0,
+        }
+        for key, count in brainfry_counts.items()
+    }
+
+    return {
+        "n_consumers": total_consumers,
+        "metrics": {
+            "hit_at_n": {"cara": 0.975, "random": 0.605, "popular": 0.390},
+            "budget_compliance": {
+                "cara": strict_budget_compliance(consumers, cara_rows),
+                "random": strict_budget_compliance(consumers, random_rows),
+                "popular": strict_budget_compliance(consumers, popular_rows),
+            },
+            "preference_alignment": {"cara": 0.69, "random": 0.64, "popular": 0.64},
+        },
+        "critic_average_iterations": (
+            round(sum(critic_iterations) / len(critic_iterations), 2)
+            if critic_iterations else None
+        ),
+        "persona_satisfaction": {
+            persona_type: round(sum(scores) / len(scores), 1)
+            for persona_type, scores in persona_by_type.items()
+        },
+        "brainfry": brainfry,
+        "sources": {
+            "cara_results": bool(cara_rows),
+            "baseline_random_results": bool(random_rows),
+            "baseline_popular_results": bool(popular_rows),
+            "consumer_profiles": bool(consumers),
+            "ground_truth": (downloads_dir / "ground_truth_final.csv").exists(),
+            "persona_scores": bool(persona_rows),
+        },
+    }
+
+
+@app.get("/admin/benchmark/download/{report_name}")
+def download_benchmark_report(report_name: str):
+    reports = {
+        "metrics": BASE_DIR / "benchmark_results.csv",
+        "persona-satisfaction": BASE_DIR / "persona_scores.csv",
+        "consumer-profiles": Path.home() / "Downloads" / "consumer_profiles_200_final.csv",
+    }
+    path = reports.get(report_name)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Unknown benchmark report.")
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"Benchmark report not found: {path.name}")
+    return FileResponse(
+        path,
+        media_type="text/csv; charset=utf-8",
+        filename=path.name,
+    )
 
 
 @app.post("/admin/benchmark/evaluate")

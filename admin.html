@@ -6,15 +6,19 @@
 <title>CARA Benchmark</title>
 <style>
 :root{
-  --ink:#0d253d;
-  --muted:#64748b;
-  --line:#e3e8ee;
-  --soft:#f6f9fc;
-  --primary:#533afd;
-  --primary-dark:#2e2b8c;
-  --good:#15803d;
+  --ink:#172033;
+  --muted:#667085;
+  --line:#e4e7ec;
+  --soft:#f7f8fa;
   --canvas:#fff;
-  --shadow:0 8px 24px rgba(0,55,112,.08),0 2px 6px rgba(0,55,112,.04);
+  --primary:#2563eb;
+  --primary-soft:#eff6ff;
+  --good:#15803d;
+  --random:#b45309;
+  --popular:#7c3aed;
+  --low:#16a34a;
+  --mid:#eab308;
+  --high:#ef4444;
 }
 *{box-sizing:border-box}
 body{
@@ -24,28 +28,19 @@ body{
   color:var(--ink);
   font-family:Inter,"SF Pro Display",system-ui,-apple-system,sans-serif;
 }
-button,input,select{font:inherit}
 .topbar{
   position:sticky;
   top:0;
   z-index:10;
   border-bottom:1px solid var(--line);
-  background:rgba(255,255,255,.92);
-  backdrop-filter:blur(16px);
+  background:rgba(255,255,255,.94);
+  backdrop-filter:blur(14px);
 }
-.nav{
-  max-width:1180px;
-  margin:0 auto;
-  min-height:66px;
-  padding:0 24px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-}
-.brand{display:flex;align-items:center;gap:12px}
+.nav,.page{max-width:1040px;margin:0 auto;padding-left:24px;padding-right:24px}
+.nav{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;align-items:center;gap:14px}
 .back{color:var(--muted);text-decoration:none;font-size:14px}
-h1{margin:0;font-size:20px;font-weight:650}
+h1{margin:0;font-size:20px;font-weight:700}
 .badge{
   border:1px solid #bbf7d0;
   border-radius:999px;
@@ -53,104 +48,60 @@ h1{margin:0;font-size:20px;font-weight:650}
   color:var(--good);
   padding:7px 10px;
   font-size:12px;
-  font-weight:650;
+  font-weight:700;
 }
-.page{max-width:1180px;margin:0 auto;padding:28px 24px 48px}
-.metric-strip{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.metric{
+.page{padding-top:28px;padding-bottom:48px}
+.section{
   border:1px solid var(--line);
   border-radius:8px;
   background:var(--canvas);
-  padding:14px;
-  box-shadow:var(--shadow);
+  padding:20px;
 }
-.metric strong{display:block;font-size:24px}
-.metric span{display:block;margin-top:4px;color:var(--muted);font-size:12px}
-.panel{
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:var(--canvas);
-  box-shadow:var(--shadow);
-  padding:18px;
-}
-.panel + .panel{margin-top:18px}
-.panel-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  border-bottom:1px solid var(--line);
-  padding-bottom:14px;
-  margin-bottom:16px;
-}
-.panel-title{margin:0;font-size:18px;font-weight:650}
-.form-grid{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:12px;
-}
-label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:650}
-input,select{
-  width:100%;
-  border:1px solid #a8c3de;
+.section + .section{margin-top:16px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:16px}
+.section-title{margin:0;font-size:17px;font-weight:700}
+.section-note{color:var(--muted);font-size:12px}
+.section-actions{display:flex;align-items:center;gap:10px}
+.download{
+  border:1px solid #bfdbfe;
   border-radius:6px;
   background:#fff;
-  color:var(--ink);
-  padding:10px;
-  outline:none;
-}
-input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(83,58,253,.12)}
-.actions{display:flex;gap:10px;align-items:center;margin-top:14px}
-.button{
-  border:1px solid transparent;
-  border-radius:999px;
-  background:var(--primary);
-  color:#fff;
-  padding:10px 16px;
-  cursor:pointer;
-  font-weight:650;
-}
-.button:hover{background:var(--primary-dark)}
-.button:disabled{opacity:.6;cursor:not-allowed}
-.button.ghost{background:#fff;color:var(--ink);border-color:var(--line)}
-.result-grid{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px}
-.rec-list{display:grid;gap:10px}
-.rec{
-  border:1px solid var(--line);
-  border-radius:8px;
-  background:#fff;
-  padding:12px;
-}
-.rec strong{display:block;font-size:14px}
-.rec span{display:block;margin-top:5px;color:var(--muted);font-size:12px}
-table{width:100%;border-collapse:collapse;border:1px solid var(--line);background:#fff}
-th,td{border-bottom:1px solid var(--line);padding:10px;text-align:left;font-size:13px;vertical-align:top}
-th{background:#f8fafc;color:var(--muted);font-size:12px}
-.score{text-align:center;white-space:nowrap;font-weight:650}
-.summary{
-  margin-top:12px;
-  border:1px solid #bfdbfe;
-  border-radius:8px;
-  background:#eff6ff;
   color:#1d4ed8;
-  padding:12px;
-  font-weight:650;
+  padding:7px 10px;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:700;
 }
-.empty{
-  border:1px dashed var(--line);
-  border-radius:8px;
-  background:#fff;
-  color:var(--muted);
-  padding:18px;
-  text-align:center;
-  font-size:14px;
-}
-@media (max-width:900px){
-  .result-grid{grid-template-columns:1fr}
-  .form-grid{grid-template-columns:1fr 1fr}
-}
-@media (max-width:560px){
-  .form-grid,.metric-strip{grid-template-columns:1fr}
+.download:hover{background:#eff6ff}
+table{width:100%;border-collapse:collapse;border:1px solid var(--line)}
+th,td{border-bottom:1px solid var(--line);padding:12px 14px;text-align:right;font-size:14px}
+th:first-child,td:first-child{text-align:left}
+th{background:#f9fafb;color:var(--muted);font-size:12px;font-weight:700}
+tbody tr:last-child td{border-bottom:0}
+.cara{color:var(--primary);font-weight:750}
+.random{color:var(--random);font-weight:700}
+.popular{color:var(--popular);font-weight:700}
+.support-grid{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:20px}
+.persona-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.persona-item{background:#fff;padding:12px}
+.persona-item span{display:block;color:var(--muted);font-size:12px}
+.persona-item strong{display:block;margin-top:5px;font-size:18px}
+.critic{border-left:3px solid var(--primary);background:var(--primary-soft);padding:14px}
+.critic strong{display:block;font-size:26px}
+.critic span{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.5}
+.brain-list{display:grid;gap:13px}
+.brain-row{display:grid;grid-template-columns:145px 48px 58px minmax(100px,1fr);gap:12px;align-items:center;font-size:13px}
+.brain-label{font-weight:700}
+.brain-count,.brain-percent{text-align:right;color:var(--muted)}
+.track{height:10px;overflow:hidden;border-radius:999px;background:#eef1f4}
+.bar{height:100%;border-radius:999px;transition:width .35s ease}
+.bar.low{background:var(--low)}.bar.mid{background:var(--mid)}.bar.high{background:var(--high)}
+.empty{border:1px dashed var(--line);color:var(--muted);padding:16px;text-align:center;font-size:13px}
+.error{border-color:#fecaca;background:#fef2f2;color:#b91c1c}
+@media(max-width:720px){
+  .support-grid{grid-template-columns:1fr}
+  .persona-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .brain-row{grid-template-columns:120px 42px 52px minmax(70px,1fr);gap:8px}
 }
 </style>
 </head>
@@ -158,164 +109,119 @@ th{background:#f8fafc;color:var(--muted);font-size:12px}
 <header class="topbar">
   <div class="nav">
     <div class="brand">
-      <a href="/app" class="back">&larr; 메인으로</a>
-      <h1>CARA Benchmark</h1>
+      <a href="/CARA.html" class="back">&larr; 메인으로</a>
+      <h1 id="title">CARA Benchmark</h1>
     </div>
-    <span class="badge">벤치마크 확인 전용</span>
+    <span class="badge">CSV 기반 평가</span>
   </div>
 </header>
 
 <main class="page">
-  <section class="panel">
-    <div class="panel-head">
-      <h3 class="panel-title">벤치마크 실행</h3>
-      <button class="button ghost" id="presetBtn">화장품 예시 입력</button>
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">핵심 지표</h2>
+      <div class="section-actions">
+        <span class="section-note">CARA · Random · Popular 비교</span>
+        <a class="download" href="/admin/benchmark/download/metrics" download>CSV 다운로드</a>
+      </div>
     </div>
-    <div class="form-grid">
-      <label>소비자 ID
-        <input id="benchConsumer" value="C0001" />
-      </label>
-      <label>검색어
-        <input id="benchQuery" value="스킨" />
-      </label>
-      <label>예산
-        <input id="benchBudget" type="number" value="30000" />
-      </label>
-      <label>스타일
-        <select id="benchStyle">
-          <option value="utilitarian">utilitarian</option>
-          <option value="hedonic">hedonic</option>
-        </select>
-      </label>
-      <label>페르소나
-        <select id="benchPersona">
-          <option value="utilitarian">utilitarian</option>
-          <option value="maximizer">maximizer</option>
-          <option value="value_seeker">value_seeker</option>
-          <option value="loss_averse">loss_averse</option>
-          <option value="impulsive">impulsive</option>
-          <option value="hedonic">hedonic</option>
-        </select>
-      </label>
+    <div id="metrics"><div class="empty">벤치마크 데이터를 불러오는 중입니다.</div></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">보조 지표</h2>
+      <span class="section-note">CARA 전용</span>
     </div>
-    <div class="actions">
-      <button class="button" id="runBtn">벤치마크 실행</button>
-      <span id="statusText" style="color:var(--muted);font-size:13px">대기 중</span>
+    <div class="support-grid">
+      <div>
+        <div class="section-head" style="margin-bottom:10px">
+          <div class="section-note">유형별 Persona Satisfaction (1~5점)</div>
+          <a class="download" href="/admin/benchmark/download/persona-satisfaction" download>CSV 다운로드</a>
+        </div>
+        <div id="personas"><div class="empty">Persona 점수 파일을 확인하고 있습니다.</div></div>
+      </div>
+      <div class="critic">
+        <strong id="criticAverage">-</strong>
+        <span>Critic 평균 반복 횟수<br />낮을수록 초기 추천 품질이 높습니다.</span>
+      </div>
     </div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head">
-      <h3 class="panel-title">결과</h3>
-      <span id="presentationHint" style="color:var(--muted);font-size:13px"></span>
-    </div>
-    <div class="metric-strip" style="margin-bottom:16px">
-      <div class="metric"><strong id="meanSatisfaction">-</strong><span>평균 만족도</span></div>
-      <div class="metric"><strong id="meanEase">-</strong><span>평균 결정 용이성</span></div>
-    </div>
-    <div class="result-grid">
-      <div>
-        <h4 style="margin:0 0 10px">추천 결과</h4>
-        <div class="rec-list" id="recommendations"><div class="empty">아직 실행된 벤치마크가 없습니다.</div></div>
-      </div>
-      <div>
-        <h4 style="margin:0 0 10px">페르소나 평가</h4>
-        <div id="evaluation"><div class="empty">실행 후 평가 점수가 표시됩니다.</div></div>
+  <section class="section">
+    <div class="section-head">
+      <h2 class="section-title">BrainFry 분포</h2>
+      <div class="section-actions">
+        <span class="section-note">consumer_profiles 기반</span>
+        <a class="download" href="/admin/benchmark/download/consumer-profiles" download>CSV 다운로드</a>
       </div>
     </div>
+    <div class="brain-list" id="brainfry"><div class="empty">프로필 데이터를 불러오는 중입니다.</div></div>
   </section>
 </main>
 
 <script>
-function $(id){ return document.getElementById(id); }
-function escapeHtml(value){
-  return String(value ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;')
-    .replace(/'/g,'&#039;');
+const personaOrder = ['Maximizer','ValueSeeker','LossAverse','Impulsive','Hedonic','Utilitarian'];
+function pct(value){ return `${(Number(value || 0) * 100).toFixed(1)}%`; }
+function metricRow(label, values, format){
+  return `<tr><td>${label}</td><td class="cara">${format(values.cara)}</td><td class="random">${format(values.random)}</td><td class="popular">${format(values.popular)}</td></tr>`;
 }
-function money(value){ return '₩' + Math.round(Number(value || 0)).toLocaleString('ko-KR'); }
-
-function usePreset(){
-  $('benchConsumer').value = 'C0001';
-  $('benchQuery').value = '스킨';
-  $('benchBudget').value = '30000';
-  $('benchStyle').value = 'utilitarian';
-  $('benchPersona').value = 'maximizer';
+function renderMetrics(data){
+  const metrics = data.metrics;
+  document.getElementById('metrics').innerHTML = `
+    <table>
+      <thead><tr><th>지표</th><th>CARA</th><th>Random</th><th>Popular</th></tr></thead>
+      <tbody>
+        ${metricRow('Hit@N', metrics.hit_at_n, pct)}
+        ${metricRow('예산 준수율', metrics.budget_compliance, pct)}
+        ${metricRow('선호 일치율', metrics.preference_alignment, value => Number(value || 0).toFixed(2))}
+      </tbody>
+    </table>`;
 }
-
-async function runBenchmark(){
-  const btn = $('runBtn');
-  btn.disabled = true;
-  btn.textContent = '실행 중...';
-  $('statusText').textContent = 'Planner, Executor, Critic, Persona Evaluator 실행 중';
-
-  const payload = {
-    consumer_id:$('benchConsumer').value.trim() || 'C0001',
-    query:$('benchQuery').value.trim() || '스킨',
-    budget_ceiling:Number($('benchBudget').value || 30000),
-    preferred_style:$('benchStyle').value,
-    psychographic_type:$('benchPersona').value
-  };
-
+function renderPersonas(data){
+  const root = document.getElementById('personas');
+  if(!data.sources.persona_scores){
+    root.innerHTML = '<div class="empty">persona_scores.csv가 없어 Critic 반복 횟수만 표시합니다.</div>';
+    return;
+  }
+  root.innerHTML = `<div class="persona-list">${personaOrder.map(type => `
+    <div class="persona-item"><span>${type}</span><strong>${Number(data.persona_satisfaction[type] || 0).toFixed(1)} / 5</strong></div>
+  `).join('')}</div>`;
+}
+function renderBrainfry(data){
+  const labels = [
+    ['low','LOW (B≤0.35)'],
+    ['mid','MID (0.35&lt;B≤0.65)'],
+    ['high','HIGH (B&gt;0.65)']
+  ];
+  document.getElementById('brainfry').innerHTML = labels.map(([key,label]) => {
+    const item = data.brainfry[key];
+    return `<div class="brain-row">
+      <div class="brain-label">${label}</div>
+      <div class="brain-count">${item.count}명</div>
+      <div class="brain-percent">${Number(item.percentage).toFixed(1)}%</div>
+      <div class="track"><div class="bar ${key}" style="width:${item.percentage}%"></div></div>
+    </div>`;
+  }).join('');
+}
+async function loadDashboard(){
   try{
-    const response = await fetch('/admin/benchmark/evaluate', {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json' },
-      body:JSON.stringify(payload)
-    });
-    if(!response.ok) throw new Error('benchmark failed');
+    const response = await fetch('/admin/benchmark/dashboard', { cache:'no-store' });
+    if(!response.ok) throw new Error('dashboard request failed');
     const data = await response.json();
-    renderBenchmark(data);
-    $('statusText').textContent = '완료';
-  } catch(error){
+    document.getElementById('title').textContent = `CARA Benchmark (n=${data.n_consumers})`;
+    document.getElementById('criticAverage').textContent = data.critic_average_iterations === null
+      ? '데이터 없음'
+      : `${Number(data.critic_average_iterations).toFixed(1)}회`;
+    renderMetrics(data);
+    renderPersonas(data);
+    renderBrainfry(data);
+  }catch(error){
     console.error(error);
-    $('statusText').textContent = '실패: 서버 로그를 확인하세요';
-  } finally{
-    btn.disabled = false;
-    btn.textContent = '벤치마크 실행';
+    document.getElementById('metrics').innerHTML = '<div class="empty error">대시보드 데이터를 불러오지 못했습니다.</div>';
   }
 }
-
-function renderBenchmark(data){
-  $('meanSatisfaction').textContent = `${Number(data.mean_satisfaction || 0).toFixed(2)} / 5`;
-  $('meanEase').textContent = `${Number(data.mean_decision_ease || 0).toFixed(2)} / 5`;
-  $('presentationHint').textContent = data.presentation_hint || '';
-
-  $('recommendations').innerHTML = (data.recommendations || []).map(product => `
-    <article class="rec">
-      <strong>${escapeHtml(product.name)}</strong>
-      <span>${escapeHtml(product.category || product.subcategory || '-')} · ${money(product.price)} · Rating ${Number(product.rating || product.star_rating || 0).toFixed(1)}</span>
-      <span>RAG ${product.RAG_score !== undefined && product.RAG_score !== null ? Number(product.RAG_score).toFixed(2) : '-'}</span>
-    </article>`).join('') || '<div class="empty">추천 결과가 없습니다.</div>';
-
-  const rows = Object.entries(data.persona_evaluation || {}).map(([persona, scores]) => `
-    <tr>
-      <td><strong>${escapeHtml(persona)}</strong></td>
-      <td class="score">${escapeHtml(scores.persona_satisfaction_score)} / 5</td>
-      <td class="score">${escapeHtml(scores.decision_ease_score)} / 5</td>
-      <td>${escapeHtml(scores.reasoning)}</td>
-    </tr>`).join('');
-
-  $('evaluation').innerHTML = `
-    <table>
-      <thead>
-        <tr>
-          <th>페르소나</th>
-          <th>만족도</th>
-          <th>결정 용이성</th>
-          <th>AI 평가</th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="summary">전체 평균 만족도 ${Number(data.mean_satisfaction || 0).toFixed(2)} / 5 · 결정 용이성 ${Number(data.mean_decision_ease || 0).toFixed(2)} / 5</div>`;
-}
-
-$('presetBtn').onclick = usePreset;
-$('runBtn').onclick = runBenchmark;
+loadDashboard();
 </script>
 </body>
 </html>

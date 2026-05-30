@@ -41,6 +41,8 @@ class ProductToolClient:
         max_price: float | None = None,
         style_type: str | None = None,
         category: str | None = None,
+        skin_type: str | None = None,
+        use_vector_search: bool = True,
     ) -> list[dict[str, Any]]:
         """
         Call the search_products tool to create first-stage candidates.
@@ -50,6 +52,8 @@ class ProductToolClient:
             max_price: Budget ceiling inferred by the Planner.
             style_type: Preferred style inferred by the Planner.
             category: Optional category constraint.
+            skin_type: Optional skin type constraint.
+            use_vector_search: Whether to call remote vector embeddings.
 
         Returns:
             A list of candidate product dictionaries from the FastAPI tool.
@@ -61,6 +65,10 @@ class ProductToolClient:
             params["style_type"] = style_type
         if category is not None:
             params["category"] = category
+        if skin_type is not None:
+            params["skin_type"] = skin_type
+        if not use_vector_search:
+            params["use_vector_search"] = "false"
 
         payload = self._get_json("/products/search", params)
         return list(payload.get("products", []))
@@ -136,12 +144,16 @@ class ExecutorAgent:
         budget_ceiling = self._optional_float(plan.get("budget_ceiling"))
         preferred_style = plan.get("preferred_style")
         top_category = plan.get("top_category")
+        skin_type = plan.get("skin_type")
+        use_vector_search = bool(plan.get("use_vector_search", True))
 
         candidates = self.product_client.search_products(
             query=query,
             max_price=budget_ceiling,
             style_type=preferred_style,
             category=None,
+            skin_type=skin_type,
+            use_vector_search=use_vector_search,
         )
         fallback_used = False
 
