@@ -14,7 +14,7 @@ from urllib.request import Request, urlopen
 BASE_DIR = Path(__file__).resolve().parent
 DEFAULT_CONSUMERS = Path.home() / "Downloads" / "consumer_profiles_200_final.csv"
 DEFAULT_GROUND_TRUTH = Path.home() / "Downloads" / "ground_truth_final.csv"
-DEFAULT_DB = Path(os.getenv("DB_PATH", "./cara.db"))
+DEFAULT_DB = Path(os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db")))
 
 TYPE_ORDER = ["Maximizer", "ValueSeeker", "LossAverse", "Impulsive", "Hedonic", "Utilitarian"]
 

@@ -47,7 +47,7 @@ from vector_search import ensure_embedding_column, lexical_rag_rerank_rows, rag_
 
 BASE_DIR = Path(__file__).resolve().parent
 CONSUMERS_PATH = BASE_DIR / "consumers.json"
-CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
+CARA_DB_PATH = Path(os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db")))
 
 BudgetLevel = Literal["low", "mid", "high"]
 

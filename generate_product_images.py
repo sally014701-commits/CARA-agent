@@ -26,7 +26,8 @@ from PIL import Image, ImageDraw, ImageFilter
 CANVAS_SIZE = 1024
 PRODUCT_BOX = (188, 164, 836, 760)
 OUTPUT_DIR = Path("assets/products")
-CARA_DB_PATH = Path(os.getenv("DB_PATH", "./cara.db"))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+CARA_DB_PATH = Path(os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db")))
 
 Color = tuple[int, int, int, int]
 DrawFn = Callable[[ImageDraw.ImageDraw, "Palette"], None]

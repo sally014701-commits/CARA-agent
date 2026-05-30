@@ -23,7 +23,8 @@ if not VOYAGE_API_KEY:
 
 client = voyageai.Client(api_key=VOYAGE_API_KEY)
 
-DB_PATH = os.getenv("DB_PATH", "./cara.db")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.environ.get("DB_PATH", os.path.join(BASE_DIR, "cara.db"))
 BATCH_SIZE = 5
 BATCH_DELAY = 21   # 3 RPM free tier: 1 req per 20s
 RETRY_DELAY = 30
