@@ -36,6 +36,55 @@ http://127.0.0.1:8000/admin.html
 1-7 CARA picks
 ```
 
+## 아키텍처와 데이터 흐름
+
+아래 도표는 사용자의 탐색 행동과 대화 조건이 최종 추천으로 이어지는 흐름을 보여 줍니다.
+
+```mermaid
+flowchart LR
+    subgraph UI["사용자 화면"]
+        Browse["카테고리 탐색<br/>상품 상세 · 스크롤 · 검색"]
+        Chat["채팅창<br/>예산 · 카테고리 · 피부 타입 · 선호"]
+        Result["최종 추천 화면<br/>1-7 CARA picks"]
+        Dashboard["Live agent dashboard<br/>BrainFry · 에이전트 상태"]
+    end
+
+    subgraph API["FastAPI 서버"]
+        Tracker["행동 이벤트 수집"]
+        BF["BrainFry Detector<br/>최근 3분 탐색 행동 분석"]
+        Intent["User Intent Agent<br/>Conversation Agent"]
+        Search["Product Search Agent<br/>조건 필터링 · RAG 재정렬"]
+        Simplifier["Decision Simplifier<br/>추천 개수 조절"]
+        Critic["Critic Agent<br/>예산 · 평점 · 다양성 점검"]
+        Psychology["Psychology Agent<br/>향후 구현 예정"]
+    end
+
+    subgraph Data["데이터와 모델"]
+        Catalog[("cara.db<br/>상품 500개 · 임베딩")]
+        Voyage["Voyage AI API<br/>검색 문장 임베딩 생성"]
+        Profiles[("consumer_profiles_200_final.csv<br/>ground_truth_final.csv<br/>벤치마크 데이터")]
+    end
+
+    Browse --> Tracker --> BF
+    Chat --> Intent --> Search
+    BF --> Simplifier
+    Search --> Simplifier --> Critic --> Result
+    Catalog --> Search
+    Voyage --> Search
+    BF --> Dashboard
+    Intent --> Dashboard
+    Search --> Dashboard
+    Simplifier --> Dashboard
+    Critic --> Dashboard
+    Profiles -. 벤치마크 평가 .-> API
+    Psychology -. 향후 연결 .-> Intent
+
+    classDef planned stroke-dasharray: 5 5,fill:#f8f8f8,color:#666;
+    class Psychology planned;
+```
+
+핵심 추천 흐름은 `탐색 행동 수집 → BrainFry 계산 → 대화 조건 확인 → 상품 검색 및 RAG 재정렬 → 추천 개수 조절 → 품질 점검` 순서입니다. `consumer_profiles_200_final.csv`와 `ground_truth_final.csv`는 운영 중 실시간 추천이 아니라 벤치마크 평가에 사용됩니다.
+
 ## 사용자 경험 흐름
 
 1. 사용자가 여러 카테고리와 상품 상세 페이지를 탐색합니다.
@@ -152,10 +201,23 @@ RAG_score =
 
 | 항목 | 의미 |
 |---|---|
-| `semantic_similarity` | 검색 문장과 상품 임베딩의 코사인 유사도입니다. |
+| `semantic_similarity` (`S`) | Voyage AI로 생성한 검색 문장 벡터와 상품 임베딩의 코사인 유사도입니다. |
 | `style_match` | 상품의 스타일이 사용자의 선호 스타일과 일치하는지 확인합니다. |
 | `price_score` | 상품 가격이 사용자의 예산에 얼마나 가까운지 반영합니다. |
 | `star_rating` | 상품 평점을 반영합니다. |
+
+### 의미 유사도 S 계산
+
+`S`는 단순한 키워드 포함 여부가 아니라 외부 임베딩 모델을 활용한 의미 유사도입니다. 상품명, 브랜드, 키워드로 미리 생성한 상품 임베딩은 `cara.db`에 저장되어 있습니다. 사용자가 검색하면 CARA는 Voyage AI API를 호출해 검색 문장의 임베딩을 실시간으로 생성하고, 후보 상품 벡터와의 코사인 유사도를 계산합니다.
+
+```text
+query_vector   = VoyageAI.embed(user_query)
+product_vector = cara.db.products.embedding
+
+S = cosine_similarity(query_vector, product_vector)
+```
+
+현재 실시간 검색 벡터는 Voyage AI의 `voyage-large-2` 모델을 사용합니다. 외부 API 호출에 실패하거나 저장된 상품 임베딩이 없는 경우에는 검색어와 상품 정보의 키워드 일치율을 활용한 fallback 유사도를 적용합니다.
 
 예를 들어 `비타민C 마스크팩`을 검색하면, 해당 상품은 다른 마스크팩보다 높은 의미 유사도를 받습니다. 예산과 스타일 조건을 함께 입력하면 같은 가격대 후보 중 더 적합한 상품이 상단에 배치됩니다.
 
