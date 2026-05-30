@@ -1163,7 +1163,7 @@ let latestBehavioralScore = 0;
 let latestBehavioralLevel = 'LOW';
 let latestBehavioralN = 7;
 const persistentLiveAgents = {
-  'Psychology Agent': { status:'done', output:{ status:'always active' } }
+  'User Intent Agent': { status:'done', output:{ status:'always active' } }
 };
 const LIVE_AGENTS = [
   'User Intent Agent',
@@ -1320,6 +1320,9 @@ function applyBehavioralScore(score, level){
     brainfry_level:latestBehavioralLevel,
     recommendation_count:latestBehavioralN
   });
+  activateLiveAgent('Psychology Agent', 'done', {
+    preferred_style:state.style
+  });
 }
 function renderTracking(){
   const data = readTracking();
@@ -1404,7 +1407,7 @@ function setLiveAgent(agentName, status='waiting', output=null){
   el.querySelector('.live-agent-output').textContent = summarizeAgentOutput(output);
 }
 function activateLiveAgent(agentName, status='done', output=null){
-  if(agentName === 'BrainFry Detector' && !measurementReady()) return;
+  if(['BrainFry Detector', 'Psychology Agent'].includes(agentName) && !measurementReady()) return;
   persistentLiveAgents[agentName] = { status, output };
   setLiveAgent(agentName, status, output);
 }
