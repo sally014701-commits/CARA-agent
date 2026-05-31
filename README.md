@@ -376,3 +376,7 @@ VOYAGE_API_KEY
 - 실시간 의미 검색에는 Voyage AI API 키가 필요합니다.
 - SQLite 파일은 Render 재배포 또는 재시작 시 초기 상태로 돌아갈 수 있습니다. 장기 보존이 필요하면 외부 DB 또는 Persistent Disk 구성이 필요합니다.
 - 이 프로젝트는 연구 및 시연 목적의 프로토타입입니다.
+
+## References
+
+The full list of academic references used in this project is available in [`docs/references.md`](docs/references.md).
